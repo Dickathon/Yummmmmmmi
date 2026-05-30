@@ -7,25 +7,25 @@
 
   function getCapAssetBase() {
     var tb = root.config && root.config.turntable;
-    return (tb && tb.capAssetsBase) || "wmx-temporary/转盘/assets/cats/";
+    return (tb && tb.capAssetsBase) || "wmx-temporary/compressed/10kb/转盘/assets/cats/";
   }
 
   function getCapSideImages() {
     var base = getCapAssetBase();
     return [
-      base + "IMG_20260530_125819.jpg",
-      base + "IMG_20260530_125904.jpg",
-      base + "IMG_20260530_125935.jpg",
-      base + "IMG_20260530_125618.jpg",
-      base + "IMG_20260530_125748.jpg",
-      base + "IMG_20260530_125756.jpg",
-      base + "IMG_20260530_125605.jpg",
-      base + "IMG_20260530_125740.jpg"
+      base + "IMG_20260530_125819-10kb.webp",
+      base + "IMG_20260530_125904-10kb.webp",
+      base + "IMG_20260530_125935-10kb.webp",
+      base + "IMG_20260530_125618-10kb.webp",
+      base + "IMG_20260530_125748-10kb.webp",
+      base + "IMG_20260530_125756-10kb.webp",
+      base + "IMG_20260530_125605-10kb.webp",
+      base + "IMG_20260530_125740-10kb.webp"
     ];
   }
 
   function getCapTopTexture() {
-    return getCapAssetBase() + "top-texture-cat.jpg";
+    return getCapAssetBase() + "top-texture-cat-10kb.webp";
   }
 
   var PLACARD_TAP_THRESHOLD_SQ = 400;

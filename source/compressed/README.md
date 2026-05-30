@@ -14,6 +14,9 @@ compressed/
     food1/
     food2/
     food3/
+    shop/       ← 街区店铺图标（social-map）
+    CatImage/   ← 店铺内小猫装饰（shop.js）
+    cat2-10kb.webp  ← 地图「最近去过」标记猫
   20kb/
     food1/
     food2/

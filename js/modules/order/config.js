@@ -51,7 +51,7 @@
         top: { x: 0, y: 7, scale: 1.43, heightScale: 1, baseRx: 72, baseRy: 19, baseCy: 148 },
         cap: { x: 0, y: -14, scale: 1.18, heightScale: 1.4, baseRx: 48, baseRy: 13, baseCy: 102 }
       },
-      capAssetsBase: "wmx-temporary/转盘/assets/cats/"
+      capAssetsBase: "wmx-temporary/compressed/10kb/转盘/assets/cats/"
     }
   };
 })(typeof window !== "undefined" ? window : this);

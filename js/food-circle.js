@@ -8,28 +8,28 @@
 
   // 店铺文件名 → SVG 文件名映射（与 shop.js 保持一致）
   function getSvgFile(shopFile) {
-    var name = shopFile.replace(/^shop_/, "").replace(/\.png$/, "");
+    var name = shopFile.replace(/^shop_/, "").replace(/-10kb\.webp$/, "").replace(/\.png$/, "");
     return SVG_BASE + "interior_" + name + ".svg";
   }
 
   // 店铺数据（仅用于映射 SVG）
   var SHOPS = [
-    { file: "shop_starbucks.png" },
-    { file: "shop_mcdonalds.png" },
-    { file: "shop_heytea.png" },
-    { file: "shop_kfc.png" },
-    { file: "shop_haidilao.png" },
-    { file: "shop_mixue.png" },
-    { file: "shop_luckin.png" },
-    { file: "shop_burgerking.png" },
-    { file: "shop_chapanda.png" },
-    { file: "shop_pizzahut.png" },
-    { file: "shop_nayuki.png" },
-    { file: "shop_subway.png" },
-    { file: "shop_alittle_tea.png" },
-    { file: "shop_auntea.png" },
-    { file: "shop_goodme.png" },
-    { file: "shop_laoxiangji.png" }
+    { file: "shop_starbucks-10kb.webp" },
+    { file: "shop_mcdonalds-10kb.webp" },
+    { file: "shop_heytea-10kb.webp" },
+    { file: "shop_kfc-10kb.webp" },
+    { file: "shop_haidilao-10kb.webp" },
+    { file: "shop_mixue-10kb.webp" },
+    { file: "shop_luckin-10kb.webp" },
+    { file: "shop_burgerking-10kb.webp" },
+    { file: "shop_chapanda-10kb.webp" },
+    { file: "shop_pizzahut-10kb.webp" },
+    { file: "shop_nayuki-10kb.webp" },
+    { file: "shop_subway-10kb.webp" },
+    { file: "shop_alittle_tea-10kb.webp" },
+    { file: "shop_auntea-10kb.webp" },
+    { file: "shop_goodme-10kb.webp" },
+    { file: "shop_laoxiangji-10kb.webp" }
   ];
 
   // 虚构消息数据
