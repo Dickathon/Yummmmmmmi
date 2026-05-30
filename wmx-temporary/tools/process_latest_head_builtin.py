@@ -162,7 +162,7 @@ def main() -> None:
     latest = source_file if source_file is not None else newest_png(generated_images_dir)
     raw_path = raw_dir / f"{args.slug}_head_raw.png"
     final_path = final_dir / f"{args.slug}_head_final.png"
-    destination = pictures_dir / f"{args.food}_头部.png"
+    destination = pictures_dir / f"{args.food}-头部.png"
 
     shutil.copy2(latest, raw_path)
 

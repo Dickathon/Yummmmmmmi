@@ -106,7 +106,7 @@ def main() -> None:
 
     raw_path = tmp_dir / f"{args.food}_四肢_cyan_raw.png"
     transparent_path = tmp_dir / f"{args.food}_四肢_decor.png"
-    final_path = pictures_dir / f"{args.food}_四肢.png"
+    final_path = pictures_dir / f"{args.food}-四肢.png"
 
     shutil.copy2(source, raw_path)
     run_remove_chroma(remove_script, raw_path, transparent_path)

@@ -230,7 +230,7 @@ function main() {
   for (const theme of targets) {
     const png = renderBlanket(anchor.ellipse, theme);
     const rawPath = path.join(TMP_DIR, `${theme.name}_毯子_raw.png`);
-    const outPath = path.join(OUT_DIR, `${theme.name}_毯子.png`);
+    const outPath = path.join(OUT_DIR, `${theme.name}-毯子.png`);
     savePng(png, rawPath);
     savePng(png, outPath);
     const report = validateBlanket(outPath);

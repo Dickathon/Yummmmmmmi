@@ -123,9 +123,9 @@ async function main() {
 
   for (const food of EXPECTED) {
     const raw = findRaw(food);
-    const out = join(OUT_DIR, `${food}_四肢.png`);
+    const out = join(OUT_DIR, `${food}-四肢.png`);
     if (!raw) {
-      console.log(`FAIL ${food}_四肢.png  missing raw`);
+      console.log(`FAIL ${food}-四肢.png  missing raw`);
       fail += 1;
       continue;
     }
@@ -134,7 +134,7 @@ async function main() {
       encoding: "utf8",
     });
     if (result.status !== 0) {
-      console.log(`FAIL ${food}_四肢.png  normalize error`);
+      console.log(`FAIL ${food}-四肢.png  normalize error`);
       if (result.stderr) console.log(result.stderr.trim());
       fail += 1;
       continue;
@@ -142,7 +142,7 @@ async function main() {
 
     const check = await validate(refMeta, out);
     const status = check.passed ? "PASS" : "FAIL";
-    console.log(`${status} ${food}_四肢.png  max_inward=${check.maxInward ?? "n/a"}`);
+    console.log(`${status} ${food}-四肢.png  max_inward=${check.maxInward ?? "n/a"}`);
     if (!check.passed) {
       check.reasons.forEach((r) => console.log(`  reason: ${r}`));
       fail += 1;

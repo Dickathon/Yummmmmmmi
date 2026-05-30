@@ -10,7 +10,13 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PICTURES_DIR = path.resolve(__dirname, "../装扮/pictures");
 
+// Support both the new hyphenated final names and the legacy underscore names.
 const SUFFIX_TO_FOLDER = {
+  "-躯干.png": "躯干",
+  "-头部.png": "头部",
+  "-四肢.png": "四肢",
+  "-尾巴.png": "尾巴",
+  "-毯子.png": "毯子",
   "_躯干.png": "躯干",
   "_头部.png": "头部",
   "_四肢.png": "四肢",

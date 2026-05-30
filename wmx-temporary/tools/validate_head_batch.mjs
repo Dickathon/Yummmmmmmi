@@ -8,16 +8,16 @@ const ROOT = resolve(import.meta.dirname, "..");
 const PICTURES = join(ROOT, "装扮", "pictures", "头部");
 const REF = join(ROOT, "装扮", "pictures", "标准底图", "head_1254.png");
 const EXPECTED = [
-  "北京烤鸭_头部.png",
-  "蒸螃蟹_头部.png",
-  "剁椒鱼头_头部.png",
-  "胡辣汤_头部.png",
-  "螺蛳粉_头部.png",
-  "酸菜鱼_头部.png",
-  "披萨_头部.png",
-  "汉堡_头部.png",
-  "鹅肝_头部.png",
-  "臭豆腐_头部.png",
+  "北京烤鸭-头部.png",
+  "蒸螃蟹-头部.png",
+  "剁椒鱼头-头部.png",
+  "胡辣汤-头部.png",
+  "螺蛳粉-头部.png",
+  "酸菜鱼-头部.png",
+  "披萨-头部.png",
+  "汉堡-头部.png",
+  "鹅肝-头部.png",
+  "臭豆腐-头部.png",
 ];
 
 const ALPHA_THRESHOLD = 12;

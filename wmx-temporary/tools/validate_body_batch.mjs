@@ -8,17 +8,17 @@ const ROOT = resolve(import.meta.dirname, "..");
 const PICTURES = join(ROOT, "装扮", "pictures", "躯干");
 const REF = join(ROOT, "装扮", "pictures", "标准底图", "body_1254.png");
 const EXPECTED = [
-  "小鸡炖蘑菇_躯干.png",
-  "红烧肉_躯干.png",
-  "烧鹅_躯干.png",
-  "火锅_躯干.png",
-  "羊肉泡馍_躯干.png",
-  "大盘鸡_躯干.png",
-  "牛排_躯干.png",
-  "蔬菜沙拉_躯干.png",
-  "石锅拌饭_躯干.png",
-  "冬阴功汤_躯干.png",
-  "咖喱饭_躯干.png",
+  "小鸡炖蘑菇-躯干.png",
+  "红烧肉-躯干.png",
+  "烧鹅-躯干.png",
+  "火锅-躯干.png",
+  "羊肉泡馍-躯干.png",
+  "大盘鸡-躯干.png",
+  "牛排-躯干.png",
+  "蔬菜沙拉-躯干.png",
+  "石锅拌饭-躯干.png",
+  "冬阴功汤-躯干.png",
+  "咖喱饭-躯干.png",
 ];
 
 const ALPHA_THRESHOLD = 12;
