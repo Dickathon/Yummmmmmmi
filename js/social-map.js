@@ -78,6 +78,59 @@
       html += '<span class="map-crossroad" style="top:' + pos.top + ';left:' + pos.left + ';transform:translate(-50%,-50%)" aria-hidden="true"></span>';
     });
 
+    // 路灯 — 分布在道路段中间，避开十字路口（12盏）
+    var lampPositions = [
+      // 横向道路1 上侧 — 3段道路中间
+      { top: "28%", left: "20%" }, { top: "28%", left: "50%" }, { top: "28%", left: "80%" },
+      // 横向道路2 下侧 — 3段道路中间
+      { top: "72%", left: "20%" }, { top: "72%", left: "50%" }, { top: "72%", left: "80%" },
+      // 纵向道路1 左侧 — 3段道路中间
+      { top: "20%", left: "30%" }, { top: "50%", left: "30%" }, { top: "80%", left: "30%" },
+      // 纵向道路2 右侧 — 3段道路中间
+      { top: "20%", left: "70%" }, { top: "50%", left: "70%" }, { top: "80%", left: "70%" }
+    ];
+    lampPositions.forEach(function (pos) {
+      html += '<span class="map-lamp" style="top:' + pos.top + ';left:' + pos.left + ';transform:translate(-50%,-50%)" aria-hidden="true"></span>';
+    });
+
+    // 斑马线 — 每个十字路口4组（16组）
+    var zebras = [
+      // 路口1 (34%, 34%)
+      { top: "30%", left: "34%", cls: "map-zebra-hroad" },
+      { top: "38%", left: "34%", cls: "map-zebra-hroad" },
+      { top: "34%", left: "30%", cls: "map-zebra-vroad" },
+      { top: "34%", left: "38%", cls: "map-zebra-vroad" },
+      // 路口2 (34%, 66%)
+      { top: "30%", left: "66%", cls: "map-zebra-hroad" },
+      { top: "38%", left: "66%", cls: "map-zebra-hroad" },
+      { top: "34%", left: "62%", cls: "map-zebra-vroad" },
+      { top: "34%", left: "70%", cls: "map-zebra-vroad" },
+      // 路口3 (66%, 34%)
+      { top: "62%", left: "34%", cls: "map-zebra-hroad" },
+      { top: "70%", left: "34%", cls: "map-zebra-hroad" },
+      { top: "66%", left: "30%", cls: "map-zebra-vroad" },
+      { top: "66%", left: "38%", cls: "map-zebra-vroad" },
+      // 路口4 (66%, 66%)
+      { top: "62%", left: "66%", cls: "map-zebra-hroad" },
+      { top: "70%", left: "66%", cls: "map-zebra-hroad" },
+      { top: "66%", left: "62%", cls: "map-zebra-vroad" },
+      { top: "66%", left: "70%", cls: "map-zebra-vroad" }
+    ];
+    zebras.forEach(function (z) {
+      html += '<span class="' + z.cls + '" style="top:' + z.top + ';left:' + z.left + ';transform:translate(-50%,-50%)" aria-hidden="true"></span>';
+    });
+
+    // 车辆 — 4辆，分布在横纵道路上，带移动动画
+    var cars = [
+      { top: "33%", left: "50%", cls: "map-car--right", color: "#f4e1e1" },
+      { top: "66%", left: "40%", cls: "map-car--left", color: "#8fbc8f" },
+      { top: "40%", left: "33%", cls: "map-car--down", color: "#9caf88" },
+      { top: "60%", left: "66%", cls: "map-car--up", color: "#c4a882" }
+    ];
+    cars.forEach(function (car) {
+      html += '<span class="map-car ' + car.cls + '" style="top:' + car.top + ';left:' + car.left + ';background:' + car.color + '" aria-hidden="true"></span>';
+    });
+
     container.innerHTML = html;
   }
 
@@ -89,6 +142,7 @@
     var name = document.getElementById("mapPreviewName");
     var tag = document.getElementById("mapPreviewTag");
     var desc = document.getElementById("mapPreviewDesc");
+    var enterBtn = document.getElementById("mapPreviewEnter");
     var street = document.getElementById("mapStreet");
 
     if (!preview || !street) return;
@@ -102,6 +156,9 @@
       name.textContent = shop.name;
       tag.textContent = shop.tag;
       desc.textContent = shop.desc;
+
+      // 预留：将当前店铺索引绑定到按钮，供后续跳转使用
+      if (enterBtn) enterBtn.setAttribute("data-shop-index", index);
 
       preview.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
@@ -121,6 +178,16 @@
 
     if (overlay) overlay.addEventListener("click", close);
     if (closeBtn) closeBtn.addEventListener("click", close);
+
+    // 进入店铺按钮 — 功能预留，待店铺界面完成后实现跳转
+    if (enterBtn) {
+      enterBtn.addEventListener("click", function () {
+        var index = parseInt(enterBtn.getAttribute("data-shop-index"), 10);
+        var shop = SHOPS[index];
+        // TODO: 店铺界面设计完成后，在此处实现跳转逻辑
+        console.log("[预留] 进入店铺:", shop ? shop.name : "unknown", "index:", index);
+      });
+    }
 
     // 点按 ESC 关闭
     document.addEventListener("keydown", function (e) {
