@@ -176,20 +176,8 @@ function formatNumber(value) {
         ].join(" ");
       }
 
-      function createUpperSideHitPath(geometry) {
-        var left = geometry.cx - geometry.rx;
-        var right = geometry.cx + geometry.rx;
-        var top = geometry.cy;
-        var middle = geometry.cy + (geometry.height * 0.56);
-
-        return [
-          "M", formatNumber(left), formatNumber(top),
-          "L", formatNumber(left), formatNumber(middle),
-          "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 0, formatNumber(right), formatNumber(middle),
-          "L", formatNumber(right), formatNumber(top),
-          "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 1, formatNumber(left), formatNumber(top),
-          "Z"
-        ].join(" ");
+      function createSideHitPath(geometry) {
+        return createSidePath(geometry);
       }
 
       function createFrontArcPath(cx, cy, rx, ry) {
@@ -574,7 +562,7 @@ function renderCapSideImageBands(disc, geometry) {
               '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
                 '<path class="turntable-hit" data-hit="' + disc.id + '" d="' + createRingPath(geometry.rx, geometry.hitInnerRadius) + '" fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
               "</g>" +
-              '<path class="turntable-hit-side" data-hit-side="' + disc.id + '" d="' + createUpperSideHitPath(geometry) + '" fill="rgba(255,255,255,0.001)"></path>' +
+              '<path class="turntable-hit-side" data-hit-side="' + disc.id + '" d="' + createSideHitPath(geometry) + '" fill="rgba(255,255,255,0.001)"></path>' +
             "</g>";
         });
 
@@ -680,6 +668,10 @@ function renderCapSideImageBands(disc, geometry) {
 
         runtime.selectionCount.textContent = "已选 " + count + " 道";
 
+        if (runtime.selectionConfirm) {
+          runtime.selectionConfirm.hidden = count === 0;
+        }
+
         if (runtime.selectionClear) {
           runtime.selectionClear.hidden = count === 0;
         }
@@ -689,6 +681,66 @@ function renderCapSideImageBands(disc, geometry) {
         }
 
         renderSelectionStrip(names);
+      }
+
+      function renderConfirmPetPreview(petAppearance) {
+        var placeholder = petAppearance && petAppearance.placeholder;
+        var label = placeholder && placeholder.label ? placeholder.label : "";
+        var message = placeholder && placeholder.message ? placeholder.message : "宠物形象即将呈现";
+
+        return (
+          '<div class="order-confirm-modal__pet-frame" aria-hidden="false">' +
+            '<div class="order-confirm-modal__pet-placeholder">' +
+              '<span class="order-confirm-modal__pet-icon" aria-hidden="true">🐾</span>' +
+            "</div>" +
+            '<p class="order-confirm-modal__pet-label">' + util.escapeHtml(label) + "</p>" +
+            '<p class="order-confirm-modal__pet-hint">' + util.escapeHtml(message) + "</p>" +
+          "</div>"
+        );
+      }
+
+      function openConfirmModal(result) {
+        var pet = result.petAppearance;
+
+        if (!runtime.confirmModal || !pet || !pet.ok) {
+          return;
+        }
+
+        if (runtime.confirmPet) {
+          runtime.confirmPet.innerHTML = renderConfirmPetPreview(pet);
+        }
+
+        if (runtime.confirmFood) {
+          runtime.confirmFood.textContent = "第一选择：" + result.primaryFood;
+        }
+
+        runtime.confirmModal.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeConfirmModal() {
+        if (!runtime.confirmModal) {
+          return;
+        }
+        runtime.confirmModal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = "";
+      }
+
+      function handleConfirmSelection(event) {
+        var sel = global.Yummi && global.Yummi.foodSelection;
+        var result;
+
+        event.stopPropagation();
+        if (!sel) {
+          return;
+        }
+
+        result = sel.confirm();
+        if (!result.ok) {
+          return;
+        }
+
+        openConfirmModal(result);
       }
 
       function handlePlacardSelect(slotNode) {
@@ -896,13 +948,27 @@ function renderCapSideImageBands(disc, geometry) {
           '<div class="order-selection-panel" data-order-selection-panel>' +
             '<div class="order-selection-panel__head">' +
               '<span class="order-selection-panel__count" data-order-selection-count>已选 0 道</span>' +
-              '<button type="button" class="order-selection-panel__clear" data-order-selection-clear hidden>清空</button>' +
+              '<div class="order-selection-panel__actions">' +
+                '<button type="button" class="order-selection-panel__confirm" data-order-selection-confirm hidden>确定</button>' +
+                '<button type="button" class="order-selection-panel__clear" data-order-selection-clear hidden>清空</button>' +
+              "</div>" +
             "</div>" +
             '<div class="order-selection-panel__scroll" data-order-selection-scroll hidden>' +
               '<div class="order-selection-strip" data-order-selection-strip role="list"></div>' +
             "</div>" +
           "</div>" +
         "</aside>" +
+        '<div class="order-confirm-modal" data-order-confirm-modal aria-hidden="true">' +
+          '<div class="order-confirm-modal__overlay" data-order-confirm-overlay></div>' +
+          '<div class="order-confirm-modal__card" role="dialog" aria-modal="true" aria-labelledby="order-confirm-title">' +
+            '<button type="button" class="order-confirm-modal__close" data-order-confirm-close aria-label="关闭">' +
+              '<span aria-hidden="true">×</span>' +
+            "</button>" +
+            '<h2 class="order-confirm-modal__title" id="order-confirm-title">你的宠物</h2>' +
+            '<div class="order-confirm-modal__pet" data-order-confirm-pet></div>' +
+            '<p class="order-confirm-modal__food" data-order-confirm-food></p>' +
+          "</div>" +
+        "</div>" +
       "</div>"
     );
   }
@@ -928,9 +994,15 @@ function renderCapSideImageBands(disc, geometry) {
     var stage = container.querySelector("[data-order-stage]");
     var svg = container.querySelector("[data-order-svg]");
     var selectionCount = container.querySelector("[data-order-selection-count]");
+    var selectionConfirm = container.querySelector("[data-order-selection-confirm]");
     var selectionClear = container.querySelector("[data-order-selection-clear]");
     var selectionScroll = container.querySelector("[data-order-selection-scroll]");
     var selectionStrip = container.querySelector("[data-order-selection-strip]");
+    var confirmModal = container.querySelector("[data-order-confirm-modal]");
+    var confirmOverlay = container.querySelector("[data-order-confirm-overlay]");
+    var confirmClose = container.querySelector("[data-order-confirm-close]");
+    var confirmPet = container.querySelector("[data-order-confirm-pet]");
+    var confirmFood = container.querySelector("[data-order-confirm-food]");
     var unbinds = [];
 
     runtime = {
@@ -940,9 +1012,15 @@ function renderCapSideImageBands(disc, geometry) {
       stage: stage,
       svg: svg,
       selectionCount: selectionCount,
+      selectionConfirm: selectionConfirm,
       selectionClear: selectionClear,
       selectionScroll: selectionScroll,
       selectionStrip: selectionStrip,
+      confirmModal: confirmModal,
+      confirmOverlay: confirmOverlay,
+      confirmClose: confirmClose,
+      confirmPet: confirmPet,
+      confirmFood: confirmFood,
       rotors: {},
       sideColorGroups: {},
       sideRotors: {},
@@ -985,6 +1063,10 @@ function renderCapSideImageBands(disc, geometry) {
       }));
     }
 
+    if (selectionConfirm) {
+      unbinds.push(util.on(selectionConfirm, "click", handleConfirmSelection));
+    }
+
     if (selectionClear) {
       unbinds.push(util.on(selectionClear, "click", function (event) {
         var sel = global.Yummi && global.Yummi.foodSelection;
@@ -998,11 +1080,20 @@ function renderCapSideImageBands(disc, geometry) {
       }));
     }
 
+    if (confirmOverlay) {
+      unbinds.push(util.on(confirmOverlay, "click", closeConfirmModal));
+    }
+
+    if (confirmClose) {
+      unbinds.push(util.on(confirmClose, "click", closeConfirmModal));
+    }
+
     startAnimation();
   }
 
   function unbind() {
     if (!runtime) return;
+    closeConfirmModal();
     stopAnimation();
     runtime.unbinds.forEach(function (off) {
       if (typeof off === "function") off();

@@ -13,6 +13,7 @@ wrap("foods.js");
 wrap("food-taste-db.js");
 wrap("food-taste.js");
 wrap("food-selection-codec.js");
+wrap("food-pet-appearance.js");
 wrap("food-selection.js");
 
 const foods = sandbox.Yummi.foods.getAll();
@@ -69,6 +70,13 @@ if (!exp.ok) throw new Error("exportCode failed");
 const cmpSel = sel.compareWithCode(exp.code);
 if (!cmpSel.ok || cmpSel.similarity !== 100) {
   throw new Error("compareWithCode self failed: " + JSON.stringify(cmpSel));
+}
+const confirmed = sel.confirm();
+if (!confirmed.ok || confirmed.primaryFood !== "珍珠奶茶" || !confirmed.profile) {
+  throw new Error("confirm failed: " + JSON.stringify(confirmed));
+}
+if (!confirmed.petAppearance || !confirmed.petAppearance.ok || confirmed.petAppearance.ready !== false) {
+  throw new Error("petAppearance stub failed: " + JSON.stringify(confirmed.petAppearance));
 }
 sel.clear();
 console.log("Food selection API OK");

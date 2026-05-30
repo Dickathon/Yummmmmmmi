@@ -49,6 +49,14 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（选菜确定与宠物占位）
+
+- **模块/范围：** order | 数据层 | 全局（`index.html` 脚本顺序）
+- **摘要：** 选菜面板「清空」旁新增「确定」；点击弹出宠物形象占位弹窗（以第一选择为准，预留 `foodPetAppearance`）；确认时在数据层 `confirm()` 推算口味画像，UI 不展示各轴数值。
+- **路径：** `js/data/food-pet-appearance.js`, `js/data/food-selection.js`, `js/modules/order/view.js`, `css/modules/order.css`, `index.html`
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（已选区图片条）
 
 - **模块/范围：** order
