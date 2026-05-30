@@ -2,379 +2,73 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>多层椭圆转盘线稿</title>
-  <style>
-    :root {
-      --bg: #f5f0e8;
-      --panel: rgba(255, 252, 247, 0.9);
-      --line: #5c4b3a;
-      --ink: #3d3d3d;
-      --ink-soft: #8b7355;
-      --oak: #c4a882;
-      --washi: #e8dfd1;
-      --cream: #f5f0e8;
-      --sakura: #f4e1e1;
-      --matcha: #8fbc8f;
-      --bamboo: #9caf88;
-      --shadow: rgba(92, 75, 58, 0.08);
-      --radius: 28px;
-      --max-width: 980px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at top, rgba(255, 255, 255, 0.8), transparent 36%),
-        linear-gradient(180deg, #fbf7f2 0%, var(--bg) 100%);
-      letter-spacing: 0.02em;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.22;
-      background-image:
-        linear-gradient(rgba(47, 38, 31, 0.018) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(47, 38, 31, 0.016) 1px, transparent 1px);
-      background-size: 28px 28px;
-    }
-
-    .page {
-      width: min(calc(100% - 28px), var(--max-width));
-      margin: 0 auto;
-      padding: 28px 0 40px;
-    }
-
-    .hero {
-      display: grid;
-      gap: 20px;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--oak);
-      font-size: 0.78rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-    }
-
-    .eyebrow::before {
-      content: "";
-      width: 28px;
-      height: 1px;
-      background: currentColor;
-    }
-
-    h1,
-    h2,
-    p {
-      margin: 0;
-    }
-
-    h1 {
-      font-size: clamp(2.2rem, 8vw, 4.2rem);
-      line-height: 1.05;
-      font-weight: 500;
-    }
-
-    .intro {
-      max-width: 640px;
-      color: var(--ink-soft);
-      font-size: 0.98rem;
-      line-height: 1.8;
-    }
-
-    .hero-card {
-      margin-top: 6px;
-      padding: 18px;
-      border-radius: calc(var(--radius) + 6px);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(245, 240, 232, 0.88));
-      border: 1px solid rgba(196, 168, 130, 0.2);
-      box-shadow: 0 20px 48px var(--shadow);
-      overflow: hidden;
-    }
-
-    .stage-wrap {
-      position: relative;
-      border-radius: var(--radius);
-      padding: 18px 14px 16px;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.78), transparent 40%),
-        linear-gradient(180deg, rgba(232, 223, 209, 0.76), rgba(245, 240, 232, 0.24));
-      border: 1px solid rgba(196, 168, 130, 0.16);
-    }
-
-    svg {
-      display: block;
-      width: 100%;
-      height: auto;
-    }
-
-    .stage-note {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 14px;
-      font-size: 0.82rem;
-      color: var(--ink-soft);
-      flex-wrap: wrap;
-    }
-
-    .content {
-      display: grid;
-      gap: 18px;
-      margin-top: 22px;
-    }
-
-    .card {
-      padding: 20px 18px;
-      border-radius: 24px;
-      background: var(--panel);
-      border: 1px solid rgba(196, 168, 130, 0.18);
-      box-shadow: 0 14px 30px rgba(92, 75, 58, 0.05);
-    }
-
-    .card h2 {
-      font-size: 1.08rem;
-      line-height: 1.4;
-      margin-bottom: 10px;
-    }
-
-    .card p {
-      color: var(--ink-soft);
-      line-height: 1.72;
-      font-size: 0.94rem;
-    }
-
-    .guide-list {
-      display: grid;
-      gap: 12px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .guide-list li {
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(196, 168, 130, 0.08);
-      border: 1px solid rgba(196, 168, 130, 0.12);
-      line-height: 1.65;
-      font-size: 0.92rem;
-    }
-
-    .guide-list strong {
-      color: var(--ink);
-      font-weight: 600;
-    }
-
-    .code {
-      display: block;
-      margin-top: 10px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: #fffdfa;
-      border: 1px solid rgba(92, 75, 58, 0.08);
-      font-family: "Consolas", "SFMono-Regular", monospace;
-      font-size: 0.85rem;
-      line-height: 1.7;
-      white-space: pre-wrap;
-    }
-
-    .legend {
-      display: grid;
-      gap: 10px;
-      margin-top: 6px;
-    }
-
-    .legend-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 0.9rem;
-      color: var(--ink-soft);
-    }
-
-    .legend-line {
-      width: 40px;
-      height: 0;
-      border-top: 2px solid var(--line);
-      flex: 0 0 auto;
-    }
-
-    .legend-line.soft {
-      border-top-color: rgba(92, 75, 58, 0.35);
-      border-top-style: dashed;
-    }
-
-    .legend-line.accent {
-      border-top-color: var(--oak);
-    }
-
-    .legend-chip {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(92, 75, 58, 0.16);
-      flex: 0 0 auto;
-    }
-
-    .legend-chip.base {
-      background: var(--cream);
-    }
-
-    .legend-chip.mid {
-      background: var(--sakura);
-    }
-
-    .legend-chip.top {
-      background: var(--matcha);
-    }
-
-    @media (min-width: 860px) {
-      .page {
-        padding-top: 40px;
-      }
-
-      .content {
-        grid-template-columns: 1.04fr 0.96fr;
-        align-items: start;
-      }
-
-      .hero-card {
-        padding: 22px;
-      }
-
-      .stage-wrap {
-        padding: 28px 24px 20px;
-      }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>Yummi</title>
+  <!-- 全局样式（协商后修改） -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <!-- 模块样式（各负责人只改对应文件） -->
+  <link rel="stylesheet" href="css/modules/order.css">
+  <link rel="stylesheet" href="css/modules/dress.css">
+  <link rel="stylesheet" href="css/modules/social.css">
 </head>
 <body>
-  <main class="page">
-    <section class="hero">
-      <div class="eyebrow">Ellipse Turntable Study</div>
-      <h1>多层椭圆转盘基础线条</h1>
-      <p class="intro">
-        这版页面先只解决结构问题：每一层都由同轴顶面椭圆、左右侧边、底部前半弧和接缝弧组成。
-        你后面要加材质、分区、旋转动画，直接沿着这套骨架扩展就可以。
-      </p>
+  <div id="app" class="app">
+    <main id="screen-root" class="app-main" role="main"></main>
 
-      <div class="hero-card">
-        <div class="stage-wrap">
-          <svg viewBox="0 0 760 620" aria-labelledby="stageTitle stageDesc" role="img">
-            <title id="stageTitle">三层椭圆转盘基础线稿</title>
-            <desc id="stageDesc">按前后遮挡次序绘制的三层实心椭圆圆柱转盘结构。</desc>
+    <nav id="tab-bar" class="tab-bar" role="tablist" aria-label="主导航">
+      <button type="button" class="tab-bar__item tab-bar__item--active" role="tab" aria-selected="true" data-tab="order" id="tab-order">
+        <span class="tab-bar__icon-wrap" data-tab="order">
+          <img class="tab-bar__icon" src="source/tab-order.png" alt="" width="28" height="28">
+        </span>
+        <span class="tab-bar__label">点餐</span>
+      </button>
+      <button type="button" class="tab-bar__item" role="tab" aria-selected="false" data-tab="dress" id="tab-dress">
+        <span class="tab-bar__icon-wrap" data-tab="dress">
+          <img class="tab-bar__icon" src="source/tab-dress.png" alt="" width="28" height="28">
+        </span>
+        <span class="tab-bar__label">装扮</span>
+      </button>
+      <button type="button" class="tab-bar__item" role="tab" aria-selected="false" data-tab="social" id="tab-social">
+        <span class="tab-bar__icon-wrap" data-tab="social">
+          <img class="tab-bar__icon" src="source/tab-social.png" alt="" width="28" height="28">
+        </span>
+        <span class="tab-bar__label">社交</span>
+      </button>
+    </nav>
+  </div>
 
-            <defs>
-              <linearGradient id="baseSideFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#e8dfd1"/>
-                <stop offset="100%" stop-color="#c4a882"/>
-              </linearGradient>
-              <linearGradient id="midSideFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#f4e1e1"/>
-                <stop offset="100%" stop-color="#e8dfd1"/>
-              </linearGradient>
-              <linearGradient id="topSideFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#c8d8ba"/>
-                <stop offset="100%" stop-color="#8fbc8f"/>
-              </linearGradient>
-            </defs>
+  <!-- 共享脚本（协商后修改） -->
+  <script src="js/data/foods.js"></script>
+  <script src="js/core/util.js"></script>
+  <script src="js/core/screens.js"></script>
+  <script src="js/core/module.js"></script>
 
-            <!-- 后侧辅助线先画，表示被遮挡的顶面后半圈 -->
-            <path d="M 42 430 A 338 82 0 0 1 718 430" fill="none" stroke="rgba(92,75,58,0.22)" stroke-width="2" stroke-dasharray="6 8"/>
-            <path d="M 140 292 A 240 58 0 0 1 620 292" fill="none" stroke="rgba(92,75,58,0.16)" stroke-width="1.8" stroke-dasharray="6 8"/>
+  <!-- 模块：点餐 [order] -->
+  <script src="js/modules/order/config.js"></script>
+  <script src="js/modules/order/state.js"></script>
+  <script src="js/modules/order/view.js"></script>
+  <script src="js/modules/order/screen.js"></script>
+  <script src="js/modules/order/index.js"></script>
 
-            <!-- 底层：先侧面，再顶面 -->
-            <path d="M 42 430 L 42 592 A 338 82 0 0 0 718 592 L 718 430 A 338 82 0 0 1 42 430 Z" fill="url(#baseSideFill)"/>
-            <path d="M 42 430 L 42 592 A 338 82 0 0 0 718 592 L 718 430" fill="none" stroke="#5c4b3a" stroke-width="2.5" stroke-linejoin="round"/>
-            <ellipse cx="380" cy="430" rx="338" ry="82" fill="#f5f0e8" stroke="#5c4b3a" stroke-width="2.5"/>
-            <path d="M 42 430 A 338 82 0 0 0 718 430" fill="none" stroke="#5c4b3a" stroke-width="2.5"/>
+  <!-- 模块：装扮 [dress] -->
+  <script src="js/modules/dress/config.js"></script>
+  <script src="js/modules/dress/state.js"></script>
+  <script src="js/modules/dress/view.js"></script>
+  <script src="js/modules/dress/screen.js"></script>
+  <script src="js/modules/dress/index.js"></script>
 
-            <!-- 中层：通过顺序压住底层顶面后侧 -->
-            <path d="M 140 292 L 140 430 A 240 58 0 0 0 620 430 L 620 292 A 240 58 0 0 1 140 292 Z" fill="url(#midSideFill)"/>
-            <path d="M 140 292 L 140 430 A 240 58 0 0 0 620 430 L 620 292" fill="none" stroke="#5c4b3a" stroke-width="2.5" stroke-linejoin="round"/>
-            <ellipse cx="380" cy="292" rx="240" ry="58" fill="#f4e1e1" stroke="#5c4b3a" stroke-width="2.5"/>
-            <path d="M 140 292 A 240 58 0 0 0 620 292" fill="none" stroke="#5c4b3a" stroke-width="2.5"/>
-            <path d="M 202 436 A 178 42 0 0 0 558 436" fill="none" stroke="#c4a882" stroke-width="2.5"/>
+  <!-- 模块：社交 [social] -->
+  <script src="js/modules/social/config.js"></script>
+  <script src="js/modules/social/state.js"></script>
+  <script src="js/modules/social/view.js"></script>
+  <script src="js/modules/social/screen.js"></script>
+  <script src="js/modules/social/index.js"></script>
 
-            <!-- 顶层 -->
-            <path d="M 238 164 L 238 292 A 142 36 0 0 0 522 292 L 522 164 A 142 36 0 0 1 238 164 Z" fill="url(#topSideFill)"/>
-            <path d="M 238 164 L 238 292 A 142 36 0 0 0 522 292 L 522 164" fill="none" stroke="#5c4b3a" stroke-width="2.5" stroke-linejoin="round"/>
-            <ellipse cx="380" cy="164" rx="142" ry="36" fill="#8fbc8f" stroke="#5c4b3a" stroke-width="2.5"/>
-            <path d="M 238 164 A 142 36 0 0 0 522 164" fill="none" stroke="#5c4b3a" stroke-width="2.5"/>
-            <path d="M 272 296 A 108 24 0 0 0 488 296" fill="none" stroke="#c4a882" stroke-width="2.5"/>
-
-            <!-- 中轴辅助线最后放在最上层，便于讲解结构 -->
-            <line x1="380" y1="78" x2="380" y2="590" stroke="rgba(196,168,130,0.52)" stroke-width="1.5" stroke-dasharray="5 8"/>
-          </svg>
-
-          <div class="stage-note">
-            <span>后画的小层会压住大层后缘，所以堆叠次序必须从下往上</span>
-            <span>顶面更亮，侧面更深，圆柱体才会有实心量感</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="content">
-      <article class="card">
-        <h2>一层实心圆柱怎么判断前后</h2>
-        <ul class="guide-list">
-          <li><strong>后半圈先画：</strong>椭圆上半弧代表远离我们的后缘，它应该先落在底层，后面再被上层盖住。</li>
-          <li><strong>侧面主体居中：</strong>两条竖边加底部前半弧围成一个封闭面，这个面要直接填色，表示实体厚度。</li>
-          <li><strong>顶面最后压上去：</strong>顶面椭圆放在侧面之上，视觉上才会像一个盖在圆柱上的平面。</li>
-          <li><strong>最前缘最清晰：</strong>面向观者的前半弧和左右轮廓线保留最实的描边，空间方向会非常稳定。</li>
-        </ul>
-        <span class="code">&lt;path d="M 140 292 L 140 430 A 240 58 0 0 0 620 430 L 620 292 A 240 58 0 0 1 140 292 Z" /&gt;
-&lt;ellipse cx="380" cy="292" rx="240" ry="58" fill="#F4E1E1" /&gt;</span>
-      </article>
-
-      <article class="card">
-        <h2>多层堆叠与项目配色</h2>
-        <div class="legend">
-          <div class="legend-row">
-            <span class="legend-line"></span>
-            <span>深木棕 `#5C4B3A`：统一外轮廓和可见前缘</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-chip base"></span>
-            <span>底层顶面用暖 cream `#F5F0E8`，侧面落到和纸白与浅橡木之间</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-chip mid"></span>
-            <span>中层顶面用樱花粉 `#F4E1E1`，既区层又不会跳出整体体系</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-chip top"></span>
-            <span>顶层顶面用抹茶绿 `#8FBC8F`，作为视觉焦点最合适</span>
-          </div>
-          <div class="legend-row">
-            <span class="legend-line soft"></span>
-            <span>虚线只保留给被遮挡的后缘辅助线，正式成品里可以继续弱化</span>
-          </div>
-        </div>
-        <ul class="guide-list" style="margin-top:14px;">
-          <li><strong>绘制顺序：</strong>底层后缘 → 底层实体 → 中层实体 → 顶层实体，这样遮挡逻辑自动正确。</li>
-          <li><strong>接缝判断：</strong>中层与底层、顶层与中层之间，只保留前侧接缝弧，因为真正能看到的就是前缘接触线。</li>
-          <li><strong>顶浅侧深：</strong>每层顶面比侧面亮，才能读出“上表面”和“厚度”是两个面。</li>
-          <li><strong>后续扩展：</strong>如果要做转盘分区或旋转，只建议改最上层顶面的内容，底层结构先保持稳定。</li>
-        </ul>
-      </article>
-    </section>
-  </main>
+  <script src="js/main.js"></script>
 </body>
 </html>

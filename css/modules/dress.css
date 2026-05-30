@@ -1,0 +1,7 @@
+/* 装扮模块样式 */
+
+.dress-module .dress-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+}
