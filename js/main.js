@@ -126,6 +126,34 @@
         wrap.classList.add("tab-bar__icon-wrap--fallback");
       });
     });
+
+    // 右上角装扮按钮 — 打开装扮面板
+    var dressBtn = document.getElementById("topDressBtn");
+    var dressPanel = document.getElementById("dressPanel");
+    var dressOverlay = document.getElementById("dressPanelOverlay");
+    var dressClose = document.getElementById("dressPanelClose");
+
+    function openDressPanel() {
+      if (!dressPanel) return;
+      dressPanel.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeDressPanel() {
+      if (!dressPanel) return;
+      dressPanel.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    if (dressBtn) dressBtn.addEventListener("click", openDressPanel);
+    if (dressOverlay) dressOverlay.addEventListener("click", closeDressPanel);
+    if (dressClose) dressClose.addEventListener("click", closeDressPanel);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && dressPanel && dressPanel.getAttribute("aria-hidden") === "false") {
+        closeDressPanel();
+      }
+    });
   }
 
   function setupScrollNav() {

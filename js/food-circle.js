@@ -175,6 +175,136 @@
         console.log("[预留] 点击栏目: 投喂");
       });
     }
+
+    // 鱼干收益
+    setupEarnings();
+  }
+
+  // ============================================================
+  // 鱼干收益
+  // ============================================================
+  var CHECKIN_KEY = "yummi_checkin_date";
+
+  // 虚拟投喂记录（别人给你的投喂，每次 +3 鱼干）
+  var VIRTUAL_FEEDS = [
+    { name: "小橘", avatar: "🐱", food: "麦辣鸡腿堡", time: "今天 10:23" },
+    { name: "阿白", avatar: "🐈", food: "珍珠奶茶", time: "今天 09:15" },
+    { name: "胖橘", avatar: "🐱", food: "芋泥波波牛乳", time: "昨天 20:40" },
+    { name: "三花", avatar: "🐈", food: "生椰拿铁", time: "昨天 18:22" },
+    { name: "奶茶猫", avatar: "🐱", food: "肥西老母鸡汤", time: "3天前" },
+    { name: "黑猫", avatar: "🐈‍⬛", food: "葡式蛋挞", time: "3天前" },
+  ];
+
+  function getTodayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+  }
+
+  function hasCheckedInToday() {
+    try {
+      return localStorage.getItem(CHECKIN_KEY) === getTodayStr();
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function doCheckIn() {
+    if (hasCheckedInToday()) return false;
+    try {
+      localStorage.setItem(CHECKIN_KEY, getTodayStr());
+    } catch (e) {}
+    var fc = global.Yummi && global.Yummi.fishCoins;
+    if (fc) fc.add(1);
+    return true;
+  }
+
+  function renderEarnings() {
+    var body = document.getElementById("fcEarningsBody");
+    if (!body) return;
+
+    var checked = hasCheckedInToday();
+    var coins = global.Yummi && global.Yummi.fishCoins ? global.Yummi.fishCoins.get() : 0;
+    var totalFeedCoins = VIRTUAL_FEEDS.length * 3;
+
+    var html = "";
+
+    // 签到区
+    html +=
+      '<div class="fc-earnings__checkin">' +
+        '<div class="fc-earnings__checkin-icon">📅</div>' +
+        '<button class="fc-earnings__checkin-btn" id="fcCheckinBtn"' + (checked ? ' disabled' : '') + '>' +
+          (checked ? "今日已签到" : "签到领鱼干") +
+        '</button>' +
+        '<div class="fc-earnings__checkin-text">' + (checked ? "明天再来哦 ~" : "签到可获得 1 个小鱼干") + '</div>' +
+      '</div>';
+
+    // 投喂记录区
+    html += '<div class="fc-earnings__section-title">🎁 投喂记录（+' + totalFeedCoins + ' 鱼干）</div>';
+    html += '<div class="fc-earnings__feed-list">';
+    for (var i = 0; i < VIRTUAL_FEEDS.length; i++) {
+      var f = VIRTUAL_FEEDS[i];
+      html +=
+        '<div class="fc-earnings__feed-item">' +
+          '<div class="fc-earnings__feed-avatar">' + f.avatar + '</div>' +
+          '<div class="fc-earnings__feed-info">' +
+            '<div class="fc-earnings__feed-name">' + escapeHtml(f.name) + "投喂了「" + escapeHtml(f.food) + "」</div>" +
+            '<div class="fc-earnings__feed-detail">' + escapeHtml(f.time) + " · 获得 3 个小鱼干</div>" +
+          '</div>' +
+          '<div class="fc-earnings__feed-coin">+3</div>' +
+        '</div>';
+    }
+    html += '</div>';
+
+    html +=
+      '<div class="fc-earnings__total">' +
+        "当前小鱼干余额：<strong>" + coins + " 🐟</strong>" +
+      '</div>';
+
+    body.innerHTML = html;
+
+    var checkinBtn = document.getElementById("fcCheckinBtn");
+    if (checkinBtn) {
+      checkinBtn.addEventListener("click", function () {
+        if (doCheckIn()) {
+          renderEarnings();
+          if (global.Yummi && global.Yummi.fishCoins) {
+            global.Yummi.fishCoins.render("fishCoinBar");
+          }
+        }
+      });
+    }
+  }
+
+  function openEarnings() {
+    var panel = document.getElementById("fcEarningsPanel");
+    if (!panel) return;
+    renderEarnings();
+    panel.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeEarnings() {
+    var panel = document.getElementById("fcEarningsPanel");
+    if (!panel) return;
+    panel.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function setupEarnings() {
+    var btn = document.getElementById("fcEarnings");
+    var overlay = document.getElementById("fcEarningsOverlay");
+    var closeBtn = document.getElementById("fcEarningsClose");
+
+    if (btn) btn.addEventListener("click", openEarnings);
+    if (overlay) overlay.addEventListener("click", closeEarnings);
+    if (closeBtn) closeBtn.addEventListener("click", closeEarnings);
+
+    document.addEventListener("keydown", function (e) {
+      var panel = document.getElementById("fcEarningsPanel");
+      if (e.key === "Escape" && panel && panel.getAttribute("aria-hidden") === "false") {
+        closeEarnings();
+      }
+    });
   }
 
   // ============================================================
