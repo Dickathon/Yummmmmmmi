@@ -1,0 +1,92 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-body);
+  letter-spacing: var(--letter-body);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 极淡纸质 / 亚麻质感 — style.md §材质 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--texture-opacity);
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(92, 75, 58, 0.12) 3px,
+      rgba(92, 75, 58, 0.12) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 4px,
+      rgba(196, 168, 130, 0.1) 4px,
+      rgba(196, 168, 130, 0.1) 5px
+    );
+}
+
+h1, h2, h3 {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-title);
+  line-height: var(--line-title);
+  letter-spacing: var(--letter-title);
+}
+
+p {
+  color: var(--color-text);
+}
+
+.caption {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-caption);
+  line-height: var(--line-body);
+}
+
+.stat {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-stat);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
