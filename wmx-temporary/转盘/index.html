@@ -237,6 +237,14 @@
       cursor: grabbing;
     }
 
+    .turntable-hit-side {
+      cursor: grab;
+    }
+
+    .turntable-hit-side:active {
+      cursor: grabbing;
+    }
+
     @media (max-width: 360px) {
       .control-group {
         padding-left: 12px;
@@ -340,6 +348,8 @@
           dragging: false,
           pointerId: null,
           lastPointerAngle: null,
+          angularVelocity: 0,
+          inertiaBoost: 1,
           topColor: "#f5f0e8",
           capColor: "#e8dfd1",
           sideGradientId: "turntable-base-side",
@@ -364,6 +374,8 @@
           dragging: false,
           pointerId: null,
           lastPointerAngle: null,
+          angularVelocity: 0,
+          inertiaBoost: 1,
           topColor: "#f4e1e1",
           capColor: "#f7eeee",
           sideGradientId: "turntable-mid-side",
@@ -388,6 +400,8 @@
           dragging: false,
           pointerId: null,
           lastPointerAngle: null,
+          angularVelocity: 0,
+          inertiaBoost: 1,
           topColor: "#8fbc8f",
           capColor: "#e8dfd1",
           sideGradientId: "turntable-top-side",
@@ -523,6 +537,22 @@
         ].join(" ");
       }
 
+      function createUpperSideHitPath(geometry) {
+        var left = geometry.cx - geometry.rx;
+        var right = geometry.cx + geometry.rx;
+        var top = geometry.cy;
+        var middle = geometry.cy + (geometry.height * 0.56);
+
+        return [
+          "M", formatNumber(left), formatNumber(top),
+          "L", formatNumber(left), formatNumber(middle),
+          "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 0, formatNumber(right), formatNumber(middle),
+          "L", formatNumber(right), formatNumber(top),
+          "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 1, formatNumber(left), formatNumber(top),
+          "Z"
+        ].join(" ");
+      }
+
       function createDonutSectorPath(innerRadius, outerRadius, startAngle, endAngle) {
         var startOuter = polarToCartesian(outerRadius, startAngle);
         var endOuter = polarToCartesian(outerRadius, endAngle);
@@ -621,6 +651,7 @@
               y: formatNumber(disc.y),
               scale: formatNumber(disc.scale),
               heightScale: formatNumber(disc.heightScale),
+              angularVelocity: formatNumber(disc.angularVelocity || 0),
               baseRx: formatNumber(disc.baseRx),
               baseRy: formatNumber(disc.baseRy),
               baseCy: formatNumber(disc.baseCy)
@@ -763,6 +794,7 @@
               '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
                 '<path class="turntable-hit" data-hit="' + disc.id + '" d="' + createRingPath(geometry.rx, geometry.hitInnerRadius) + '" fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
               "</g>" +
+              '<path class="turntable-hit-side" data-hit-side="' + disc.id + '" d="' + createUpperSideHitPath(geometry) + '" fill="rgba(255,255,255,0.001)"></path>' +
             "</g>";
         });
 
@@ -816,12 +848,22 @@
         return normalizeAngle((Math.atan2(localY, localX) * 180 / Math.PI) + 90);
       }
 
+      function getExtendedPointerAngle(disc, svgPoint, hitType) {
+        if (hitType === "side") {
+          var geometry = getDiscGeometry(disc);
+          var sideY = Math.max(geometry.cy, Math.min(svgPoint.y, geometry.cy + geometry.height));
+          return getPointerAngle(disc, { x: svgPoint.x, y: sideY });
+        }
+        return getPointerAngle(disc, svgPoint);
+      }
+
       function releaseDisc(pointerId) {
         state.discs.forEach(function (disc) {
           if (disc.pointerId !== pointerId) return;
           disc.dragging = false;
           disc.pointerId = null;
           disc.lastPointerAngle = null;
+          disc.lastMoveTime = null;
         });
         state.activeDiscId = null;
         refs.hitTarget = null;
@@ -829,18 +871,22 @@
       }
 
       function handlePointerDown(event) {
-        var hit = event.target.closest("[data-hit]");
+        var hit = event.target.closest("[data-hit], [data-hit-side]");
         if (!hit) return;
 
-        var disc = getDiscById(hit.getAttribute("data-hit"));
+        var hitType = hit.hasAttribute("data-hit-side") ? "side" : "top";
+        var discId = hitType === "side" ? hit.getAttribute("data-hit-side") : hit.getAttribute("data-hit");
+        var disc = getDiscById(discId);
         var svgPoint = getSvgPoint(event);
-        var pointerAngle = getPointerAngle(disc, svgPoint);
+        var pointerAngle = getExtendedPointerAngle(disc, svgPoint, hitType);
 
         if (!disc || pointerAngle == null) return;
 
         disc.dragging = true;
         disc.pointerId = event.pointerId;
         disc.lastPointerAngle = pointerAngle;
+        disc.lastMoveTime = event.timeStamp || performance.now();
+        disc.angularVelocity = 0;
         state.activeDiscId = disc.id;
         refs.hitTarget = hit;
 
@@ -859,11 +905,18 @@
         if (!disc) return;
 
         var svgPoint = getSvgPoint(event);
-        var pointerAngle = getPointerAngle(disc, svgPoint);
+        var hitType = refs.hitTarget && refs.hitTarget.hasAttribute("data-hit-side") ? "side" : "top";
+        var pointerAngle = getExtendedPointerAngle(disc, svgPoint, hitType);
         if (pointerAngle == null) return;
 
-        disc.angle = normalizeAngle(disc.angle + angleDelta(pointerAngle, disc.lastPointerAngle));
+        var deltaAngle = angleDelta(pointerAngle, disc.lastPointerAngle);
+        var now = event.timeStamp || performance.now();
+        var elapsed = Math.max(8, now - (disc.lastMoveTime || now));
+
+        disc.angle = normalizeAngle(disc.angle + deltaAngle);
         disc.lastPointerAngle = pointerAngle;
+        disc.lastMoveTime = now;
+        disc.angularVelocity = deltaAngle / (elapsed / 1000);
         updateRotor(disc);
         event.preventDefault();
       }
@@ -931,7 +984,13 @@
 
         state.discs.forEach(function (disc) {
           if (disc.dragging) return;
-          disc.angle = normalizeAngle(disc.angle + (disc.autoSpeed * delta));
+          if (Math.abs(disc.angularVelocity) > 0.01) {
+            disc.angle = normalizeAngle(disc.angle + (disc.angularVelocity * delta * disc.inertiaBoost));
+            disc.angularVelocity *= Math.pow(0.88, delta * 60);
+          } else {
+            disc.angularVelocity = 0;
+            disc.angle = normalizeAngle(disc.angle + (disc.autoSpeed * delta));
+          }
           updateRotor(disc);
         });
 
