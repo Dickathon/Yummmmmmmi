@@ -245,6 +245,14 @@
       cursor: grabbing;
     }
 
+    .turntable-face-image {
+      pointer-events: none;
+    }
+
+    .turntable-side-image {
+      pointer-events: none;
+    }
+
     @media (max-width: 360px) {
       .control-group {
         padding-left: 12px;
@@ -288,7 +296,7 @@
       var INITIAL_CONFIG = {
         global: {
           offsetX: -1,
-          offsetY: -43,
+          offsetY: -42,
           globalScale: 1.3,
           ellipseRatio: 0.8,
           discHeight: 1.02,
@@ -298,7 +306,7 @@
           {
             id: "base",
             x: 0,
-            y: 75,
+            y: 79,
             scale: 1.12,
             heightScale: 1,
             baseRx: 150,
@@ -324,9 +332,30 @@
             baseRx: 72,
             baseRy: 19,
             baseCy: 148
+          },
+          {
+            id: "cap",
+            x: 0,
+            y: -14,
+            scale: 1.18,
+            heightScale: 1.4,
+            baseRx: 48,
+            baseRy: 13,
+            baseCy: 102
           }
         ]
       };
+
+      var TOP_SIDE_IMAGES = [
+        "assets/cats/IMG_20260530_125819.jpg",
+        "assets/cats/IMG_20260530_125904.jpg",
+        "assets/cats/IMG_20260530_125935.jpg",
+        "assets/cats/IMG_20260530_125618.jpg",
+        "assets/cats/IMG_20260530_125748.jpg",
+        "assets/cats/IMG_20260530_125756.jpg",
+        "assets/cats/IMG_20260530_125605.jpg",
+        "assets/cats/IMG_20260530_125740.jpg"
+      ];
 
       var DISC_BASES = [
         {
@@ -368,7 +397,7 @@
           scale: 1,
           heightScale: 1,
           angle: 24,
-          autoSpeed: 12,
+          autoSpeed: -12,
           hitInnerRadius: 78,
           sectorInnerRadius: 28,
           dragging: false,
@@ -394,7 +423,7 @@
           scale: 1,
           heightScale: 1,
           angle: 48,
-          autoSpeed: 16,
+          autoSpeed: -16,
           hitInnerRadius: 0,
           sectorInnerRadius: 20,
           dragging: false,
@@ -406,6 +435,32 @@
           capColor: "#e8dfd1",
           sideGradientId: "turntable-top-side",
           sectorColors: ["#8fbc8f", "#a7c7a3", "#dfe9d8", "#c9dbbf", "#9caf88", "#b7d0aa"]
+        },
+        {
+          id: "cap",
+          label: "顶柱",
+          colorClass: "cap",
+          baseCx: 190,
+          baseCy: 102,
+          baseRx: 48,
+          baseRy: 13,
+          x: 0,
+          y: 0,
+          scale: 1,
+          heightScale: 1,
+          angle: 0,
+          autoSpeed: -18,
+          hitInnerRadius: 0,
+          sectorInnerRadius: 0,
+          dragging: false,
+          pointerId: null,
+          lastPointerAngle: null,
+          angularVelocity: 0,
+          inertiaBoost: 0.92,
+          topColor: "#f0caa7",
+          capColor: "#fff1df",
+          sideGradientId: "turntable-cap-side",
+          sectorColors: []
         }
       ];
 
@@ -440,7 +495,8 @@
         rotors: {},
         hitTarget: null,
         controlValueNodes: {},
-        rafId: 0
+        rafId: 0,
+        carouselTimer: 0
       };
 
       var globalSpecs = [
@@ -553,6 +609,13 @@
         ].join(" ");
       }
 
+      function createFrontArcPath(cx, cy, rx, ry) {
+        return [
+          "M", formatNumber(cx - rx), formatNumber(cy),
+          "A", formatNumber(rx), formatNumber(ry), 0, 0, 0, formatNumber(cx + rx), formatNumber(cy)
+        ].join(" ");
+      }
+
       function createDonutSectorPath(innerRadius, outerRadius, startAngle, endAngle) {
         var startOuter = polarToCartesian(outerRadius, startAngle);
         var endOuter = polarToCartesian(outerRadius, endAngle);
@@ -570,6 +633,9 @@
       }
 
       function renderSectorMarkup(disc, geometry) {
+        if (!disc.sectorColors.length) {
+          return "";
+        }
         var outerRadius = geometry.rx - 6;
         var innerRadius = Math.max(geometry.sectorInnerRadius, 12);
         var sectorCount = disc.sectorColors.length;
@@ -609,6 +675,83 @@
         );
 
         return parts.join("");
+      }
+
+      function renderTopFace(disc, geometry) {
+        var scaleY = geometry.ry / geometry.rx;
+
+        if (disc.id === "cap") {
+          return (
+            '<defs>' +
+              '<clipPath id="cap-texture-clip">' +
+                '<ellipse cx="0" cy="0" rx="' + formatNumber(geometry.rx - 2) + '" ry="' + formatNumber(geometry.rx - 2) + '"></ellipse>' +
+              "</clipPath>" +
+            "</defs>" +
+            '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
+              '<circle r="' + formatNumber(geometry.rx) + '" fill="' + geometry.topColor + '"></circle>' +
+              '<g data-rotor="' + disc.id + '" transform="rotate(' + formatNumber(geometry.angle) + ')">' +
+                '<g clip-path="url(#cap-texture-clip)">' +
+                  '<image class="turntable-face-image" href="assets/cats/top-texture-cat.jpg" x="' + formatNumber(-geometry.rx * 1.08) + '" y="' + formatNumber(-geometry.rx * 1.08) + '" width="' + formatNumber(geometry.rx * 2.16) + '" height="' + formatNumber(geometry.rx * 2.16) + '" preserveAspectRatio="xMidYMid slice"></image>' +
+                "</g>" +
+              "</g>" +
+              '<circle r="' + formatNumber(geometry.rx - 2) + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.22" stroke-width="1.2"></circle>' +
+            "</g>"
+          );
+        }
+
+        return (
+          '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
+            '<circle r="' + formatNumber(geometry.rx) + '" fill="' + geometry.topColor + '"></circle>' +
+            '<g data-rotor="' + disc.id + '" transform="rotate(' + formatNumber(geometry.angle) + ')">' +
+              renderSectorMarkup(disc, geometry) +
+            "</g>" +
+          "</g>"
+        );
+      }
+
+      function renderCapSideCarousel(geometry) {
+        var segmentCount = 3;
+        var segmentWidth = geometry.rx * 0.56;
+        var segmentHeight = geometry.height * 0.62;
+        var leftBase = -geometry.rx * 0.82;
+        var topBase = geometry.ry * 0.18;
+        var markup = [];
+        var i;
+
+        for (i = 0; i < segmentCount; i += 1) {
+          var imageHref = TOP_SIDE_IMAGES[(state.carouselIndex + i) % TOP_SIDE_IMAGES.length];
+          var clipId = "cap-side-clip-" + i;
+          var boxX = leftBase + (segmentWidth * i);
+          var boxY = topBase;
+          var radius = Math.max(1.6, geometry.ry * 0.14);
+
+          markup.push(
+            '<defs>' +
+              '<clipPath id="' + clipId + '">' +
+                '<rect x="' + formatNumber(boxX) + '" y="' + formatNumber(boxY) + '" width="' + formatNumber(segmentWidth) + '" height="' + formatNumber(segmentHeight) + '" rx="' + formatNumber(radius) + '" ry="' + formatNumber(radius) + '"></rect>' +
+              "</clipPath>" +
+            "</defs>"
+          );
+
+          markup.push(
+            '<g clip-path="url(#' + clipId + ')">' +
+              '<image class="turntable-side-image" href="' + imageHref + '" x="' + formatNumber(boxX) + '" y="' + formatNumber(boxY) + '" width="' + formatNumber(segmentWidth) + '" height="' + formatNumber(segmentHeight) + '" preserveAspectRatio="xMidYMid slice"></image>' +
+            "</g>"
+          );
+
+          markup.push(
+            '<rect x="' + formatNumber(boxX) + '" y="' + formatNumber(boxY) + '" width="' + formatNumber(segmentWidth) + '" height="' + formatNumber(segmentHeight) + '" rx="' + formatNumber(radius) + '" ry="' + formatNumber(radius) + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.22" stroke-width="1.05"></rect>'
+          );
+        }
+
+        return (
+          '<g class="turntable-side-carousel" data-side-rotor="' + geometry.id + '" transform="rotate(' + formatNumber(geometry.angle) + ' ' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' +
+            '<g transform="translate(' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' +
+              '<path d="' + createFrontArcPath(0, geometry.height, geometry.rx, geometry.ry) + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.18" stroke-width="1.2"></path>' +
+              markup.join("") +
+            "</g>" +
+          "</g>"
+        );
       }
 
       function getDiscGeometry(disc) {
@@ -756,6 +899,10 @@
               '<stop offset="0%" stop-color="#c8d8ba"></stop>' +
               '<stop offset="100%" stop-color="#8fbc8f"></stop>' +
             "</linearGradient>" +
+            '<linearGradient id="turntable-cap-side" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0%" stop-color="#f5d8bb"></stop>' +
+              '<stop offset="100%" stop-color="#d7a773"></stop>' +
+            "</linearGradient>" +
             '<radialGradient id="turntable-floor-shadow" cx="50%" cy="50%" r="50%">' +
               '<stop offset="0%" stop-color="#5c4b3a" stop-opacity="0.16"></stop>' +
               '<stop offset="100%" stop-color="#5c4b3a" stop-opacity="0"></stop>' +
@@ -775,22 +922,23 @@
           var scaleY = geometry.ry / geometry.rx;
           var capRx = Math.max(8, geometry.rx * 0.16);
           var capRy = Math.max(4, geometry.ry * 0.34);
+          var centerCapMarkup = disc.id === "cap"
+            ? ""
+            : (
+              '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ')">' +
+                '<ellipse rx="' + formatNumber(capRx) + '" ry="' + formatNumber(capRy) + '" fill="' + geometry.capColor + '" stroke="#5c4b3a" stroke-width="1.5"></ellipse>' +
+                '<ellipse rx="' + formatNumber(capRx * 0.52) + '" ry="' + formatNumber(capRy * 0.52) + '" fill="#ffffff" fill-opacity="0.66"></ellipse>' +
+              "</g>"
+            );
 
           refs.svg.innerHTML +=
             '<g data-disc="' + disc.id + '">' +
               '<path d="' + createSidePath(geometry) + '" fill="url(#' + geometry.sideGradientId + ')"></path>' +
+              (disc.id === "cap" ? renderCapSideCarousel(geometry) : "") +
               '<path d="' + createSideOutlinePath(geometry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2" stroke-linejoin="round"></path>' +
-              '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
-                '<circle r="' + formatNumber(geometry.rx) + '" fill="' + geometry.topColor + '"></circle>' +
-                '<g data-rotor="' + disc.id + '" transform="rotate(' + formatNumber(geometry.angle) + ')">' +
-                  renderSectorMarkup(disc, geometry) +
-                "</g>" +
-              "</g>" +
+              renderTopFace(disc, geometry) +
               '<ellipse cx="' + formatNumber(geometry.cx) + '" cy="' + formatNumber(geometry.cy) + '" rx="' + formatNumber(geometry.rx) + '" ry="' + formatNumber(geometry.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
-              '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ')">' +
-                '<ellipse rx="' + formatNumber(capRx) + '" ry="' + formatNumber(capRy) + '" fill="' + geometry.capColor + '" stroke="#5c4b3a" stroke-width="1.5"></ellipse>' +
-                '<ellipse rx="' + formatNumber(capRx * 0.52) + '" ry="' + formatNumber(capRy * 0.52) + '" fill="#ffffff" fill-opacity="0.66"></ellipse>' +
-              "</g>" +
+              centerCapMarkup +
               '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
                 '<path class="turntable-hit" data-hit="' + disc.id + '" d="' + createRingPath(geometry.rx, geometry.hitInnerRadius) + '" fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
               "</g>" +
@@ -800,12 +948,18 @@
 
         state.discs.forEach(function (disc) {
           refs.rotors[disc.id] = refs.svg.querySelector('[data-rotor="' + disc.id + '"]');
+          refs.sideRotors = refs.sideRotors || {};
+          refs.sideRotors[disc.id] = refs.svg.querySelector('[data-side-rotor="' + disc.id + '"]');
         });
       }
 
       function updateRotor(disc) {
         if (!refs.rotors[disc.id]) return;
         refs.rotors[disc.id].setAttribute("transform", "rotate(" + formatNumber(disc.angle) + ")");
+        if (refs.sideRotors && refs.sideRotors[disc.id]) {
+          var geometry = getDiscGeometry(disc);
+          refs.sideRotors[disc.id].setAttribute("transform", "rotate(" + formatNumber(disc.angle) + " " + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ")");
+        }
       }
 
       function updateStatus() {
@@ -997,6 +1151,17 @@
         refs.rafId = window.requestAnimationFrame(tick);
       }
 
+      function startTopCarousel() {
+        if (refs.carouselTimer) {
+          window.clearInterval(refs.carouselTimer);
+        }
+
+        refs.carouselTimer = window.setInterval(function () {
+          state.carouselIndex = (state.carouselIndex + 1) % TOP_SIDE_IMAGES.length;
+          renderTurntable();
+        }, 1400);
+      }
+
       function bindEvents() {
         refs.turntableRoot.addEventListener("pointerdown", handlePointerDown);
         refs.turntableRoot.addEventListener("pointermove", handlePointerMove);
@@ -1009,12 +1174,14 @@
       }
 
       function init() {
+        state.carouselIndex = 0;
         renderControls();
         updateControlDisplays();
         renderTurntable();
         updateStatus();
         updateConfigOutput();
         bindEvents();
+        startTopCarousel();
         refs.rafId = window.requestAnimationFrame(tick);
       }
 
