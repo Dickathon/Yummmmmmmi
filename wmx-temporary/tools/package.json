@@ -12,7 +12,8 @@
   "scripts": {
     "derive-blanket": "node derive_blanket_anchor.mjs",
     "finalize-blanket": "node finalize_blanket_builtin.mjs",
-    "validate-blanket": "node validate_blanket_anchor.mjs"
+    "validate-blanket": "node validate_blanket_anchor.mjs",
+    "organize-pictures": "node organize_pictures.mjs"
   },
   "keywords": [],
   "author": "",

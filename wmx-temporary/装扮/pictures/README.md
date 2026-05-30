@@ -17,4 +17,16 @@ pictures/
 └── _tmp_blanket_builtin/
 ```
 
+**整理脚本**：若成品 PNG 落在 `pictures/` 根目录或错误子文件夹，运行：
+
+```bash
+node wmx-temporary/tools/organize_pictures.mjs
+```
+
 命名规范见 [`latest-pictures/标准底图/组件合并规范.md`](../latest-pictures/标准底图/组件合并规范.md)。
+
+将根目录散落的成品移入对应子文件夹：
+
+```text
+node wmx-temporary/tools/organize_pictures.mjs
+```
