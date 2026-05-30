@@ -1,0 +1,58 @@
+{
+  "component": "tail",
+  "reference": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图\\tail_1254.png",
+  "candidate": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\_tmp_tail_builtin\\酸辣粉_尾巴.png",
+  "standard_dir": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图",
+  "max_shift": 3,
+  "alpha_threshold": 12,
+  "max_missing_ratio": 0.02,
+  "reference_size": [
+    1254,
+    1254
+  ],
+  "candidate_size": [
+    1254,
+    1254
+  ],
+  "passed": false,
+  "reasons": [
+    "Reference coverage is too low after tolerance expansion: 16.3708% missing, allowed 2.0000%."
+  ],
+  "candidate_corner_alpha": {
+    "top_left": 0,
+    "top_right": 0,
+    "bottom_left": 0,
+    "bottom_right": 0
+  },
+  "reference_bbox": [
+    876,
+    514,
+    1139,
+    922
+  ],
+  "candidate_bbox": [
+    717,
+    336,
+    1167,
+    1084
+  ],
+  "bbox_delta": {
+    "left": -159,
+    "top": -178,
+    "right": 28,
+    "bottom": 162
+  },
+  "inward_shift": {
+    "left": 0,
+    "top": 0,
+    "right": 0,
+    "bottom": 0
+  },
+  "max_inward_shift": 0,
+  "reference_pixels": 33065,
+  "candidate_pixels": 108130,
+  "missing_pixels": 5413,
+  "missing_ratio": 0.163708,
+  "extra_pixels": 78399,
+  "extra_ratio": 0.725044
+}

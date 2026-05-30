@@ -1,0 +1,56 @@
+{
+  "component": "legs",
+  "reference": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图\\body_1254.png",
+  "candidate": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\_tmp_torso_generation\\小鸡炖蘑菇_躯干.png",
+  "standard_dir": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图",
+  "max_shift": 3,
+  "alpha_threshold": 12,
+  "max_missing_ratio": 0.02,
+  "reference_size": [
+    1254,
+    1254
+  ],
+  "candidate_size": [
+    1254,
+    1254
+  ],
+  "passed": true,
+  "reasons": [],
+  "candidate_corner_alpha": {
+    "top_left": 0,
+    "top_right": 0,
+    "bottom_left": 0,
+    "bottom_right": 0
+  },
+  "reference_bbox": [
+    153,
+    349,
+    910,
+    823
+  ],
+  "candidate_bbox": [
+    99,
+    346,
+    971,
+    934
+  ],
+  "bbox_delta": {
+    "left": -54,
+    "top": -3,
+    "right": 61,
+    "bottom": 111
+  },
+  "inward_shift": {
+    "left": 0,
+    "top": 0,
+    "right": 0,
+    "bottom": 0
+  },
+  "max_inward_shift": 0,
+  "reference_pixels": 255093,
+  "candidate_pixels": 373369,
+  "missing_pixels": 1945,
+  "missing_ratio": 0.007625,
+  "extra_pixels": 115993,
+  "extra_ratio": 0.310666
+}

@@ -350,7 +350,7 @@
         ]
       };
 
-      var TOP_SIDE_IMAGES = [
+      var CAP_SIDE_IMAGES = [
         "assets/cats/IMG_20260530_125819.jpg",
         "assets/cats/IMG_20260530_125904.jpg",
         "assets/cats/IMG_20260530_125935.jpg",
@@ -499,8 +499,7 @@
         rotors: {},
         hitTarget: null,
         controlValueNodes: {},
-        rafId: 0,
-        carouselTimer: 0
+        rafId: 0
       };
 
       var globalSpecs = [
@@ -715,26 +714,55 @@
 
       function getVisibleSectorSegments(range) {
         var segments = [];
-        var start = normalizeFrontAngle(range.start);
-        var end = normalizeFrontAngle(range.end);
+        var start = normalizeAngle(range.start);
+        var end = normalizeAngle(range.end);
+        var candidateOffsets = [-360, 0, 360];
+        var visibleWindows = [
+          { start: 90, end: 270 },
+          { start: 450, end: 630 },
+          { start: -270, end: -90 }
+        ];
+        var i;
+        var j;
 
         if (end <= start) {
           end += 360;
         }
 
-        var frontStart = 90;
-        var frontEnd = 270;
-        var overlapStart = Math.max(start, frontStart);
-        var overlapEnd = Math.min(end, frontEnd);
+        for (i = 0; i < candidateOffsets.length; i += 1) {
+          var shiftedStart = start + candidateOffsets[i];
+          var shiftedEnd = end + candidateOffsets[i];
 
-        if (overlapEnd > overlapStart) {
-          segments.push({
-            start: overlapStart,
-            end: overlapEnd
-          });
+          for (j = 0; j < visibleWindows.length; j += 1) {
+            var overlapStart = Math.max(shiftedStart, visibleWindows[j].start);
+            var overlapEnd = Math.min(shiftedEnd, visibleWindows[j].end);
+
+            if (overlapEnd - overlapStart > 0.001) {
+              while (overlapStart > 270) {
+                overlapStart -= 360;
+                overlapEnd -= 360;
+              }
+              while (overlapEnd < 90) {
+                overlapStart += 360;
+                overlapEnd += 360;
+              }
+              segments.push({
+                start: overlapStart,
+                end: overlapEnd
+              });
+            }
+          }
         }
 
-        return segments;
+        segments.sort(function (a, b) {
+          return a.start - b.start;
+        });
+
+        return segments.filter(function (segment, index) {
+          if (index === 0) return true;
+          var prev = segments[index - 1];
+          return Math.abs(prev.start - segment.start) > 0.001 || Math.abs(prev.end - segment.end) > 0.001;
+        });
       }
 
       function ellipsePointOnFrontArc(angleDeg, geometry, offsetY) {
@@ -743,6 +771,11 @@
           x: geometry.rx * Math.sin(radians),
           y: -geometry.ry * Math.cos(radians) + offsetY
         };
+      }
+
+      function angleToEllipseX(angleDeg, rx) {
+        var radians = angleDeg * Math.PI / 180;
+        return rx * Math.sin(radians);
       }
 
       function sampleFrontArc(geometry, startAngle, endAngle, offsetY, reverse) {
@@ -781,11 +814,6 @@
         return parts.join(" ");
       }
 
-      function getCapCarouselPhase(disc) {
-        var normalized = normalizeAngle(disc.angle);
-        return Math.floor(normalized / 45);
-      }
-
       function renderTopFace(disc, geometry) {
         var scaleY = geometry.ry / geometry.rx;
 
@@ -818,62 +846,45 @@
         );
       }
 
-      function renderCapSideCarousel(disc, geometry) {
+function renderCapSideImageBands(disc, geometry) {
+        var segmentCount = 6;
+        var angleRanges = createSectorAngleRanges(segmentCount, geometry.angle);
         var markup = [];
-        var bandCount = 12;
-        var visibleBands = [];
         var i;
-        var frontHalf = bandCount / 2;
-        var basePhase = (state.carouselIndex + getCapCarouselPhase(disc)) % TOP_SIDE_IMAGES.length;
 
-        for (i = 0; i < bandCount; i += 1) {
-          var theta = ((i / bandCount) * Math.PI * 2) - Math.PI;
-          var visibility = Math.cos(theta);
-          if (visibility <= 0) continue;
-          visibleBands.push({
-            theta: theta,
-            visibility: visibility,
-            imageHref: TOP_SIDE_IMAGES[(basePhase + i) % TOP_SIDE_IMAGES.length]
+        for (i = 0; i < angleRanges.length; i += 1) {
+          var visibleRanges = getVisibleSectorSegments(angleRanges[i]);
+          visibleRanges.forEach(function (segment, segmentIndex) {
+            var path = buildSideSectorPath(geometry, segment.start, segment.end);
+            var clipId = "cap-side-segment-" + i + "-" + segmentIndex;
+            var x0 = Math.min(angleToEllipseX(segment.start, geometry.rx), angleToEllipseX(segment.end, geometry.rx));
+            var x1 = Math.max(angleToEllipseX(segment.start, geometry.rx), angleToEllipseX(segment.end, geometry.rx));
+            var width = Math.max(2, x1 - x0);
+            var imagePadding = Math.max(0, geometry.rx * 0.06 * (1 - (width / (geometry.rx * 0.9))));
+            var imageX = x0 - imagePadding;
+            var imageWidth = width + imagePadding * 2;
+
+            markup.push(
+              '<defs>' +
+                '<clipPath id="' + clipId + '">' +
+                  '<path d="' + path + '"></path>' +
+                "</clipPath>" +
+              '</defs>'
+            );
+
+            markup.push(
+              '<g clip-path="url(#' + clipId + ')">' +
+                '<image class="turntable-side-band" href="' + CAP_SIDE_IMAGES[i % CAP_SIDE_IMAGES.length] + '" x="' + formatNumber(imageX - imageWidth * 0.1) + '" y="10" width="' + formatNumber(imageWidth * 1.2) + '" height="' + formatNumber(geometry.height * 1.2) + '" preserveAspectRatio="xMidYMid slice"></image>' +
+              '</g>'
+            );
+
+            markup.push(
+              '<path d="' + path + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.22" stroke-width="0.9"></path>'
+            );
           });
         }
 
-        visibleBands.sort(function (a, b) {
-          return a.theta - b.theta;
-        });
-
-        visibleBands.forEach(function (band, index) {
-          var normalized = Math.sin(band.theta);
-          var bandWidth = geometry.rx * 0.34 * band.visibility;
-          var centerX = normalized * geometry.rx * 0.74;
-          var x0 = centerX - (bandWidth / 2);
-          var x1 = centerX + (bandWidth / 2);
-          var clipId = "cap-side-band-" + index;
-
-          markup.push(
-            '<defs>' +
-              '<clipPath id="' + clipId + '">' +
-                '<path d="' + createSideBandPath(geometry.rx, geometry.ry, geometry.height, x0, x1) + '"></path>' +
-              "</clipPath>" +
-            "</defs>"
-          );
-
-          markup.push(
-            '<g clip-path="url(#' + clipId + ')">' +
-              '<image class="turntable-side-band" href="' + band.imageHref + '" x="' + formatNumber(x0) + '" y="' + formatNumber(geometry.height * 0.16) + '" width="' + formatNumber(Math.max(8, bandWidth)) + '" height="' + formatNumber(geometry.height * 0.68) + '" preserveAspectRatio="xMidYMid slice"></image>' +
-            "</g>"
-          );
-
-          markup.push(
-            '<path d="' + createSideBandPath(geometry.rx, geometry.ry, geometry.height, x0, x1) + '" fill="none" stroke="#5c4b3a" stroke-opacity="' + formatNumber(0.12 + (band.visibility * 0.14)) + '" stroke-width="0.85"></path>'
-          );
-        });
-
-        return (
-          '<g class="turntable-side-carousel" data-side-rotor="' + geometry.id + '" transform="translate(' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' +
-            markup.join("") +
-            '<path d="M ' + formatNumber(-geometry.rx) + ' 0 L ' + formatNumber(-geometry.rx) + ' ' + formatNumber(geometry.height) + ' A ' + formatNumber(geometry.rx) + ' ' + formatNumber(geometry.ry) + ' 0 0 0 ' + formatNumber(geometry.rx) + ' ' + formatNumber(geometry.height) + ' L ' + formatNumber(geometry.rx) + ' 0" fill="none" stroke="#5c4b3a" stroke-opacity="0.2" stroke-width="1.05"></path>' +
-          "</g>"
-        );
+        return '<g class="turntable-side-carousel" data-side-rotor="' + geometry.id + '" transform="translate(' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' + markup.join("") + '</g>';
       }
 
       function renderSideColorBands(disc, geometry) {
@@ -1081,8 +1092,7 @@
           refs.svg.innerHTML +=
             '<g data-disc="' + disc.id + '">' +
               '<path d="' + createSidePath(geometry) + '" fill="url(#' + geometry.sideGradientId + ')"></path>' +
-              renderSideColorBands(disc, geometry) +
-              (disc.id === "cap" ? renderCapSideCarousel(disc, geometry) : "") +
+              (disc.id === "cap" ? renderCapSideImageBands(disc, geometry) : renderSideColorBands(disc, geometry)) +
               '<path d="' + createSideOutlinePath(geometry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2" stroke-linejoin="round"></path>' +
               renderTopFace(disc, geometry) +
               '<ellipse cx="' + formatNumber(geometry.cx) + '" cy="' + formatNumber(geometry.cy) + '" rx="' + formatNumber(geometry.rx) + '" ry="' + formatNumber(geometry.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
@@ -1110,6 +1120,11 @@
           var geometry = getDiscGeometry(disc);
           refs.sideColorGroups[disc.id].outerHTML = renderSideColorBands(disc, geometry);
           refs.sideColorGroups[disc.id] = refs.svg.querySelector('[data-side-colors="' + disc.id + '"]');
+        }
+        if (refs.sideRotors && refs.sideRotors[disc.id]) {
+          var sideGeometry = getDiscGeometry(disc);
+          refs.sideRotors[disc.id].outerHTML = renderCapSideImageBands(disc, sideGeometry);
+          refs.sideRotors[disc.id] = refs.svg.querySelector('[data-side-rotor="' + disc.id + '"]');
         }
       }
 
@@ -1302,17 +1317,6 @@
         refs.rafId = window.requestAnimationFrame(tick);
       }
 
-      function startTopCarousel() {
-        if (refs.carouselTimer) {
-          window.clearInterval(refs.carouselTimer);
-        }
-
-        refs.carouselTimer = window.setInterval(function () {
-          state.carouselIndex = (state.carouselIndex + 1) % TOP_SIDE_IMAGES.length;
-          renderTurntable();
-        }, 1400);
-      }
-
       function bindEvents() {
         refs.turntableRoot.addEventListener("pointerdown", handlePointerDown);
         refs.turntableRoot.addEventListener("pointermove", handlePointerMove);
@@ -1325,14 +1329,12 @@
       }
 
       function init() {
-        state.carouselIndex = 0;
         renderControls();
         updateControlDisplays();
         renderTurntable();
         updateStatus();
         updateConfigOutput();
         bindEvents();
-        startTopCarousel();
         refs.rafId = window.requestAnimationFrame(tick);
       }
 
