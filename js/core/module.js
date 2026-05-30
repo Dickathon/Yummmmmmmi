@@ -60,11 +60,12 @@
     });
 
     global.Yummi.modules = global.Yummi.modules || {};
-    global.Yummi.modules[spec.id] = global.Yummi.modules[spec.id] || {};
-    global.Yummi.modules[spec.id].id = spec.id;
-    global.Yummi.modules[spec.id].meta = spec.meta || {};
-    global.Yummi.modules[spec.id].getInstance = function () {
-      return instance;
+    global.Yummi.modules[spec.id] = {
+      id: spec.id,
+      meta: spec.meta || {},
+      getInstance: function () {
+        return instance;
+      }
     };
 
     return spec.id;

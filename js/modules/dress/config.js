@@ -9,8 +9,8 @@
     assetsBase: "assets/modules/dress/",
     meta: {
       label: "装扮",
-      title: "椭圆转盘",
-      desc: "三层独立椭圆盘围绕同轴中心自转，拖动任意可见盘面即可单独控制。",
+      title: "装扮",
+      desc: "搭配造型，质朴温暖的手工感",
       heroClass: "hero--dress"
     }
   };
