@@ -1,5 +1,6 @@
 /**
  * Yummi 应用入口 — 三栏：点餐 / 装扮 / 社交
+ * UI 遵循 style.md
  */
 (function (global) {
   "use strict";
@@ -11,17 +12,20 @@
     order: {
       label: "点餐",
       title: "点餐",
-      desc: "挑选美食，开始你的味觉旅程"
+      desc: "挑选美食，像走进京都小巷里的茶室",
+      heroClass: "hero--order"
     },
     dress: {
       label: "装扮",
       title: "装扮",
-      desc: "搭配造型，展现独特风格"
+      desc: "搭配造型，质朴温暖的手工感",
+      heroClass: "hero--dress"
     },
     social: {
       label: "社交",
       title: "社交",
-      desc: "与好友互动，分享美食时刻"
+      desc: "与好友分享，宁静而不打扰的相聚",
+      heroClass: "hero--social"
     }
   };
 
@@ -31,46 +35,64 @@
     return div.innerHTML;
   }
 
+  function renderHero(cfg) {
+    return (
+      '<header class="hero ' + escapeHtml(cfg.heroClass) + '">' +
+        '<div class="hero__content">' +
+          '<h1 class="panel-title">' + escapeHtml(cfg.title) + "</h1>" +
+          '<p class="panel-desc caption">' + escapeHtml(cfg.desc) + "</p>" +
+        "</div>" +
+        '<div class="hero__visual" aria-hidden="true"></div>' +
+      "</header>"
+    );
+  }
+
   function renderOrderPanel() {
     var foods = global.Yummi && global.Yummi.foods;
     if (!foods) {
-      return '<div class="card"><p>食物数据加载中…</p></div>';
+      return '<div class="card"><p class="caption">食物数据加载中…</p></div>';
     }
 
     var types = Object.keys(foods.categories);
     return types.map(function (type) {
       var count = foods.getByType(type).length;
+      var cardMod = type === "甜品" ? " card--甜品" : "";
       return (
-        '<div class="card">' +
-          '<span class="tag tag--' + escapeHtml(type) + '">' + escapeHtml(type) + "</span>" +
-          '<p style="margin-top:12px;color:var(--color-text-muted);font-size:0.875rem;">' +
-            "共 " + count + " 种 · 玩法开发中" +
-          "</p>" +
-        "</div>"
+        '<article class="card' + cardMod + '">' +
+          '<div class="card__head">' +
+            '<span class="tag tag--' + escapeHtml(type) + '">' + escapeHtml(type) + "</span>" +
+            '<span class="stat">' + count + "</span>" +
+          "</div>" +
+          '<p class="card__meta caption">共 <span class="stat">' + count +
+            "</span> 种 · 玩法开发中</p>" +
+        "</article>"
       );
-    }).join("");
+    }).join("") +
+      '<div class="panel-actions">' +
+        '<button type="button" class="btn btn--primary">开始点餐</button>' +
+        '<button type="button" class="btn btn--secondary">浏览菜单</button>' +
+      "</div>";
+  }
+
+  function renderPlaceholderPanel(cfg) {
+    return (
+      '<div class="card">' +
+        '<p class="caption">「' + escapeHtml(cfg.label) + "」模块开发中，敬请期待。</p>" +
+      "</div>" +
+      '<div class="panel-actions">' +
+        '<button type="button" class="btn btn--primary">即将开放</button>' +
+      "</div>"
+    );
   }
 
   function renderPanelContent(tabId) {
     var cfg = TAB_CONFIG[tabId];
-    var body = "";
-
-    if (tabId === "order") {
-      body = renderOrderPanel();
-    } else {
-      body =
-        '<div class="card">' +
-          "<p>「" + escapeHtml(cfg.label) + "」模块开发中，敬请期待。</p>" +
-        "</div>";
-    }
+    var body = tabId === "order" ? renderOrderPanel() : renderPlaceholderPanel(cfg);
 
     return (
       '<section class="panel" data-panel="' + escapeHtml(tabId) + '" role="tabpanel"' +
-        (tabId === currentTab ? "" : ' hidden') + ">" +
-        '<header class="panel-header">' +
-          '<h1 class="panel-title">' + escapeHtml(cfg.title) + "</h1>" +
-          '<p class="panel-desc">' + escapeHtml(cfg.desc) + "</p>" +
-        "</header>" +
+        (tabId === currentTab ? "" : " hidden") + ">" +
+        renderHero(cfg) +
         '<div class="panel-body">' + body + "</div>" +
       "</section>"
     );
@@ -78,8 +100,7 @@
 
   function renderScreens() {
     if (!root) return;
-    root.innerHTML =
-      Object.keys(TAB_CONFIG).map(renderPanelContent).join("");
+    root.innerHTML = Object.keys(TAB_CONFIG).map(renderPanelContent).join("");
   }
 
   function setActiveTab(tabId) {
@@ -88,8 +109,7 @@
 
     var panels = root.querySelectorAll(".panel");
     panels.forEach(function (panel) {
-      var active = panel.getAttribute("data-panel") === tabId;
-      panel.hidden = !active;
+      panel.hidden = panel.getAttribute("data-panel") !== tabId;
     });
 
     var tabs = document.querySelectorAll(".tab-bar__item");
@@ -111,8 +131,7 @@
       if (tabId) setActiveTab(tabId);
     });
 
-    var icons = tabBar.querySelectorAll(".tab-bar__icon");
-    icons.forEach(function (img) {
+    tabBar.querySelectorAll(".tab-bar__icon").forEach(function (img) {
       img.addEventListener("error", function () {
         var wrap = img.parentElement;
         if (!wrap) return;
@@ -122,11 +141,25 @@
     });
   }
 
+  function setupScrollNav() {
+    var tabBar = document.getElementById("tab-bar");
+    if (!tabBar) return;
+
+    function onScroll() {
+      var scrolled = (window.scrollY || document.documentElement.scrollTop) > 8;
+      tabBar.classList.toggle("tab-bar--scrolled", scrolled);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  }
+
   function init() {
     root = document.getElementById("screen-root");
     if (!root) return;
     renderScreens();
     setupTabBar();
+    setupScrollNav();
   }
 
   global.Yummi = global.Yummi || {};
