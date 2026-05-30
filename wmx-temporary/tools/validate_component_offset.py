@@ -13,12 +13,13 @@ DEFAULT_MAX_SHIFT = 3
 DEFAULT_ALPHA_THRESHOLD = 12
 DEFAULT_MAX_MISSING_RATIO = 0.02
 DEFAULT_COMPONENT = "legs"
-COMPONENT_CHOICES = ("legs", "head", "body", "tail")
+COMPONENT_CHOICES = ("legs", "head", "body", "tail", "blanket")
 STANDARD_FILENAMES = {
     "legs": "legs_1254.png",
     "head": "head_1254.png",
     "body": "body_1254.png",
     "tail": "tail_1254.png",
+    "blanket": "blanket_1254.png",
 }
 
 

@@ -1,0 +1,21 @@
+{
+  "name": "tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "detect-libc": "^2.1.2",
+    "pngjs": "^7.0.0",
+    "semver": "^7.8.1",
+    "sharp": "^0.34.5"
+  },
+  "scripts": {
+    "derive-blanket": "node derive_blanket_anchor.mjs",
+    "finalize-blanket": "node finalize_blanket_builtin.mjs",
+    "validate-blanket": "node validate_blanket_anchor.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
