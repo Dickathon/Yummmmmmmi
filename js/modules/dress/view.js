@@ -7,6 +7,27 @@
   var VIEWBOX_WIDTH = 380;
   var VIEWBOX_HEIGHT = 398;
   var DISC_IDS = ["base", "mid", "top"];
+  var CELL_RADIUS_RATIO = 0.58;
+
+  function escapeAttr(text) {
+    return util.escapeHtml(text).replace(/"/g, "&quot;");
+  }
+
+  function getItemSrc(disc, slotIndex) {
+    if (!disc.itemUrls || !disc.itemUrls[slotIndex]) return "";
+    return disc.itemUrls[slotIndex];
+  }
+
+  function getSlotKey(discId, slotIndex) {
+    return discId + "-" + slotIndex;
+  }
+
+  function getSectorRadii(disc) {
+    return {
+      outer: disc.rx - 6,
+      inner: disc.sectorInnerRadius
+    };
+  }
 
   function degToRad(angle) {
     return (angle - 90) * Math.PI / 180;
@@ -105,8 +126,9 @@
   }
 
   function renderSectorMarkup(disc) {
-    var outerRadius = disc.rx - 6;
-    var innerRadius = disc.sectorInnerRadius;
+    var radii = getSectorRadii(disc);
+    var outerRadius = radii.outer;
+    var innerRadius = radii.inner;
     var sectorCount = disc.sectorColors.length;
     var step = 360 / sectorCount;
     var markup = [];
@@ -121,6 +143,17 @@
           ' stroke="#5c4b3a" stroke-opacity="0.12" stroke-width="1"></path>'
       );
     }
+
+    markup.push('<g class="dress-disc__cells">');
+    for (i = 0; i < sectorCount; i += 1) {
+      var cellStart = i * step;
+      var cellEnd = cellStart + step;
+      markup.push(
+        '<path class="dress-disc__cell" data-dress-cell="' + disc.id + "-" + i + '"' +
+          ' d="' + createDonutSectorPath(innerRadius + 3, outerRadius - 5, cellStart, cellEnd) + '"></path>'
+      );
+    }
+    markup.push("</g>");
 
     for (i = 0; i < sectorCount; i += 1) {
       var tickOuter = polarToCartesian(outerRadius - 1, i * step);
@@ -146,6 +179,118 @@
     return markup.join("");
   }
 
+  function renderPlacardSlots(disc) {
+    if (!disc.sectorSlots || !disc.sectorSlots.length || !disc.itemUrls || !disc.itemUrls.length) {
+      return "";
+    }
+
+    var radii = getSectorRadii(disc);
+    var markup = [
+      '<g class="dress-disc__slots dress-disc__slots--upright" data-disc-placards="' + disc.id + '">'
+    ];
+    disc.sectorSlots.forEach(function (slot) {
+      markup.push(renderHotpotPlacard(disc, slot, radii.inner, radii.outer));
+    });
+    markup.push("</g>");
+    return markup.join("");
+  }
+
+  /** 格心在盘面坐标系中的位置，再叠加转子角度（用于转子外的立牌层） */
+  function getSlotPositionInProject(disc, localX, localY) {
+    var rad = disc.angle * Math.PI / 180;
+    var cos = Math.cos(rad);
+    var sin = Math.sin(rad);
+
+    return {
+      x: localX * cos - localY * sin,
+      y: localX * sin + localY * cos
+    };
+  }
+
+  function getRotorSlotDepth(slotX, slotY, discAngle) {
+    var rad = discAngle * Math.PI / 180;
+    return slotX * Math.sin(rad) + slotY * Math.cos(rad);
+  }
+
+  function getDiscProjectScaleY(disc) {
+    if (!disc || !disc.rx) return 1;
+    return disc.ry / disc.rx;
+  }
+
+  /** 按原图宽高比缩放，最长边不超过 maxDim */
+  function scaleImageToMax(naturalW, naturalH, maxDim) {
+    if (!naturalW || !naturalH) {
+      return { w: maxDim, h: maxDim };
+    }
+
+    var scale = maxDim / Math.max(naturalW, naturalH);
+    return {
+      w: naturalW * scale,
+      h: naturalH * scale
+    };
+  }
+
+  function applyPlacardImageLayout(imageEl, naturalW, naturalH) {
+    if (!imageEl) return;
+
+    var maxDim = parseFloat(imageEl.getAttribute("data-max-dim")) || 24;
+    var projectScaleY = parseFloat(imageEl.getAttribute("data-disc-scale-y")) || 1;
+    var size = scaleImageToMax(naturalW, naturalH, maxDim);
+    var drawH = size.h / projectScaleY;
+
+    imageEl.setAttribute("x", formatNumber(-size.w / 2));
+    imageEl.setAttribute("y", formatNumber(-drawH));
+    imageEl.setAttribute("width", formatNumber(size.w));
+    imageEl.setAttribute("height", formatNumber(drawH));
+    imageEl.removeAttribute("preserveAspectRatio");
+    imageEl.removeAttribute("opacity");
+  }
+
+  function getSlotCenterOnDisc(disc, slot, innerRadius, outerRadius) {
+    var slotRadius = innerRadius + (outerRadius - innerRadius) * CELL_RADIUS_RATIO;
+    var pos = polarToCartesian(slotRadius, slot.centerAngle);
+
+    return {
+      x: pos.x,
+      y: pos.y,
+      centerAngle: slot.centerAngle
+    };
+  }
+
+  function renderHotpotPlacard(disc, slot, innerRadius, outerRadius) {
+    var center = getSlotCenterOnDisc(disc, slot, innerRadius, outerRadius);
+    var pos = getSlotPositionInProject(disc, center.x, center.y);
+    var src = getItemSrc(disc, slot.index);
+    var slotKey = getSlotKey(disc.id, slot.index);
+    var maxDim = disc.itemSize || 24;
+    var lift = disc.placardLift || 0;
+    var projectScaleY = getDiscProjectScaleY(disc);
+    var baseRx = Math.max(3, Math.round(maxDim * 0.2));
+    var baseRy = Math.max(2, Math.round(maxDim * 0.09));
+
+    return (
+      '<g class="dress-disc__slot" data-dress-slot="' + slotKey + '"' +
+        ' data-slot-index="' + slot.index + '"' +
+        ' data-slot-x="' + formatNumber(center.x) + '"' +
+        ' data-slot-y="' + formatNumber(center.y) + '"' +
+        ' transform="translate(' + formatNumber(pos.x) + " " + formatNumber(pos.y) + ')">' +
+        '<ellipse class="dress-disc__slot-base" cx="0" cy="0"' +
+          ' rx="' + formatNumber(baseRx) + '" ry="' + formatNumber(baseRy) + '"></ellipse>' +
+        '<g class="dress-disc__placard-rise" transform="translate(0 ' + formatNumber(-lift) + ')">' +
+          '<g class="dress-disc__placard-body">' +
+            '<image class="dress-disc__slot-image" data-dress-slot-image="' + slotKey + '"' +
+              ' data-max-dim="' + formatNumber(maxDim) + '"' +
+              ' data-disc-scale-y="' + formatNumber(projectScaleY) + '"' +
+              ' data-placard-lift="' + formatNumber(lift) + '"' +
+              ' href="' + escapeAttr(src) + '"' +
+              ' opacity="0"' +
+              ' x="0" y="0" width="0" height="0"></image>' +
+          "</g>" +
+        "</g>" +
+      "</g>"
+    );
+  }
+
   function renderSurface(disc) {
     var scaleY = disc.ry / disc.rx;
 
@@ -155,6 +300,7 @@
         '<g class="dress-disc__surface-rotor" data-disc-rotor="' + disc.id + '" transform="rotate(' + formatNumber(disc.angle) + ')">' +
           renderSectorMarkup(disc) +
         "</g>" +
+        renderPlacardSlots(disc) +
       "</g>"
     );
   }
@@ -244,7 +390,7 @@
           '<div class="dress-stage-card__head">' +
             '<p class="dress-stage-card__kicker caption">Ellipse Turntable</p>' +
             '<h2 class="dress-stage-card__title">三层独立可拖动转盘</h2>' +
-            '<p class="dress-stage-card__desc caption">盘体厚度固定不动，真正旋转的是椭圆顶面里的扇区、刻度和高光。</p>' +
+            '<p class="dress-stage-card__desc caption">盘体厚度固定不动；扇区随盘旋转，立牌槽位公转，牌身始终朝屏幕上方竖起。</p>' +
           "</div>" +
           '<div class="dress-stage" data-dress-stage>' +
             renderSvg(state) +
@@ -262,7 +408,8 @@
             '<p class="caption">顶盘整面可拖，中盘和底盘只在露出的环带区域响应拖动。</p>' +
           "</div>" +
           '<ul class="dress-note-list">' +
-            "<li>三层共用同一条竖直中心轴，但每层都有自己的角度与速度。</li>" +
+            "<li>三层都绕自身中心轴原地自转，不是整张椭圆在平面里整体旋转。</li>" +
+            "<li>每层都有自己的角度与速度，立牌格心随扇区公转，牌身方向始终向上、不随半径倾斜。</li>" +
             "<li>默认同向不同速自动转动，松手后会从当前角度继续旋转。</li>" +
             "<li>鼠标和触摸都可以直接拖拽，盘体的外轮廓与厚度不会漂移。</li>" +
           "</ul>" +
@@ -296,9 +443,111 @@
     return normalizeAngle((Math.atan2(localY, localX) * 180 / Math.PI) + 90);
   }
 
+  function updatePlacardPositions(disc) {
+    if (!runtime) return;
+
+    var bucket = runtime.placardBuckets[disc.id];
+    if (!bucket) return;
+
+    bucket.querySelectorAll("[data-dress-slot]").forEach(function (slotNode) {
+      var localX = parseFloat(slotNode.getAttribute("data-slot-x") || "0");
+      var localY = parseFloat(slotNode.getAttribute("data-slot-y") || "0");
+      var pos = getSlotPositionInProject(disc, localX, localY);
+
+      slotNode.setAttribute(
+        "transform",
+        "translate(" + formatNumber(pos.x) + " " + formatNumber(pos.y) + ")"
+      );
+    });
+  }
+
   function updateRotor(disc) {
-    if (!runtime || !runtime.rotors[disc.id]) return;
-    runtime.rotors[disc.id].setAttribute("transform", "rotate(" + formatNumber(disc.angle) + ")");
+    if (!runtime) return;
+
+    var rotate = "rotate(" + formatNumber(disc.angle) + ")";
+
+    if (runtime.rotors[disc.id]) {
+      runtime.rotors[disc.id].setAttribute("transform", rotate);
+    }
+
+    updatePlacardPositions(disc);
+    sortPlacardDepth(disc);
+  }
+
+  function sortPlacardDepth(disc) {
+    var bucket = runtime && runtime.placardBuckets[disc.id];
+    if (!bucket) return;
+
+    var angle = disc.angle;
+    var slots = Array.prototype.slice.call(bucket.querySelectorAll("[data-dress-slot]"));
+    slots.sort(function (a, b) {
+      var ax = parseFloat(a.getAttribute("data-slot-x") || "0");
+      var ay = parseFloat(a.getAttribute("data-slot-y") || "0");
+      var bx = parseFloat(b.getAttribute("data-slot-x") || "0");
+      var by = parseFloat(b.getAttribute("data-slot-y") || "0");
+
+      return getRotorSlotDepth(ax, ay, angle) - getRotorSlotDepth(bx, by, angle);
+    });
+
+    slots.forEach(function (node) {
+      bucket.appendChild(node);
+    });
+  }
+
+  function layoutPlacardImages(container) {
+    if (!container) return;
+
+    container.querySelectorAll("[data-dress-slot-image]").forEach(function (imageEl) {
+      function layoutFromElement() {
+        applyPlacardImageLayout(imageEl, imageEl.naturalWidth, imageEl.naturalHeight);
+      }
+
+      if (imageEl.complete && imageEl.naturalWidth) {
+        layoutFromElement();
+        return;
+      }
+
+      imageEl.addEventListener("load", layoutFromElement, { once: true });
+    });
+  }
+
+  function preloadDiscItems(state, container) {
+    var seen = {};
+
+    state.discs.forEach(function (disc) {
+      if (!disc.itemUrls) return;
+      disc.itemUrls.forEach(function (url) {
+        if (!url || seen[url]) return;
+        seen[url] = true;
+        var img = new Image();
+        img.decoding = "async";
+        img.onload = function () {
+          if (!container) return;
+          container.querySelectorAll("[data-dress-slot-image]").forEach(function (imageEl) {
+            if (imageEl.getAttribute("href") !== url) return;
+            applyPlacardImageLayout(imageEl, img.naturalWidth, img.naturalHeight);
+          });
+        };
+        img.src = url;
+      });
+    });
+  }
+
+  function collectSlotRefs(container) {
+    var slotImages = {};
+    var slotNodes = {};
+
+    container.querySelectorAll("[data-dress-slot-image]").forEach(function (imageEl) {
+      var key = imageEl.getAttribute("data-dress-slot-image");
+      if (key) slotImages[key] = imageEl;
+    });
+
+    container.querySelectorAll("[data-dress-slot]").forEach(function (slotEl) {
+      var key = slotEl.getAttribute("data-dress-slot");
+      if (key) slotNodes[key] = slotEl;
+    });
+
+    return { slotImages: slotImages, slotNodes: slotNodes };
   }
 
   function updateIndicators(state) {
@@ -445,14 +694,20 @@
     var unbinds = [];
     var indicatorMap = {};
     var rotorMap = {};
+    var placardBucketMap = {};
 
     DISC_IDS.forEach(function (discId) {
       var rotor = container.querySelector('[data-disc-rotor="' + discId + '"]');
       if (rotor) rotorMap[discId] = rotor;
 
+      var placards = container.querySelector('[data-disc-placards="' + discId + '"]');
+      if (placards) placardBucketMap[discId] = placards;
+
       var indicator = container.querySelector('[data-disc-indicator="' + discId + '"]');
       if (indicator) indicatorMap[discId] = indicator;
     });
+
+    var slotRefs = collectSlotRefs(container);
 
     runtime = {
       container: container,
@@ -461,6 +716,9 @@
       stage: stage,
       svg: svg,
       rotors: rotorMap,
+      placardBuckets: placardBucketMap,
+      slotImages: slotRefs.slotImages,
+      slotNodes: slotRefs.slotNodes,
       indicators: indicatorMap,
       statusText: statusText,
       activeHitTarget: null,
@@ -468,6 +726,14 @@
       rafId: 0,
       unbinds: unbinds
     };
+
+    state.discs.forEach(function (disc) {
+      updatePlacardPositions(disc);
+      sortPlacardDepth(disc);
+    });
+
+    preloadDiscItems(state, container);
+    layoutPlacardImages(container);
 
     unbinds.push(util.on(stage, "pointerdown", handlePointerDown));
     unbinds.push(util.on(stage, "pointermove", handlePointerMove));

@@ -4,9 +4,11 @@
 
 ## 功能说明（来自 `wmx` 分支整合）
 
-- 主应用 `index.html` → **装扮** Tab：三层椭圆转盘（可拖拽旋转、自动慢转）
-- 独立调试页：根目录 [`dress-preview.html`](../../../dress-preview.html)（仅挂载本模块，不改主框架）
-- 临时素材与工具：[`wmx-temporary/`](../../../wmx-temporary/)（宠物图、压缩脚本、转盘单页原型）
+- 主应用 `index.html` → **装扮** Tab：三层椭圆转盘，**回转小火锅**式（6 格 × 每格固定一道菜）
+- 旋转：`translate(cx,cy) scale(1,ry/rx)` 后顶面色固定，扇区在 `data-disc-rotor` 内 `rotate(angle)`（同 wmx 转盘）
+- 立牌：与 rotor 同级，槽位公转、牌身朝上；加载后按 `naturalWidth/Height` 等比缩放至 `itemSize`，并对椭圆 `scaleY` 做高度补偿以保持屏幕上的原图比例
+- 独立调试页：[`dress-preview.html`](../../../dress-preview.html)
+- 规范与原型：[`wmx-temporary/displayment-wmx/组件合并规范.md`](../../../wmx-temporary/displayment-wmx/组件合并规范.md)、[`wmx-temporary/转盘/index.html`](../../../wmx-temporary/转盘/index.html)
 
 ## 目录职责
 
@@ -22,8 +24,7 @@
 ## 资源
 
 - 运行时：`css/modules/dress.css`
-- 正式资源目录：`assets/modules/dress/`（入选包体的压缩图放这里）
-- 开发参考：`wmx-temporary/assets/pet/`（体积大，勿直接打进 8MB 包）
+- 正式资源：沿用 `source/compressed/10kb/` 食物 WebP（与点餐模块同源）
 
 ## 协作约定
 

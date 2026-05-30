@@ -9,7 +9,7 @@
 .dress-stage-card,
 .dress-note-card {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .dress-stage-card {
@@ -42,6 +42,7 @@
 .dress-stage {
   margin-top: 18px;
   padding: 18px 10px 14px;
+  overflow: visible;
   border-radius: calc(var(--radius-card) - 2px);
   border: 1px solid rgba(196, 168, 130, 0.22);
   background:
@@ -63,6 +64,50 @@
 
 .dress-disc__hit:active {
   cursor: grabbing;
+}
+
+/* wmx 投影：扇区在 rotor 内旋转；立牌在 rotor 外公转，牌身始终朝上 */
+.dress-disc__cells {
+  pointer-events: none;
+}
+
+.dress-disc__cell {
+  fill: rgba(255, 255, 255, 0.38);
+  stroke: rgba(92, 75, 58, 0.22);
+  stroke-width: 1;
+}
+
+.dress-disc__slots {
+  pointer-events: none;
+}
+
+.dress-disc__slot {
+  pointer-events: none;
+}
+
+/* 格心锚点：与 sectorSlots.centerAngle 绑定，随 data-disc-rotor 旋转 */
+.dress-disc__slot-center {
+  pointer-events: none;
+}
+
+/* 格心小碟（贴在盘面椭圆上） */
+.dress-disc__slot-base {
+  fill: rgba(232, 223, 209, 0.96);
+  stroke: rgba(92, 75, 58, 0.32);
+  stroke-width: 1;
+}
+
+.dress-disc__slots--upright {
+  pointer-events: none;
+}
+
+.dress-disc__placard-rise {
+  pointer-events: none;
+}
+
+.dress-disc__slot-image {
+  pointer-events: none;
+  filter: drop-shadow(0 3px 6px rgba(92, 75, 58, 0.18));
 }
 
 .dress-status {

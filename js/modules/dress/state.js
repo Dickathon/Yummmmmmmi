@@ -3,8 +3,48 @@
 
   var root = global.Yummi.modules.dress;
 
+  function resolveItemUrls(relativePaths) {
+    var base = (root.config && root.config.itemsBase) || "";
+    return relativePaths.map(function (path) {
+      return base + path;
+    });
+  }
+
+  /** centerAngle 与 view 格心绑定；槽位随盘面公转，牌身始终朝屏幕上方 */
+  function createSectorSlots(sectorCount) {
+    var step = 360 / sectorCount;
+    var slots = [];
+    var i;
+
+    for (i = 0; i < sectorCount; i += 1) {
+      slots.push({
+        index: i,
+        centerAngle: i * step + step / 2,
+        imageIndex: i
+      });
+    }
+
+    return slots;
+  }
+
+  function applyDiscItems(disc) {
+    var cfg = root.config && root.config.discs && root.config.discs[disc.id];
+    if (!cfg || !cfg.items || !cfg.items.length) {
+      disc.itemUrls = [];
+      disc.itemSize = 0;
+      disc.placardLift = 0;
+      disc.sectorSlots = [];
+      return;
+    }
+
+    disc.itemSize = cfg.itemSize || 24;
+    disc.placardLift = cfg.placardLift || 0;
+    disc.itemUrls = resolveItemUrls(cfg.items);
+    disc.sectorSlots = createSectorSlots(disc.sectorColors.length);
+  }
+
   function createDiscs() {
-    return [
+    var discs = [
       {
         id: "base",
         label: "底盘",
@@ -66,6 +106,9 @@
         sectorColors: ["#8fbc8f", "#a7c7a3", "#dfe9d8", "#c9dbbf", "#9caf88", "#b7d0aa"]
       }
     ];
+
+    discs.forEach(applyDiscItems);
+    return discs;
   }
 
   root.state = {

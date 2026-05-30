@@ -49,6 +49,15 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（wmx 立牌素材 + 竖立展示）
+
+- **模块/范围：** dress | wmx-temporary
+- **摘要：** 从 `origin/wmx` 整合 `displayment-wmx` 宠物部件图作转盘立牌内容；立牌层与 `data-disc-placard-rotor` 绑定（底座在格内、牌身竖起可超出格线）；修正 `组件合并规范.md` 中的本机绝对路径。
+- **路径：** `js/modules/dress/config.js`, `js/modules/dress/view.js`, `css/modules/dress.css`, `wmx-temporary/displayment-wmx/`, `assets/modules/dress/placards/README.md`
+- **备注：** 未合并 wmx 分支上对 `dress/view.js` 的占位回退；正式包体需压缩立牌图后再改 `itemsBase`。
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（Tab 栏修复）
 
 - **模块/范围：** 全局
