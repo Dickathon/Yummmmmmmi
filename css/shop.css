@@ -97,7 +97,7 @@
 /* 小猫头上弹窗 */
 .shop-popup {
   position: absolute;
-  z-index: 15;
+  z-index: 20;
   min-width: 200px;
   max-width: 240px;
   background: rgba(245, 240, 232, 0.82);
@@ -245,6 +245,91 @@
 
 .shop-visitor__btn--feed:active {
   background: rgba(160, 200, 140, 0.85);
+}
+
+/* 投喂食物选择弹窗 */
+.shop-feed__title {
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-title);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.shop-feed__coin {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: 10px;
+  letter-spacing: var(--letter-caption);
+}
+
+.shop-feed__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.shop-feed__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-family: inherit;
+  letter-spacing: var(--letter-body);
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+
+.shop-feed__item:active {
+  transform: scale(0.97);
+  background: rgba(160, 200, 140, 0.3);
+}
+
+.shop-feed__item-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(160, 200, 140, 0.7);
+  flex-shrink: 0;
+}
+
+.shop-feed__item-name {
+  flex: 1;
+}
+
+/* 投喂空状态 */
+.shop-feed__empty {
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.shop-feed__empty-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
+.shop-feed__empty-text {
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.shop-feed__empty-sub {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-caption);
 }
 
 /* 投喂 "咔哧" 弹窗 */
@@ -450,40 +535,51 @@
   text-align: center;
 }
 
-.shop-preference__item {
+.shop-preference__axes {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.shop-preference__icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
+.shop-preference__axis {
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+}
+
+.shop-preference__axis-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  flex-shrink: 0;
+  margin-bottom: 4px;
 }
 
-.shop-preference__label {
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
+.shop-preference__axis-label {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-body);
   letter-spacing: var(--letter-caption);
 }
 
-.shop-preference__value {
-  font-size: 0.8rem;
-  color: var(--color-primary);
-  font-weight: var(--font-weight-body);
-  letter-spacing: var(--letter-body);
-  margin-top: 1px;
+.shop-preference__axis-num {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-title);
+}
+
+.shop-preference__axis-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(200, 190, 175, 0.3);
+  overflow: hidden;
+}
+
+.shop-preference__axis-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(232, 126, 90, 0.7), rgba(232, 126, 90, 0.9));
+  transition: width 0.4s var(--ease-standard);
 }
 
 .shop-preference__close {
@@ -503,6 +599,45 @@
 
 .shop-preference__close:active {
   background: rgba(255, 255, 255, 0.8);
+}
+
+/* 自动留言 — 小猫头上 */
+.shop-toast-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.shop-toast {
+  position: absolute;
+  min-width: 160px;
+  max-width: 200px;
+  background: rgba(245, 240, 232, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(92, 75, 58, 0.12);
+  padding: 10px 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-standard);
+}
+
+.shop-toast--show {
+  opacity: 1;
+}
+
+.shop-toast__content {
+  font-size: 0.75rem;
+  color: var(--color-text);
+  letter-spacing: var(--letter-body);
+  line-height: var(--line-body);
+}
+
+.shop-toast__content strong {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-title);
 }
 
 /* 错误状态 */

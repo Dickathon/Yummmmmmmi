@@ -1,3 +1,8 @@
+/* dress 面板完全隐藏 */
+.panel[data-panel="dress"] {
+  display: none !important;
+}
+
 /* dress module */
 
 .dress-module .dress-root {

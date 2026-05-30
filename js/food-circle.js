@@ -165,19 +165,110 @@
 
     setupInbox();
 
-    // 其他栏目按钮 — 功能预留
-    var buttons = [
-      { id: "fcPreference", name: "我的偏好" },
-      { id: "fcFeed", name: "投喂" }
-    ];
+    // 我的偏好
+    setupPreference();
 
-    buttons.forEach(function (btn) {
-      var el = document.getElementById(btn.id);
-      if (el) {
-        el.addEventListener("click", function () {
-          // TODO: 功能完成后在此实现对应逻辑
-          console.log("[预留] 点击栏目:", btn.name);
-        });
+    // 投喂 — 功能预留
+    var feedBtn = document.getElementById("fcFeed");
+    if (feedBtn) {
+      feedBtn.addEventListener("click", function () {
+        console.log("[预留] 点击栏目: 投喂");
+      });
+    }
+  }
+
+  // ============================================================
+  // 口味偏好
+  // ============================================================
+  var AXIS_LABELS = { sweet: "甜", salty: "咸", sour: "酸", spicy: "辣", bitter: "苦", umami: "鲜", oily: "油", fresh: "爽" };
+  var AXIS_KEYS = ["sweet", "salty", "sour", "spicy", "bitter", "umami", "oily", "fresh"];
+
+  function getSelectedFoods() {
+    try {
+      var raw = localStorage.getItem("yummi_food_selection");
+      if (!raw) return [];
+      var list = JSON.parse(raw);
+      return Array.isArray(list) ? list : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function computeTasteProfile() {
+    var foods = getSelectedFoods();
+    var taste = global.Yummi && global.Yummi.foodTaste;
+    if (!taste || !taste.profileFromSelection) {
+      return null;
+    }
+    return taste.profileFromSelection(foods);
+  }
+
+  function renderTasteProfile() {
+    var body = document.getElementById("fcPrefBody");
+    if (!body) return;
+
+    var result = computeTasteProfile();
+
+    if (!result || !result.count) {
+      body.innerHTML =
+        '<div class="fc-pref__empty">' +
+          '<div class="fc-pref__empty-icon">🍽</div>' +
+          '<div class="fc-pref__empty-text">还没有选好的食物</div>' +
+          '<div class="fc-pref__empty-sub">去点餐模块选些好吃的，就能生成你的口味画像啦 ~</div>' +
+        '</div>';
+      return;
+    }
+
+    var profile = result.profile || {};
+    var html = '<div class="fc-pref__axes">';
+    for (var i = 0; i < AXIS_KEYS.length; i++) {
+      var key = AXIS_KEYS[i];
+      var label = AXIS_LABELS[key];
+      var val = profile[key] || 0;
+      html +=
+        '<div class="fc-pref__axis">' +
+          '<div class="fc-pref__axis-header">' +
+            '<span class="fc-pref__axis-label">' + escapeHtml(label) + '</span>' +
+            '<span class="fc-pref__axis-num">' + val + '</span>' +
+          '</div>' +
+          '<div class="fc-pref__axis-bar">' +
+            '<div class="fc-pref__axis-fill" style="width:' + val + '%;"></div>' +
+          '</div>' +
+        '</div>';
+    }
+    html += '</div>';
+    html += '<div class="fc-pref__summary">基于 ' + result.count + ' 道已选菜品计算</div>';
+    body.innerHTML = html;
+  }
+
+  function openPreference() {
+    var panel = document.getElementById("fcPrefPanel");
+    if (!panel) return;
+    renderTasteProfile();
+    panel.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closePreference() {
+    var panel = document.getElementById("fcPrefPanel");
+    if (!panel) return;
+    panel.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function setupPreference() {
+    var prefBtn = document.getElementById("fcPreference");
+    var overlay = document.getElementById("fcPrefOverlay");
+    var closeBtn = document.getElementById("fcPrefClose");
+
+    if (prefBtn) prefBtn.addEventListener("click", openPreference);
+    if (overlay) overlay.addEventListener("click", closePreference);
+    if (closeBtn) closeBtn.addEventListener("click", closePreference);
+
+    document.addEventListener("keydown", function (e) {
+      var panel = document.getElementById("fcPrefPanel");
+      if (e.key === "Escape" && panel && panel.getAttribute("aria-hidden") === "false") {
+        closePreference();
       }
     });
   }

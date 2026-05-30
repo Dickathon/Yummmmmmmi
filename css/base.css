@@ -90,3 +90,36 @@ img {
   height: auto;
   display: block;
 }
+
+/* 小鱼干币 — 右上角显示 */
+.fish-coin {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(245, 240, 232, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--color-paper);
+  box-shadow: var(--shadow-rest);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-body);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-caption);
+}
+
+.fish-coin__icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.fish-coin__num {
+  font-weight: var(--font-weight-title);
+  min-width: 1.2em;
+  text-align: center;
+}
