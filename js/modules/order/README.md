@@ -5,6 +5,7 @@
 ## 功能
 
 - **三层椭圆转盘**（自 dress 迁入）：6 格立牌、food1/2/3 轮换池、拖动盘面、θ=275° 换菜
+- **转盘食物展示逻辑说明：** [`TURNTABLE-FOOD-DISPLAY.md`](TURNTABLE-FOOD-DISPLAY.md)（HTML 结构、极坐标定位、可见性、换菜、动画）
 - 调试页：[`dress-preview.html`](../../../dress-preview.html)（挂载 order 脚本）
 - 目录生成：`node js/modules/dress/scripts/gen-items-catalog.mjs` 后复制或重跑 `node js/modules/order/scripts/port-turntable-from-dress.mjs` 同步 `items-catalog.js`（或手动同步 catalog）
 

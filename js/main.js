@@ -69,6 +69,10 @@
     screens.show(tabId, host);
   }
 
+  function syncOrderImmersive(tabId) {
+    document.body.classList.toggle("order-immersive", tabId === "order");
+  }
+
   function setActiveTab(tabId) {
     var screens = getScreens();
 
@@ -96,6 +100,7 @@
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
 
+    syncOrderImmersive(tabId);
     mountTab(tabId);
   }
 
@@ -160,6 +165,7 @@
 
     currentTab = initial;
     renderShells();
+    syncOrderImmersive(initial);
 
     // 如果 URL 指定了非默认 tab，同步激活样式
     if (urlTab && urlTab !== DEFAULT_TAB) {

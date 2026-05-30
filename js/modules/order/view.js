@@ -33,6 +33,7 @@
   }
   var INERTIA_VELOCITY_EPS = 0.01;
   var INERTIA_DECAY_PER_SEC = 0.88;
+  var TURNTABLE_DESKTOP_MQ = "(min-width: 431px)";
   /** 立牌绘制顺序：先画的在下，底盘最后画在最上 */
   var PLACARD_LAYER_ORDER = ["top", "mid", "base"];
   var CELL_RADIUS_RATIO = 0.58;
@@ -292,6 +293,47 @@
 
   function formatNumber(value) {
     return Number(value.toFixed(3));
+  }
+
+  function formatViewBox(box) {
+    return (
+      formatNumber(box.x) + " " +
+      formatNumber(box.y) + " " +
+      formatNumber(box.w) + " " +
+      formatNumber(box.h)
+    );
+  }
+
+  function getTurntableViewBox(state) {
+    var globalCfg = state.global || {};
+    var minY = Infinity;
+    var maxY = -Infinity;
+
+    state.discs.forEach(function (disc) {
+      var geo = getDiscGeometry(disc, globalCfg);
+      minY = Math.min(minY, geo.cy - geo.height - 8);
+      maxY = Math.max(maxY, geo.cy + geo.height + 8);
+    });
+
+    var baseDisc = findDisc(state, "base");
+    if (baseDisc) {
+      var baseGeo = getDiscGeometry(baseDisc, globalCfg);
+      maxY = Math.max(
+        maxY,
+        baseGeo.cy + baseGeo.height + 12 + Math.max(18, baseGeo.ry * 0.64)
+      );
+    }
+
+    if (!isFinite(minY) || !isFinite(maxY)) {
+      return { x: 0, y: 0, w: VIEWBOX_WIDTH, h: VIEWBOX_HEIGHT };
+    }
+
+    var padY = 6;
+    var y = Math.max(0, minY - padY);
+    var h = Math.min(VIEWBOX_HEIGHT - y, maxY - minY + padY * 2);
+    h = Math.max(h, 280);
+
+    return { x: 0, y: y, w: VIEWBOX_WIDTH, h: h };
   }
 
   function normalizeAngle(angle) {
@@ -961,8 +1003,10 @@
       ) :
       "";
 
+    var viewBox = formatViewBox(getTurntableViewBox(state));
+
     return (
-      '<svg class="order-turntable" data-order-svg viewBox="0 0 ' + VIEWBOX_WIDTH + " " + VIEWBOX_HEIGHT + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="椭圆转盘">' +
+      '<svg class="order-turntable" data-order-svg viewBox="' + viewBox + '" preserveAspectRatio="xMidYMid slice" role="img" aria-label="椭圆转盘">' +
         "<defs>" +
           '<linearGradient id="order-base-side" x1="0" y1="0" x2="0" y2="1">' +
             '<stop offset="0%" stop-color="#e8dfd1"></stop>' +
@@ -1037,6 +1081,21 @@
         "</section>" +
       "</div>"
     );
+  }
+
+  function syncTurntableViewportFit() {
+    if (!runtime || !runtime.svg || !runtime.state) return;
+
+    var desktop = window.matchMedia(TURNTABLE_DESKTOP_MQ).matches;
+    var box = desktop ?
+      { x: 0, y: 0, w: VIEWBOX_WIDTH, h: VIEWBOX_HEIGHT } :
+      getTurntableViewBox(runtime.state);
+
+    runtime.svg.setAttribute(
+      "preserveAspectRatio",
+      desktop ? "xMidYMid meet" : "xMidYMid slice"
+    );
+    runtime.svg.setAttribute("viewBox", formatViewBox(box));
   }
 
   function getSvgPoint(runtimeRef, event) {
@@ -1469,6 +1528,9 @@
     unbinds.push(util.on(stage, "pointerup", handlePointerUp));
     unbinds.push(util.on(stage, "pointercancel", handlePointerUp));
     unbinds.push(util.on(stage, "lostpointercapture", handlePointerUp));
+
+    syncTurntableViewportFit();
+    unbinds.push(util.on(window, "resize", syncTurntableViewportFit));
 
     updateIndicators(state);
     startAnimation();

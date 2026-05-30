@@ -1,10 +1,7 @@
 /* order module */
 
 :root {
-  --order-status-block: 52px;
-  --order-viewport-chrome: calc(
-    var(--tab-bar-height) + var(--safe-top) + var(--safe-bottom) + var(--order-status-block)
-  );
+  --order-stage-height: 100dvh;
 }
 
 .panel[data-panel="order"] {
@@ -49,6 +46,7 @@
 }
 
 .order-stage-card {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
@@ -81,27 +79,26 @@
 .order-stage {
   flex: 1;
   width: 100%;
-  min-height: calc(100dvh - var(--order-viewport-chrome));
-  height: calc(100dvh - var(--order-viewport-chrome));
-  max-height: calc(100dvh - var(--order-viewport-chrome));
+  min-height: var(--order-stage-height);
+  height: var(--order-stage-height);
+  max-height: var(--order-stage-height);
   margin: 0;
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
   border: none;
-  background: transparent;
+  background: var(--color-bg);
   touch-action: none;
   user-select: none;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
 }
 
 .order-turntable {
   display: block;
   width: 100%;
   height: 100%;
-  max-width: 100%;
-  max-height: 100%;
+  flex: 1;
 }
 
 .order-disc__hit,
@@ -175,10 +172,10 @@
 }
 
 .order-status {
+  display: none;
   flex-shrink: 0;
   margin: 0;
   padding: 6px 0 4px;
-  display: flex;
   flex-direction: column;
   gap: 6px;
 }
@@ -276,14 +273,118 @@
   line-height: 1.7;
 }
 
+.order-immersive {
+  overflow: hidden;
+}
+
+.order-immersive .app {
+  padding: 0;
+  max-width: none;
+  width: 100%;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.order-immersive .app-main {
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.order-immersive .panel[data-panel="order"] {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+@media (max-width: 430px) {
+  .order-immersive .panel[data-panel="order"] {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .order-immersive .order-module,
+  .order-immersive .panel[data-panel="order"] .panel-body,
+  .order-immersive .order-root,
+  .order-immersive .order-stage-card {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    flex: 1;
+  }
+
+  .order-immersive .order-stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+  }
+}
+
 body:has(.panel[data-panel="order"]:not([hidden])) .app {
-  padding-top: calc(var(--safe-top) + 6px);
-  padding-bottom: calc(var(--safe-bottom) + var(--tab-bar-height) + 6px);
-  padding-left: calc(var(--safe-left) + 4px);
-  padding-right: calc(var(--safe-right) + 4px);
+  padding: 0;
+  max-width: none;
+  width: 100%;
+}
+
+body:has(.panel[data-panel="order"]:not([hidden])) .app-main {
+  gap: 0;
 }
 
 @media (min-width: 431px) {
+  :root {
+    --order-stage-height: auto;
+  }
+
+  .order-immersive {
+    overflow: visible;
+  }
+
+  .order-immersive .app {
+    height: auto;
+    min-height: 100dvh;
+    max-width: var(--layout-max-width);
+    padding:
+      calc(var(--safe-top) + var(--space-loose))
+      calc(var(--safe-right) + var(--space-page-x))
+      calc(var(--safe-bottom) + var(--tab-bar-height) + var(--space-loose))
+      calc(var(--safe-left) + var(--space-page-x));
+  }
+
+  .order-immersive .app-main {
+    gap: var(--space-card);
+    height: auto;
+  }
+
+  .order-immersive .panel[data-panel="order"] {
+    position: static;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  body:has(.panel[data-panel="order"]:not([hidden])) .app {
+    max-width: var(--layout-max-width);
+    padding:
+      calc(var(--safe-top) + var(--space-loose))
+      calc(var(--safe-right) + var(--space-page-x))
+      calc(var(--safe-bottom) + var(--tab-bar-height) + var(--space-loose))
+      calc(var(--safe-left) + var(--space-page-x));
+  }
+
+  body:has(.panel[data-panel="order"]:not([hidden])) .app-main {
+    gap: var(--space-card);
+  }
+
   .panel[data-panel="order"] > .hero {
     display: grid;
   }
@@ -298,14 +399,18 @@ body:has(.panel[data-panel="order"]:not([hidden])) .app {
 
   .order-turntable {
     height: auto;
-    min-height: 0;
-    max-height: none;
+    flex: none;
   }
 
   .order-stage {
     flex: none;
     min-height: auto;
+    height: auto;
+    max-height: none;
     margin-top: 12px;
+    overflow: visible;
+    align-items: center;
+    justify-content: center;
   }
 
   .order-stage-card {
@@ -313,6 +418,7 @@ body:has(.panel[data-panel="order"]:not([hidden])) .app {
   }
 
   .order-status {
+    display: flex;
     margin-top: 14px;
   }
 
