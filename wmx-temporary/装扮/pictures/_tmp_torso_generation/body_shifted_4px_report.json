@@ -1,0 +1,56 @@
+{
+  "reference": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图\\body_1254.png",
+  "candidate": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\_tmp_torso_generation\\body_shifted_4px.png",
+  "max_shift": 3,
+  "alpha_threshold": 12,
+  "max_missing_ratio": 0.02,
+  "reference_size": [
+    1254,
+    1254
+  ],
+  "candidate_size": [
+    1254,
+    1254
+  ],
+  "passed": false,
+  "reasons": [
+    "Candidate bbox shifts inward by 4px, exceeding the allowed 3px."
+  ],
+  "candidate_corner_alpha": {
+    "top_left": 0,
+    "top_right": 0,
+    "bottom_left": 0,
+    "bottom_right": 0
+  },
+  "reference_bbox": [
+    153,
+    349,
+    910,
+    823
+  ],
+  "candidate_bbox": [
+    157,
+    349,
+    914,
+    823
+  ],
+  "bbox_delta": {
+    "left": 4,
+    "top": 0,
+    "right": 4,
+    "bottom": 0
+  },
+  "inward_shift": {
+    "left": 4,
+    "top": 0,
+    "right": 0,
+    "bottom": 0
+  },
+  "max_inward_shift": 4,
+  "reference_pixels": 255093,
+  "candidate_pixels": 255093,
+  "missing_pixels": 166,
+  "missing_ratio": 0.000651,
+  "extra_pixels": 108,
+  "extra_ratio": 0.000423
+}

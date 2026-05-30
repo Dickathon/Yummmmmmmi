@@ -691,6 +691,53 @@
         return parts.join("");
       }
 
+      function createSectorAngleRanges(count, angle) {
+        var ranges = [];
+        var step = 360 / count;
+        var i;
+
+        for (i = 0; i < count; i += 1) {
+          var start = normalizeAngle(i * step + angle);
+          var end = normalizeAngle((i + 1) * step + angle);
+          ranges.push({
+            index: i,
+            start: start,
+            end: end
+          });
+        }
+
+        return ranges;
+      }
+
+      function createVisibleSideRanges(range) {
+        var visible = [];
+
+        function pushSegment(start, end) {
+          if (end <= start) return;
+          var overlapStart = Math.max(start, 0);
+          var overlapEnd = Math.min(end, 180);
+          if (overlapEnd <= overlapStart) return;
+          visible.push({
+            start: overlapStart,
+            end: overlapEnd
+          });
+        }
+
+        if (range.end > range.start) {
+          pushSegment(range.start, range.end);
+        } else {
+          pushSegment(range.start, 360);
+          pushSegment(0, range.end);
+        }
+
+        return visible;
+      }
+
+      function angleToFrontX(angleDeg, rx) {
+        var radians = angleDeg * Math.PI / 180;
+        return -rx * Math.cos(radians);
+      }
+
       function getCapCarouselPhase(disc) {
         var normalized = normalizeAngle(disc.angle);
         return Math.floor(normalized / 45);
@@ -791,29 +838,51 @@
           return "";
         }
 
-        var bandCount = colors.length;
+        var angleRanges = createSectorAngleRanges(colors.length, geometry.angle);
         var markup = [];
+        var sectorVisible = [];
         var i;
 
-        for (i = 0; i < bandCount; i += 1) {
-          var x0 = -geometry.rx + ((geometry.rx * 2) / bandCount) * i;
-          var x1 = -geometry.rx + ((geometry.rx * 2) / bandCount) * (i + 1);
-          var bandId = prefix + "-side-color-" + i;
+        for (i = 0; i < angleRanges.length; i += 1) {
+          var visibleRanges = createVisibleSideRanges(angleRanges[i]);
+          visibleRanges.forEach(function (segment, segmentIndex) {
+            var x0 = angleToFrontX(segment.start, geometry.rx);
+            var x1 = angleToFrontX(segment.end, geometry.rx);
+            var left = Math.min(x0, x1);
+            var right = Math.max(x0, x1);
+            var bandId = prefix + "-side-color-" + i + "-" + segmentIndex;
+
+            if (right - left < 0.8) return;
+
+            sectorVisible.push({
+              left: left,
+              right: right,
+              color: colors[i],
+              clipId: bandId
+            });
+          });
+        }
+
+        sectorVisible.sort(function (a, b) {
+          return a.left - b.left;
+        });
+
+        sectorVisible.forEach(function (band) {
           markup.push(
             '<defs>' +
-              '<clipPath id="' + bandId + '">' +
-                '<path d="' + createSideBandPath(geometry.rx, geometry.ry, geometry.height, x0, x1) + '"></path>' +
+              '<clipPath id="' + band.clipId + '">' +
+                '<path d="' + createSideBandPath(geometry.rx, geometry.ry, geometry.height, band.left, band.right) + '"></path>' +
               "</clipPath>" +
             "</defs>"
           );
           markup.push(
-            '<g clip-path="url(#' + bandId + ')">' +
-              '<rect x="' + formatNumber(x0) + '" y="0" width="' + formatNumber(x1 - x0) + '" height="' + formatNumber(geometry.height) + '" fill="' + colors[i] + '" fill-opacity="0.34"></rect>' +
+            '<g clip-path="url(#' + band.clipId + ')">' +
+              '<rect x="' + formatNumber(band.left) + '" y="0" width="' + formatNumber(band.right - band.left) + '" height="' + formatNumber(geometry.height) + '" fill="' + band.color + '" fill-opacity="0.34"></rect>' +
             "</g>"
           );
-        }
+        });
 
-        return '<g class="turntable-side-colors" transform="translate(' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' + markup.join("") + "</g>";
+        return '<g class="turntable-side-colors" transform="translate(' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' + markup.join("") + '</g>';
       }
 
       function getDiscGeometry(disc) {
