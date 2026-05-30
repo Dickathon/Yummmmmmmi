@@ -1,7 +1,7 @@
 {
   "component": "tail",
   "reference": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图\\tail_1254.png",
-  "candidate": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\炸酱面_尾巴.png",
+  "candidate": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\炸酱面_尾巴_clamped.png",
   "standard_dir": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图",
   "max_shift": 3,
   "alpha_threshold": 12,
@@ -14,10 +14,8 @@
     1254,
     1254
   ],
-  "passed": false,
-  "reasons": [
-    "Reference coverage is too low after tolerance expansion: 21.3186% missing, allowed 2.0000%."
-  ],
+  "passed": true,
+  "reasons": [],
   "candidate_corner_alpha": {
     "top_left": 0,
     "top_right": 0,
@@ -31,16 +29,16 @@
     922
   ],
   "candidate_bbox": [
-    753,
-    369,
-    1174,
-    1000
+    866,
+    514,
+    1149,
+    932
   ],
   "bbox_delta": {
-    "left": -123,
-    "top": -145,
-    "right": 35,
-    "bottom": 78
+    "left": -10,
+    "top": 0,
+    "right": 10,
+    "bottom": 10
   },
   "inward_shift": {
     "left": 0,
@@ -50,9 +48,9 @@
   },
   "max_inward_shift": 0,
   "reference_pixels": 33065,
-  "candidate_pixels": 89703,
-  "missing_pixels": 7049,
-  "missing_ratio": 0.213186,
-  "extra_pixels": 63045,
-  "extra_ratio": 0.702819
+  "candidate_pixels": 39619,
+  "missing_pixels": 0,
+  "missing_ratio": 0.0,
+  "extra_pixels": 4590,
+  "extra_ratio": 0.115854
 }

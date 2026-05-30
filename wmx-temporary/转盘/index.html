@@ -697,45 +697,88 @@
         var i;
 
         for (i = 0; i < count; i += 1) {
-          var start = normalizeAngle(i * step + angle);
-          var end = normalizeAngle((i + 1) * step + angle);
           ranges.push({
             index: i,
-            start: start,
-            end: end
+            start: normalizeAngle(i * step + angle),
+            end: normalizeAngle((i + 1) * step + angle)
           });
         }
 
         return ranges;
       }
 
-      function createVisibleSideRanges(range) {
-        var visible = [];
+      function normalizeFrontAngle(angle) {
+        var next = normalizeAngle(angle);
+        if (next < 90) next += 360;
+        return next;
+      }
 
-        function pushSegment(start, end) {
-          if (end <= start) return;
-          var overlapStart = Math.max(start, 0);
-          var overlapEnd = Math.min(end, 180);
-          if (overlapEnd <= overlapStart) return;
-          visible.push({
+      function getVisibleSectorSegments(range) {
+        var segments = [];
+        var start = normalizeFrontAngle(range.start);
+        var end = normalizeFrontAngle(range.end);
+
+        if (end <= start) {
+          end += 360;
+        }
+
+        var frontStart = 90;
+        var frontEnd = 270;
+        var overlapStart = Math.max(start, frontStart);
+        var overlapEnd = Math.min(end, frontEnd);
+
+        if (overlapEnd > overlapStart) {
+          segments.push({
             start: overlapStart,
             end: overlapEnd
           });
         }
 
-        if (range.end > range.start) {
-          pushSegment(range.start, range.end);
-        } else {
-          pushSegment(range.start, 360);
-          pushSegment(0, range.end);
-        }
-
-        return visible;
+        return segments;
       }
 
-      function angleToFrontX(angleDeg, rx) {
+      function ellipsePointOnFrontArc(angleDeg, geometry, offsetY) {
         var radians = angleDeg * Math.PI / 180;
-        return -rx * Math.cos(radians);
+        return {
+          x: geometry.rx * Math.sin(radians),
+          y: -geometry.ry * Math.cos(radians) + offsetY
+        };
+      }
+
+      function sampleFrontArc(geometry, startAngle, endAngle, offsetY, reverse) {
+        var points = [];
+        var sweep = Math.max(2, Math.ceil(Math.abs(endAngle - startAngle) / 12));
+        var i;
+
+        for (i = 0; i <= sweep; i += 1) {
+          var t = i / sweep;
+          var angle = reverse
+            ? endAngle + ((startAngle - endAngle) * t)
+            : startAngle + ((endAngle - startAngle) * t);
+          points.push(ellipsePointOnFrontArc(angle, geometry, offsetY));
+        }
+
+        return points;
+      }
+
+      function buildSideSectorPath(geometry, startAngle, endAngle) {
+        var topPoints = sampleFrontArc(geometry, startAngle, endAngle, 0, false);
+        var bottomPoints = sampleFrontArc(geometry, startAngle, endAngle, geometry.height, true);
+        var parts = [];
+        var i;
+
+        parts.push("M", formatNumber(topPoints[0].x), formatNumber(topPoints[0].y));
+
+        for (i = 1; i < topPoints.length; i += 1) {
+          parts.push("L", formatNumber(topPoints[i].x), formatNumber(topPoints[i].y));
+        }
+
+        for (i = 0; i < bottomPoints.length; i += 1) {
+          parts.push("L", formatNumber(bottomPoints[i].x), formatNumber(bottomPoints[i].y));
+        }
+
+        parts.push("Z");
+        return parts.join(" ");
       }
 
       function getCapCarouselPhase(disc) {
@@ -833,56 +876,29 @@
         );
       }
 
-      function renderSideColorBands(geometry, colors, prefix) {
-        if (!colors || !colors.length) {
+      function renderSideColorBands(disc, geometry) {
+        if (!disc.sectorColors || !disc.sectorColors.length) {
           return "";
         }
 
-        var angleRanges = createSectorAngleRanges(colors.length, geometry.angle);
+        var angleRanges = createSectorAngleRanges(disc.sectorColors.length, geometry.angle);
         var markup = [];
-        var sectorVisible = [];
         var i;
 
         for (i = 0; i < angleRanges.length; i += 1) {
-          var visibleRanges = createVisibleSideRanges(angleRanges[i]);
-          visibleRanges.forEach(function (segment, segmentIndex) {
-            var x0 = angleToFrontX(segment.start, geometry.rx);
-            var x1 = angleToFrontX(segment.end, geometry.rx);
-            var left = Math.min(x0, x1);
-            var right = Math.max(x0, x1);
-            var bandId = prefix + "-side-color-" + i + "-" + segmentIndex;
-
-            if (right - left < 0.8) return;
-
-            sectorVisible.push({
-              left: left,
-              right: right,
-              color: colors[i],
-              clipId: bandId
-            });
+          var visibleRanges = getVisibleSectorSegments(angleRanges[i]);
+          visibleRanges.forEach(function (segment) {
+            var path = buildSideSectorPath(geometry, segment.start, segment.end);
+            markup.push(
+              '<path d="' + path + '" fill="' + disc.sectorColors[i] + '" fill-opacity="0.44"></path>'
+            );
+            markup.push(
+              '<path d="' + path + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.18" stroke-width="0.9"></path>'
+            );
           });
         }
 
-        sectorVisible.sort(function (a, b) {
-          return a.left - b.left;
-        });
-
-        sectorVisible.forEach(function (band) {
-          markup.push(
-            '<defs>' +
-              '<clipPath id="' + band.clipId + '">' +
-                '<path d="' + createSideBandPath(geometry.rx, geometry.ry, geometry.height, band.left, band.right) + '"></path>' +
-              "</clipPath>" +
-            "</defs>"
-          );
-          markup.push(
-            '<g clip-path="url(#' + band.clipId + ')">' +
-              '<rect x="' + formatNumber(band.left) + '" y="0" width="' + formatNumber(band.right - band.left) + '" height="' + formatNumber(geometry.height) + '" fill="' + band.color + '" fill-opacity="0.34"></rect>' +
-            "</g>"
-          );
-        });
-
-        return '<g class="turntable-side-colors" transform="translate(' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' + markup.join("") + '</g>';
+        return '<g class="turntable-side-colors" data-side-colors="' + disc.id + '" transform="translate(' + formatNumber(geometry.cx) + ' ' + formatNumber(geometry.cy) + ')">' + markup.join("") + '</g>';
       }
 
       function getDiscGeometry(disc) {
@@ -1065,7 +1081,7 @@
           refs.svg.innerHTML +=
             '<g data-disc="' + disc.id + '">' +
               '<path d="' + createSidePath(geometry) + '" fill="url(#' + geometry.sideGradientId + ')"></path>' +
-              renderSideColorBands(geometry, disc.sectorColors, disc.id) +
+              renderSideColorBands(disc, geometry) +
               (disc.id === "cap" ? renderCapSideCarousel(disc, geometry) : "") +
               '<path d="' + createSideOutlinePath(geometry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2" stroke-linejoin="round"></path>' +
               renderTopFace(disc, geometry) +
@@ -1080,6 +1096,8 @@
 
         state.discs.forEach(function (disc) {
           refs.rotors[disc.id] = refs.svg.querySelector('[data-rotor="' + disc.id + '"]');
+          refs.sideColorGroups = refs.sideColorGroups || {};
+          refs.sideColorGroups[disc.id] = refs.svg.querySelector('[data-side-colors="' + disc.id + '"]');
           refs.sideRotors = refs.sideRotors || {};
           refs.sideRotors[disc.id] = refs.svg.querySelector('[data-side-rotor="' + disc.id + '"]');
         });
@@ -1088,6 +1106,11 @@
       function updateRotor(disc) {
         if (!refs.rotors[disc.id]) return;
         refs.rotors[disc.id].setAttribute("transform", "rotate(" + formatNumber(disc.angle) + ")");
+        if (refs.sideColorGroups && refs.sideColorGroups[disc.id]) {
+          var geometry = getDiscGeometry(disc);
+          refs.sideColorGroups[disc.id].outerHTML = renderSideColorBands(disc, geometry);
+          refs.sideColorGroups[disc.id] = refs.svg.querySelector('[data-side-colors="' + disc.id + '"]');
+        }
       }
 
       function updateStatus() {
