@@ -32,13 +32,13 @@
     if (!cfg || !cfg.items || !cfg.items.length) {
       disc.itemUrls = [];
       disc.itemSize = 0;
-      disc.placardLift = 0;
+      disc.placardDrop = 0;
       disc.sectorSlots = [];
       return;
     }
 
     disc.itemSize = cfg.itemSize || 24;
-    disc.placardLift = cfg.placardLift || 0;
+    disc.placardDrop = cfg.placardDrop || 0;
     disc.itemUrls = resolveItemUrls(cfg.items);
     disc.sectorSlots = createSectorSlots(disc.sectorColors.length);
   }

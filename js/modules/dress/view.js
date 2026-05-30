@@ -318,7 +318,7 @@
     var src = getItemSrc(disc, slot.index);
     var slotKey = getSlotKey(disc.id, slot.index);
     var maxDim = disc.itemSize || 24;
-    var lift = disc.placardLift || 0;
+    var drop = disc.placardDrop || 0;
     var baseRx = Math.max(3, Math.round(maxDim * 0.2));
     var baseRy = Math.max(2, Math.round(maxDim * 0.09));
 
@@ -331,7 +331,7 @@
         ' transform="translate(' + formatNumber(anchor.x) + " " + formatNumber(anchor.y) + ')">' +
         '<ellipse class="dress-disc__slot-base" cx="0" cy="0"' +
           ' rx="' + formatNumber(baseRx) + '" ry="' + formatNumber(baseRy) + '"></ellipse>' +
-        '<g class="dress-disc__placard-rise" transform="translate(0 ' + formatNumber(-lift) + ')">' +
+        '<g class="dress-disc__placard-rise" transform="translate(0 ' + formatNumber(drop) + ')">' +
           '<g class="dress-disc__placard-body">' +
             '<image class="dress-disc__slot-image" data-dress-slot-image="' + slotKey + '"' +
               ' data-max-dim="' + formatNumber(maxDim) + '"' +

@@ -13,7 +13,7 @@
     discs: {
       base: {
         itemSize: 56,
-        placardLift: 10,
+        placardDrop: 7,
         items: [
           "food1/寿司-10kb.webp",
           "food1/披萨-10kb.webp",
@@ -25,7 +25,7 @@
       },
       mid: {
         itemSize: 46,
-        placardLift: 8,
+        placardDrop: 6,
         items: [
           "food2/奶油蛋糕-10kb.webp",
           "food2/葡式蛋挞-10kb.webp",
@@ -37,7 +37,7 @@
       },
       top: {
         itemSize: 38,
-        placardLift: 6,
+        placardDrop: 5,
         items: [
           "food3/珍珠奶茶-10kb.webp",
           "food3/抹茶奶茶-10kb.webp",
