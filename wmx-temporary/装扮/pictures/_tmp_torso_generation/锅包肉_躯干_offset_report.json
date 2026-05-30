@@ -1,5 +1,5 @@
 {
-  "component": "legs",
+  "component": "body",
   "reference": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图\\body_1254.png",
   "candidate": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\_tmp_torso_generation\\锅包肉_躯干.png",
   "standard_dir": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图",
@@ -29,16 +29,16 @@
     823
   ],
   "candidate_bbox": [
-    136,
-    337,
-    1046,
-    953
+    148,
+    297,
+    1081,
+    983
   ],
   "bbox_delta": {
-    "left": -17,
-    "top": -12,
-    "right": 136,
-    "bottom": 130
+    "left": -5,
+    "top": -52,
+    "right": 171,
+    "bottom": 160
   },
   "inward_shift": {
     "left": 0,
@@ -48,9 +48,9 @@
   },
   "max_inward_shift": 0,
   "reference_pixels": 255093,
-  "candidate_pixels": 392246,
-  "missing_pixels": 4149,
-  "missing_ratio": 0.016265,
-  "extra_pixels": 136535,
-  "extra_ratio": 0.348085
+  "candidate_pixels": 447546,
+  "missing_pixels": 166,
+  "missing_ratio": 0.000651,
+  "extra_pixels": 185173,
+  "extra_ratio": 0.413752
 }
