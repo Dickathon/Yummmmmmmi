@@ -32,7 +32,6 @@
     return subsamplePaths(paths, poolSize);
   }
 
-  /** 从目录随机抽 N 条，使三层池子等大 */
   function subsamplePaths(paths, count) {
     var copy = paths.slice();
     var i;
@@ -53,7 +52,6 @@
     return (root.config && root.config.poolSizePerDisc) || 15;
   }
 
-  /** 各格在 playOrder 上错开，避免同盘多格同时撞到同一道菜 */
   function getSlotDeckOffset(slotIndex, poolSize, sectorCount) {
     var step = Math.max(1, Math.floor(poolSize / sectorCount));
     return (slotIndex * step) % poolSize;
@@ -71,7 +69,6 @@
     return Number(order[(cursor + offset) % n]);
   }
 
-  /** Fisher–Yates：返回 0..count-1 的一次随机排列，每盘启动时各洗牌一次 */
   function createShuffledPlayOrder(count, avoidIndex) {
     var order = [];
     var i;
@@ -106,10 +103,6 @@
     return order;
   }
 
-  /**
-   * 沿 playOrder 前进一格；整圈后重新洗牌且队首 ≠ leavingIndex。
-   * leavingIndex 为刚下场的菜（换菜前的 index），保证首尾不重复。
-   */
   function isFoodIndexTakenOnDisc(disc, slot, idx) {
     var slots = disc.sectorSlots;
     var i;
@@ -191,7 +184,6 @@
     return idx;
   }
 
-  /** centerAngle 与 view 格心绑定；槽位随盘面公转，牌身始终朝屏幕上方 */
   function createSectorSlots(sectorCount, disc) {
     var step = 360 / sectorCount;
     var order = disc.playOrder || [];
@@ -246,16 +238,22 @@
     disc.sectorSlots = createSectorSlots(sectorCount, disc);
   }
 
+  function cloneTurntableGlobal() {
+    var src = root.config && root.config.turntable && root.config.turntable.global;
+    return src ? Object.assign({}, src) : {};
+  }
+
   function createDiscs() {
-    var discs = [
+    var layout = (root.config && root.config.turntable && root.config.turntable.discLayout) || {};
+    var bases = [
       {
         id: "base",
         label: "底盘",
-        cx: 190,
-        cy: 286,
-        rx: 150,
-        ry: 38,
-        height: 64,
+        colorClass: "base",
+        baseCx: 190,
+        baseCy: 286,
+        baseRx: 150,
+        baseRy: 38,
         angle: 8,
         autoSpeed: 8,
         hitInnerRadius: 116,
@@ -263,6 +261,9 @@
         dragging: false,
         pointerId: null,
         lastPointerAngle: null,
+        lastMoveTime: null,
+        angularVelocity: 0,
+        inertiaBoost: 1,
         topColor: "#f5f0e8",
         capColor: "#e8dfd1",
         sideGradientId: "order-base-side",
@@ -271,18 +272,21 @@
       {
         id: "mid",
         label: "中盘",
-        cx: 190,
-        cy: 212,
-        rx: 108,
-        ry: 28,
-        height: 54,
+        colorClass: "mid",
+        baseCx: 190,
+        baseCy: 212,
+        baseRx: 108,
+        baseRy: 28,
         angle: 24,
-        autoSpeed: 12,
+        autoSpeed: -12,
         hitInnerRadius: 78,
         sectorInnerRadius: 28,
         dragging: false,
         pointerId: null,
         lastPointerAngle: null,
+        lastMoveTime: null,
+        angularVelocity: 0,
+        inertiaBoost: 1,
         topColor: "#f4e1e1",
         capColor: "#f7eeee",
         sideGradientId: "order-mid-side",
@@ -291,26 +295,69 @@
       {
         id: "top",
         label: "顶盘",
-        cx: 190,
-        cy: 148,
-        rx: 72,
-        ry: 19,
-        height: 42,
+        colorClass: "top",
+        baseCx: 190,
+        baseCy: 148,
+        baseRx: 72,
+        baseRy: 19,
         angle: 48,
-        autoSpeed: 16,
+        autoSpeed: -16,
         hitInnerRadius: 0,
         sectorInnerRadius: 20,
         dragging: false,
         pointerId: null,
         lastPointerAngle: null,
+        lastMoveTime: null,
+        angularVelocity: 0,
+        inertiaBoost: 1,
         topColor: "#8fbc8f",
         capColor: "#e8dfd1",
         sideGradientId: "order-top-side",
         sectorColors: ["#8fbc8f", "#a7c7a3", "#dfe9d8", "#c9dbbf", "#9caf88", "#b7d0aa"]
+      },
+      {
+        id: "cap",
+        label: "顶柱",
+        colorClass: "cap",
+        baseCx: 190,
+        baseCy: 102,
+        baseRx: 48,
+        baseRy: 13,
+        angle: 0,
+        autoSpeed: -18,
+        hitInnerRadius: 0,
+        sectorInnerRadius: 0,
+        dragging: false,
+        pointerId: null,
+        lastPointerAngle: null,
+        lastMoveTime: null,
+        angularVelocity: 0,
+        inertiaBoost: 0.92,
+        topColor: "#f0caa7",
+        capColor: "#fff1df",
+        sideGradientId: "order-cap-side",
+        sectorColors: [],
+        itemUrls: [],
+        sectorSlots: []
       }
     ];
+    var discs = bases.map(function (disc) {
+      var patch = layout[disc.id] || {};
+      return Object.assign({}, disc, {
+        x: patch.x || 0,
+        y: patch.y || 0,
+        scale: patch.scale != null ? patch.scale : 1,
+        heightScale: patch.heightScale != null ? patch.heightScale : 1
+      });
+    });
 
-    discs.forEach(applyDiscItems);
+    discs.forEach(function (disc) {
+      if (disc.id === "cap") {
+        return;
+      }
+      applyDiscItems(disc);
+    });
+
     return discs;
   }
 
@@ -320,6 +367,7 @@
       return {
         phase: "idle",
         equipped: [],
+        global: cloneTurntableGlobal(),
         discs: createDiscs(),
         activeDiscId: null,
         activePointerId: null,
@@ -330,6 +378,7 @@
       if (!state) return;
       state.phase = "idle";
       state.equipped = [];
+      state.global = cloneTurntableGlobal();
       state.discs = createDiscs();
       state.activeDiscId = null;
       state.activePointerId = null;

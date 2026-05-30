@@ -7,7 +7,32 @@
   var imageSizeCache = {};
   var VIEWBOX_WIDTH = 380;
   var VIEWBOX_HEIGHT = 398;
-  var DISC_IDS = ["base", "mid", "top"];
+  var DISC_IDS = ["base", "mid", "top", "cap"];
+
+  function getCapAssetBase() {
+    var tb = root.config && root.config.turntable;
+    return (tb && tb.capAssetsBase) || "wmx-temporary/转盘/assets/cats/";
+  }
+
+  function getCapSideImages() {
+    var base = getCapAssetBase();
+    return [
+      base + "IMG_20260530_125819.jpg",
+      base + "IMG_20260530_125904.jpg",
+      base + "IMG_20260530_125935.jpg",
+      base + "IMG_20260530_125618.jpg",
+      base + "IMG_20260530_125748.jpg",
+      base + "IMG_20260530_125756.jpg",
+      base + "IMG_20260530_125605.jpg",
+      base + "IMG_20260530_125740.jpg"
+    ];
+  }
+
+  function getCapTopTexture() {
+    return getCapAssetBase() + "top-texture-cat.jpg";
+  }
+  var INERTIA_VELOCITY_EPS = 0.01;
+  var INERTIA_DECAY_PER_SEC = 0.88;
   /** 立牌绘制顺序：先画的在下，底盘最后画在最上 */
   var PLACARD_LAYER_ORDER = ["top", "mid", "base"];
   var CELL_RADIUS_RATIO = 0.58;
@@ -17,11 +42,11 @@
     minOpacity: 0,
     maxOpacity: 1,
     maxBlurPx: 4,
-    /** 轨道角 θ = normalize(αslot + δdisc)；仅下列区间允许 t 变化 */
-    solidStartDeg: 60,
-    solidEndDeg: 70,
-    fadeStartDeg: 260,
-    fadeEndDeg: 270,
+    /** 轨道角 θ = normalize(αslot + δdisc)；渐实/渐虚各 10°，纯实区左右各收窄 10°（相对原 70°–260°） */
+    solidStartDeg: 70,
+    solidEndDeg: 80,
+    fadeStartDeg: 250,
+    fadeEndDeg: 260,
     /** 换菜只在此角度触发一次（须先经过 swapRearmDeg 以下重新武装） */
     swapDeg: 275,
     swapRearmDeg: 90
@@ -41,7 +66,7 @@
   }
 
   /**
-   * 0 = 虚小，1 = 实大。θ∈[60,70] 渐实；(70,260) 纯实；[260,270] 渐虚；其余恒 0。
+   * 0 = 虚小，1 = 实大。θ∈[70,80] 渐实；(80,250) 纯实；[250,260] 渐虚；其余恒 0。
    */
   function getPlacardPresenceT(disc, centerAngle) {
     var p = PLACARD_PRESENCE;
@@ -224,10 +249,32 @@
     return discId + "-" + slotIndex;
   }
 
-  function getSectorRadii(disc) {
+  function getSectorRadii(geometry) {
     return {
-      outer: disc.rx - 6,
-      inner: disc.sectorInnerRadius
+      outer: geometry.rx - 6,
+      inner: Math.max(geometry.sectorInnerRadius, 12)
+    };
+  }
+
+  /** 与 wmx 转盘原型 getDiscGeometry 一致 */
+  function getDiscGeometry(disc, global) {
+    var g = global || {};
+    var scale = (g.globalScale || 1) * (disc.scale || 1);
+    var layerUnit = (disc.baseCy - 148) / 64;
+
+    return {
+      id: disc.id,
+      cx: disc.baseCx + (g.offsetX || 0) + (disc.x || 0),
+      cy: 148 + (layerUnit * 64 * (g.layerGap || 1)) + (g.offsetY || 0) + (disc.y || 0),
+      rx: disc.baseRx * scale,
+      ry: disc.baseRy * scale * (g.ellipseRatio || 1),
+      height: 42 * (g.discHeight || 1) * (disc.heightScale || 1) * scale * (disc.baseRx / 72),
+      angle: disc.angle,
+      hitInnerRadius: disc.hitInnerRadius > 0 ? disc.hitInnerRadius * scale : 0,
+      sectorInnerRadius: disc.sectorInnerRadius * scale,
+      topColor: disc.topColor,
+      capColor: disc.capColor,
+      sideGradientId: disc.sideGradientId
     };
   }
 
@@ -244,7 +291,7 @@
   }
 
   function formatNumber(value) {
-    return Number(value.toFixed(2));
+    return Number(value.toFixed(3));
   }
 
   function normalizeAngle(angle) {
@@ -281,34 +328,253 @@
     return createCirclePath(outerRadius) + " " + createCirclePath(innerRadius);
   }
 
-  function createSidePath(disc) {
-    var left = disc.cx - disc.rx;
-    var right = disc.cx + disc.rx;
-    var top = disc.cy;
-    var bottom = disc.cy + disc.height;
+  function createSidePath(geometry) {
+    var left = geometry.cx - geometry.rx;
+    var right = geometry.cx + geometry.rx;
+    var top = geometry.cy;
+    var bottom = geometry.cy + geometry.height;
 
     return [
       "M", formatNumber(left), formatNumber(top),
       "L", formatNumber(left), formatNumber(bottom),
-      "A", formatNumber(disc.rx), formatNumber(disc.ry), 0, 0, 0, formatNumber(right), formatNumber(bottom),
+      "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 0, formatNumber(right), formatNumber(bottom),
       "L", formatNumber(right), formatNumber(top),
-      "A", formatNumber(disc.rx), formatNumber(disc.ry), 0, 0, 1, formatNumber(left), formatNumber(top),
+      "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 1, formatNumber(left), formatNumber(top),
       "Z"
     ].join(" ");
   }
 
-  function createSideOutlinePath(disc) {
-    var left = disc.cx - disc.rx;
-    var right = disc.cx + disc.rx;
-    var top = disc.cy;
-    var bottom = disc.cy + disc.height;
+  function createSideOutlinePath(geometry) {
+    var left = geometry.cx - geometry.rx;
+    var right = geometry.cx + geometry.rx;
+    var top = geometry.cy;
+    var bottom = geometry.cy + geometry.height;
 
     return [
       "M", formatNumber(left), formatNumber(top),
       "L", formatNumber(left), formatNumber(bottom),
-      "A", formatNumber(disc.rx), formatNumber(disc.ry), 0, 0, 0, formatNumber(right), formatNumber(bottom),
+      "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 0, formatNumber(right), formatNumber(bottom),
       "L", formatNumber(right), formatNumber(top)
     ].join(" ");
+  }
+
+  function createUpperSideHitPath(geometry) {
+    var left = geometry.cx - geometry.rx;
+    var right = geometry.cx + geometry.rx;
+    var top = geometry.cy;
+    var middle = geometry.cy + (geometry.height * 0.56);
+
+    return [
+      "M", formatNumber(left), formatNumber(top),
+      "L", formatNumber(left), formatNumber(middle),
+      "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 0, formatNumber(right), formatNumber(middle),
+      "L", formatNumber(right), formatNumber(top),
+      "A", formatNumber(geometry.rx), formatNumber(geometry.ry), 0, 0, 1, formatNumber(left), formatNumber(top),
+      "Z"
+    ].join(" ");
+  }
+
+  function createSectorAngleRanges(count, angle) {
+    var ranges = [];
+    var step = 360 / count;
+    var i;
+
+    for (i = 0; i < count; i += 1) {
+      ranges.push({
+        index: i,
+        start: normalizeAngle(i * step + angle),
+        end: normalizeAngle((i + 1) * step + angle)
+      });
+    }
+
+    return ranges;
+  }
+
+  function getVisibleSectorSegments(range) {
+    var segments = [];
+    var start = normalizeAngle(range.start);
+    var end = normalizeAngle(range.end);
+    var candidateOffsets = [-360, 0, 360];
+    var visibleWindows = [
+      { start: 90, end: 270 },
+      { start: 450, end: 630 },
+      { start: -270, end: -90 }
+    ];
+    var i;
+    var j;
+
+    if (end <= start) {
+      end += 360;
+    }
+
+    for (i = 0; i < candidateOffsets.length; i += 1) {
+      var shiftedStart = start + candidateOffsets[i];
+      var shiftedEnd = end + candidateOffsets[i];
+
+      for (j = 0; j < visibleWindows.length; j += 1) {
+        var overlapStart = Math.max(shiftedStart, visibleWindows[j].start);
+        var overlapEnd = Math.min(shiftedEnd, visibleWindows[j].end);
+
+        if (overlapEnd - overlapStart > 0.001) {
+          while (overlapStart > 270) {
+            overlapStart -= 360;
+            overlapEnd -= 360;
+          }
+          while (overlapEnd < 90) {
+            overlapStart += 360;
+            overlapEnd += 360;
+          }
+          segments.push({
+            start: overlapStart,
+            end: overlapEnd
+          });
+        }
+      }
+    }
+
+    segments.sort(function (a, b) {
+      return a.start - b.start;
+    });
+
+    return segments.filter(function (segment, index) {
+      if (index === 0) return true;
+      var prev = segments[index - 1];
+      return Math.abs(prev.start - segment.start) > 0.001 ||
+        Math.abs(prev.end - segment.end) > 0.001;
+    });
+  }
+
+  function angleToEllipseX(angleDeg, rx) {
+    var radians = angleDeg * Math.PI / 180;
+    return rx * Math.sin(radians);
+  }
+
+  function ellipsePointOnFrontArc(angleDeg, geometry, offsetY) {
+    var radians = angleDeg * Math.PI / 180;
+    return {
+      x: geometry.rx * Math.sin(radians),
+      y: -geometry.ry * Math.cos(radians) + offsetY
+    };
+  }
+
+  function sampleFrontArc(geometry, startAngle, endAngle, offsetY, reverse) {
+    var points = [];
+    var sweep = Math.max(2, Math.ceil(Math.abs(endAngle - startAngle) / 12));
+    var i;
+
+    for (i = 0; i <= sweep; i += 1) {
+      var t = i / sweep;
+      var angle = reverse
+        ? endAngle + ((startAngle - endAngle) * t)
+        : startAngle + ((endAngle - startAngle) * t);
+      points.push(ellipsePointOnFrontArc(angle, geometry, offsetY));
+    }
+
+    return points;
+  }
+
+  function buildSideSectorPath(geometry, startAngle, endAngle) {
+    var topPoints = sampleFrontArc(geometry, startAngle, endAngle, 0, false);
+    var bottomPoints = sampleFrontArc(geometry, startAngle, endAngle, geometry.height, true);
+    var parts = [];
+    var i;
+
+    parts.push("M", formatNumber(topPoints[0].x), formatNumber(topPoints[0].y));
+
+    for (i = 1; i < topPoints.length; i += 1) {
+      parts.push("L", formatNumber(topPoints[i].x), formatNumber(topPoints[i].y));
+    }
+
+    for (i = 0; i < bottomPoints.length; i += 1) {
+      parts.push("L", formatNumber(bottomPoints[i].x), formatNumber(bottomPoints[i].y));
+    }
+
+    parts.push("Z");
+    return parts.join(" ");
+  }
+
+  function renderSideColorBands(disc, geometry) {
+    if (!disc.sectorColors || !disc.sectorColors.length) {
+      return "";
+    }
+
+    var angleRanges = createSectorAngleRanges(disc.sectorColors.length, geometry.angle);
+    var markup = [];
+    var i;
+
+    for (i = 0; i < angleRanges.length; i += 1) {
+      var visibleRanges = getVisibleSectorSegments(angleRanges[i]);
+      visibleRanges.forEach(function (segment) {
+        var path = buildSideSectorPath(geometry, segment.start, segment.end);
+        markup.push(
+          '<path d="' + path + '" fill="' + disc.sectorColors[i] + '" fill-opacity="0.44"></path>'
+        );
+        markup.push(
+          '<path d="' + path + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.18" stroke-width="0.9"></path>'
+        );
+      });
+    }
+
+    return (
+      '<g class="order-disc__side-colors" data-side-colors="' + disc.id + '"' +
+        ' transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ')">' +
+        markup.join("") +
+      "</g>"
+    );
+  }
+
+  function renderCapSideImageBands(disc, geometry) {
+    var segmentCount = 6;
+    var angleRanges = createSectorAngleRanges(segmentCount, geometry.angle);
+    var capSideImages = getCapSideImages();
+    var markup = [];
+    var i;
+
+    for (i = 0; i < angleRanges.length; i += 1) {
+      var visibleRanges = getVisibleSectorSegments(angleRanges[i]);
+      visibleRanges.forEach(function (segment, segmentIndex) {
+        var path = buildSideSectorPath(geometry, segment.start, segment.end);
+        var clipId = "order-cap-side-" + i + "-" + segmentIndex;
+        var x0 = Math.min(
+          angleToEllipseX(segment.start, geometry.rx),
+          angleToEllipseX(segment.end, geometry.rx)
+        );
+        var x1 = Math.max(
+          angleToEllipseX(segment.start, geometry.rx),
+          angleToEllipseX(segment.end, geometry.rx)
+        );
+        var width = Math.max(2, x1 - x0);
+        var imagePadding = Math.max(0, geometry.rx * 0.06 * (1 - (width / (geometry.rx * 0.9))));
+        var imageX = x0 - imagePadding;
+        var imageWidth = width + imagePadding * 2;
+
+        markup.push(
+          "<defs>" +
+            '<clipPath id="' + clipId + '">' +
+              '<path d="' + path + '"></path>' +
+            "</clipPath>" +
+          "</defs>"
+        );
+        markup.push(
+          '<g clip-path="url(#' + clipId + ')">' +
+            '<image class="order-disc__side-band" href="' + escapeAttr(capSideImages[i % capSideImages.length]) + '"' +
+              ' x="' + formatNumber(imageX - imageWidth * 0.1) + '" y="10"' +
+              ' width="' + formatNumber(imageWidth * 1.2) + '" height="' + formatNumber(geometry.height * 1.2) + '"' +
+              ' preserveAspectRatio="xMidYMid slice"></image>' +
+          "</g>"
+        );
+        markup.push(
+          '<path d="' + path + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.22" stroke-width="0.9"></path>'
+        );
+      });
+    }
+
+    return (
+      '<g class="order-disc__side-carousel" data-side-rotor="' + disc.id + '"' +
+        ' transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ')">' +
+        markup.join("") +
+      "</g>"
+    );
   }
 
   function createDonutSectorPath(innerRadius, outerRadius, startAngle, endAngle) {
@@ -327,10 +593,13 @@
     ].join(" ");
   }
 
-  function renderSectorMarkup(disc) {
-    var radii = getSectorRadii(disc);
-    var outerRadius = radii.outer;
-    var innerRadius = radii.inner;
+  function renderSectorMarkup(disc, geometry) {
+    if (!disc.sectorColors || !disc.sectorColors.length) {
+      return "";
+    }
+
+    var outerRadius = geometry.rx - 6;
+    var innerRadius = Math.max(geometry.sectorInnerRadius, 12);
     var sectorCount = disc.sectorColors.length;
     var step = 360 / sectorCount;
     var markup = [];
@@ -345,17 +614,6 @@
           ' stroke="#5c4b3a" stroke-opacity="0.12" stroke-width="1"></path>'
       );
     }
-
-    markup.push('<g class="order-disc__cells">');
-    for (i = 0; i < sectorCount; i += 1) {
-      var cellStart = i * step;
-      var cellEnd = cellStart + step;
-      markup.push(
-        '<path class="order-disc__cell" data-order-cell="' + disc.id + "-" + i + '"' +
-          ' d="' + createDonutSectorPath(innerRadius + 3, outerRadius - 5, cellStart, cellEnd) + '"></path>'
-      );
-    }
-    markup.push("</g>");
 
     for (i = 0; i < sectorCount; i += 1) {
       var tickOuter = polarToCartesian(outerRadius - 1, i * step);
@@ -381,17 +639,18 @@
     return markup.join("");
   }
 
-  function renderPlacardSlots(disc) {
+  function renderPlacardSlots(disc, global) {
     if (!disc.sectorSlots || !disc.sectorSlots.length || !disc.itemUrls || !disc.itemUrls.length) {
       return "";
     }
 
-    var radii = getSectorRadii(disc);
+    var geometry = getDiscGeometry(disc, global);
+    var radii = getSectorRadii(geometry);
     var markup = [
       '<g class="order-disc__slots order-disc__slots--upright" data-disc-placards="' + disc.id + '">'
     ];
     disc.sectorSlots.forEach(function (slot) {
-      markup.push(renderHotpotPlacard(disc, slot, radii.inner, radii.outer));
+      markup.push(renderHotpotPlacard(disc, slot, radii.inner, radii.outer, geometry));
     });
     markup.push("</g>");
     return markup.join("");
@@ -447,24 +706,19 @@
   }
 
   /** viewBox 坐标：立牌不在椭圆 scale 组内，屏幕比例与原图一致 */
-  function getSlotPositionInViewBox(disc, localX, localY) {
+  function getSlotPositionInViewBox(disc, localX, localY, geometry) {
     var pos = getSlotPositionInProject(disc, localX, localY);
-    var scaleY = getDiscProjectScaleY(disc);
+    var scaleY = geometry.ry / geometry.rx;
 
     return {
-      x: disc.cx + pos.x,
-      y: disc.cy + pos.y * scaleY
+      x: geometry.cx + pos.x,
+      y: geometry.cy + pos.y * scaleY
     };
   }
 
   function getRotorSlotDepth(slotX, slotY, discAngle) {
     var rad = discAngle * Math.PI / 180;
     return slotX * Math.sin(rad) + slotY * Math.cos(rad);
-  }
-
-  function getDiscProjectScaleY(disc) {
-    if (!disc || !disc.rx) return 1;
-    return disc.ry / disc.rx;
   }
 
   /** 按原图宽高比缩放，最长边不超过 maxDim */
@@ -516,9 +770,9 @@
     };
   }
 
-  function renderHotpotPlacard(disc, slot, innerRadius, outerRadius) {
+  function renderHotpotPlacard(disc, slot, innerRadius, outerRadius, geometry) {
     var center = getSlotCenterOnDisc(disc, slot, innerRadius, outerRadius);
-    var anchor = getSlotPositionInViewBox(disc, center.x, center.y);
+    var anchor = getSlotPositionInViewBox(disc, center.x, center.y, geometry);
     var src = getItemSrcForSlot(disc, slot);
     var slotKey = getSlotKey(disc.id, slot.index);
     var maxDim = disc.itemSize || 24;
@@ -603,26 +857,70 @@
     }
   }
 
-  function renderSurface(disc) {
-    var scaleY = disc.ry / disc.rx;
+  function renderTopFace(disc, geometry) {
+    var scaleY = geometry.ry / geometry.rx;
+
+    if (disc.id === "cap") {
+      return (
+        '<g class="order-disc__surface-project" transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
+          '<circle r="' + formatNumber(geometry.rx) + '" fill="' + geometry.topColor + '"></circle>' +
+          '<g class="order-disc__surface-rotor" data-disc-rotor="' + disc.id + '" transform="rotate(' + formatNumber(geometry.angle) + ')">' +
+            "<defs>" +
+              '<clipPath id="order-cap-texture-clip">' +
+                '<ellipse cx="0" cy="0" rx="' + formatNumber(geometry.rx - 2) + '" ry="' + formatNumber(geometry.rx - 2) + '"></ellipse>' +
+              "</clipPath>" +
+            "</defs>" +
+            '<g clip-path="url(#order-cap-texture-clip)">' +
+              '<image class="order-disc__cap-texture" href="' + escapeAttr(getCapTopTexture()) + '"' +
+                ' x="' + formatNumber(-geometry.rx * 1.08) + '" y="' + formatNumber(-geometry.rx * 1.08) + '"' +
+                ' width="' + formatNumber(geometry.rx * 2.16) + '" height="' + formatNumber(geometry.rx * 2.16) + '"' +
+                ' preserveAspectRatio="xMidYMid slice"></image>' +
+            "</g>" +
+          "</g>" +
+          '<circle r="' + formatNumber(geometry.rx - 2) + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.22" stroke-width="1.2"></circle>' +
+        "</g>"
+      );
+    }
 
     return (
-      '<g class="order-disc__surface-project" transform="translate(' + formatNumber(disc.cx) + " " + formatNumber(disc.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
-        '<circle r="' + formatNumber(disc.rx) + '" fill="' + disc.topColor + '"></circle>' +
-        '<g class="order-disc__surface-rotor" data-disc-rotor="' + disc.id + '" transform="rotate(' + formatNumber(disc.angle) + ')">' +
-          renderSectorMarkup(disc) +
+      '<g class="order-disc__surface-project" transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
+        '<circle r="' + formatNumber(geometry.rx) + '" fill="' + geometry.topColor + '"></circle>' +
+        '<g class="order-disc__surface-rotor" data-disc-rotor="' + disc.id + '" transform="rotate(' + formatNumber(geometry.angle) + ')">' +
+          renderSectorMarkup(disc, geometry) +
         "</g>" +
       "</g>"
     );
   }
 
-  function renderDisc(disc) {
+  function renderDisc(disc, global) {
+    var geometry = getDiscGeometry(disc, global);
+    var scaleY = geometry.ry / geometry.rx;
+    var sideBands = disc.id === "cap" ?
+      renderCapSideImageBands(disc, geometry) :
+      renderSideColorBands(disc, geometry);
+    var capRx = Math.max(8, geometry.rx * 0.16);
+    var capRy = Math.max(4, geometry.ry * 0.34);
+    var centerCapMarkup = disc.id === "cap" ? "" : (
+      '<g class="order-disc__hub" transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ')">' +
+        '<ellipse rx="' + formatNumber(capRx) + '" ry="' + formatNumber(capRy) + '" fill="' + geometry.capColor + '" stroke="#5c4b3a" stroke-width="1.5"></ellipse>' +
+        '<ellipse rx="' + formatNumber(capRx * 0.52) + '" ry="' + formatNumber(capRy * 0.52) + '" fill="#ffffff" fill-opacity="0.66"></ellipse>' +
+      "</g>"
+    );
+
     return (
       '<g class="order-disc order-disc--' + disc.id + '" data-disc="' + disc.id + '">' +
-        '<path class="order-disc__side" d="' + createSidePath(disc) + '" fill="url(#' + disc.sideGradientId + ')"></path>' +
-        '<path class="order-disc__side-outline" d="' + createSideOutlinePath(disc) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2" stroke-linejoin="round"></path>' +
-        renderSurface(disc) +
-        '<ellipse class="order-disc__outline" cx="' + formatNumber(disc.cx) + '" cy="' + formatNumber(disc.cy) + '" rx="' + formatNumber(disc.rx) + '" ry="' + formatNumber(disc.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
+        '<path class="order-disc__side" d="' + createSidePath(geometry) + '" fill="url(#' + geometry.sideGradientId + ')"></path>' +
+        sideBands +
+        '<path class="order-disc__side-outline" d="' + createSideOutlinePath(geometry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2" stroke-linejoin="round"></path>' +
+        renderTopFace(disc, geometry) +
+        '<ellipse class="order-disc__outline" cx="' + formatNumber(geometry.cx) + '" cy="' + formatNumber(geometry.cy) + '" rx="' + formatNumber(geometry.rx) + '" ry="' + formatNumber(geometry.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
+        centerCapMarkup +
+        '<g class="order-disc__hit-project" transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
+          '<path class="order-disc__hit" data-disc-hit="' + disc.id + '"' +
+            ' d="' + createRingPath(geometry.rx, geometry.hitInnerRadius) + '"' +
+            ' fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
+        "</g>" +
+        '<path class="order-disc__hit-side" data-disc-hit-side="' + disc.id + '" d="' + createUpperSideHitPath(geometry) + '" fill="rgba(255,255,255,0.001)"></path>' +
       "</g>"
     );
   }
@@ -633,7 +931,7 @@
 
     for (i = 0; i < PLACARD_LAYER_ORDER.length; i += 1) {
       var disc = findDisc(state, PLACARD_LAYER_ORDER[i]);
-      if (disc) markup.push(renderPlacardSlots(disc));
+      if (disc) markup.push(renderPlacardSlots(disc, state.global));
     }
 
     markup.push("</g>");
@@ -650,21 +948,21 @@
     }
   }
 
-  function renderHitArea(disc) {
-    var scaleY = disc.ry / disc.rx;
-
-    return (
-      '<g class="order-disc__hit-project" transform="translate(' + formatNumber(disc.cx) + " " + formatNumber(disc.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
-        '<path class="order-disc__hit" data-disc-hit="' + disc.id + '"' +
-          ' d="' + createRingPath(disc.rx, disc.hitInnerRadius) + '"' +
-          ' fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
-      "</g>"
-    );
-  }
-
   function renderSvg(state) {
+    var baseDisc = findDisc(state, "base");
+    var baseGeo = baseDisc ? getDiscGeometry(baseDisc, state.global) : null;
+    var shadowMarkup = baseGeo ?
+      (
+        '<ellipse cx="' + formatNumber(baseGeo.cx) + '"' +
+        ' cy="' + formatNumber(baseGeo.cy + baseGeo.height + 12) + '"' +
+        ' rx="' + formatNumber(baseGeo.rx + 8) + '"' +
+        ' ry="' + formatNumber(Math.max(18, baseGeo.ry * 0.64)) + '"' +
+        ' fill="url(#order-floor-shadow)"></ellipse>'
+      ) :
+      "";
+
     return (
-      '<svg class="order-turntable" data-order-svg viewBox="0 0 ' + VIEWBOX_WIDTH + " " + VIEWBOX_HEIGHT + '" role="img" aria-label="三层椭圆转盘">' +
+      '<svg class="order-turntable" data-order-svg viewBox="0 0 ' + VIEWBOX_WIDTH + " " + VIEWBOX_HEIGHT + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="椭圆转盘">' +
         "<defs>" +
           '<linearGradient id="order-base-side" x1="0" y1="0" x2="0" y2="1">' +
             '<stop offset="0%" stop-color="#e8dfd1"></stop>' +
@@ -678,19 +976,20 @@
             '<stop offset="0%" stop-color="#c8d8ba"></stop>' +
             '<stop offset="100%" stop-color="#8fbc8f"></stop>' +
           "</linearGradient>" +
+          '<linearGradient id="order-cap-side" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#f5d8bb"></stop>' +
+            '<stop offset="100%" stop-color="#d7a773"></stop>' +
+          "</linearGradient>" +
           '<radialGradient id="order-floor-shadow" cx="50%" cy="50%" r="50%">' +
             '<stop offset="0%" stop-color="#5c4b3a" stop-opacity="0.16"></stop>' +
             '<stop offset="100%" stop-color="#5c4b3a" stop-opacity="0"></stop>' +
           "</radialGradient>" +
         "</defs>" +
-        '<ellipse cx="190" cy="362" rx="156" ry="24" fill="url(#order-floor-shadow)"></ellipse>' +
-        state.discs.map(renderDisc).join("") +
+        shadowMarkup +
+        state.discs.map(function (disc) {
+          return renderDisc(disc, state.global);
+        }).join("") +
         renderPlacardStack(state) +
-        '<g class="order-disc__hit-layer">' +
-          DISC_IDS.map(function (discId) {
-            return renderHitArea(findDisc(state, discId));
-          }).join("") +
-        "</g>" +
       "</svg>"
     );
   }
@@ -700,7 +999,7 @@
       '<div class="order-indicator" data-disc-indicator="' + disc.id + '">' +
         '<span class="order-indicator__swatch order-indicator__swatch--' + disc.id + '"></span>' +
         '<span class="order-indicator__label">' + util.escapeHtml(disc.label) + "</span>" +
-        '<span class="order-indicator__meta">' + util.escapeHtml(disc.autoSpeed + "°/s") + "</span>" +
+        '<span class="order-indicator__meta">' + util.escapeHtml(formatNumber(disc.autoSpeed) + "°/s") + "</span>" +
       "</div>"
     );
   }
@@ -708,7 +1007,7 @@
   function render(state) {
     return (
       '<div class="order-root" data-phase="' + util.escapeHtml(state.phase) + '">' +
-        '<section class="card order-stage-card">' +
+        '<section class="order-stage-card">' +
           '<div class="order-stage-card__head">' +
             '<p class="order-stage-card__kicker caption">点餐</p>' +
             '<h2 class="order-stage-card__title">回转式选菜</h2>' +
@@ -730,10 +1029,10 @@
             '<p class="caption">顶盘整面可拖，中盘和底盘只在露出的环带区域响应拖动。</p>' +
           "</div>" +
           '<ul class="order-note-list">' +
-            "<li>三层都绕自身中心轴原地自转，不是整张椭圆在平面里整体旋转。</li>" +
-            "<li>每层都有自己的角度与速度，立牌格心随扇区公转，牌身方向始终向上、不随半径倾斜。</li>" +
-            "<li>默认同向不同速自动转动，松手后会从当前角度继续旋转。</li>" +
-            "<li>鼠标和触摸都可以直接拖拽，盘体的外轮廓与厚度不会漂移。</li>" +
+            "<li>四层转盘（底盘 / 中盘 / 顶盘 / 顶柱），外观与 wmx 调参页一致。</li>" +
+            "<li>每层独立角度与速度；立牌格心随扇区公转，牌身始终朝上。</li>" +
+            "<li>可拖顶面环带或侧壁前缘，松手后惯性减速再恢复匀速。</li>" +
+            "<li>θ 到 275° 时换菜；前缘渐显渐隐各 10°，纯实区 80°–250°。</li>" +
           "</ul>" +
         "</section>" +
       "</div>"
@@ -750,19 +1049,30 @@
     return point.matrixTransform(ctm.inverse());
   }
 
-  function getPointerAngle(disc, svgPoint) {
+  function getPointerAngle(disc, svgPoint, global) {
     if (!disc || !svgPoint) return null;
 
-    var scaleY = disc.ry / disc.rx;
-    var localX = svgPoint.x - disc.cx;
-    var localY = (svgPoint.y - disc.cy) / scaleY;
+    var geometry = getDiscGeometry(disc, global);
+    var scaleY = geometry.ry / geometry.rx;
+    var localX = svgPoint.x - geometry.cx;
+    var localY = (svgPoint.y - geometry.cy) / scaleY;
     var radius = Math.sqrt((localX * localX) + (localY * localY));
 
-    if (radius < Math.max(10, disc.sectorInnerRadius * 0.32)) {
+    if (radius < Math.max(10, geometry.sectorInnerRadius * 0.32)) {
       return null;
     }
 
     return normalizeAngle((Math.atan2(localY, localX) * 180 / Math.PI) + 90);
+  }
+
+  function getExtendedPointerAngle(disc, svgPoint, hitType, global) {
+    if (hitType === "side") {
+      var geometry = getDiscGeometry(disc, global);
+      var sideY = Math.max(geometry.cy, Math.min(svgPoint.y, geometry.cy + geometry.height));
+      return getPointerAngle(disc, { x: svgPoint.x, y: sideY }, global);
+    }
+
+    return getPointerAngle(disc, svgPoint, global);
   }
 
   function updatePlacardPositions(disc) {
@@ -771,10 +1081,12 @@
     var bucket = runtime.placardBuckets[disc.id];
     if (!bucket) return;
 
+    var geometry = getDiscGeometry(disc, runtime.state.global);
+
     bucket.querySelectorAll("[data-order-slot]").forEach(function (slotNode) {
       var localX = parseFloat(slotNode.getAttribute("data-slot-x") || "0");
       var localY = parseFloat(slotNode.getAttribute("data-slot-y") || "0");
-      var anchor = getSlotPositionInViewBox(disc, localX, localY);
+      var anchor = getSlotPositionInViewBox(disc, localX, localY, geometry);
 
       slotNode.setAttribute(
         "transform",
@@ -797,6 +1109,22 @@
     });
   }
 
+  function updateSideVisuals(disc) {
+    if (!runtime) return;
+
+    var geometry = getDiscGeometry(disc, runtime.state.global);
+
+    if (runtime.sideColorGroups && runtime.sideColorGroups[disc.id]) {
+      runtime.sideColorGroups[disc.id].outerHTML = renderSideColorBands(disc, geometry);
+      runtime.sideColorGroups[disc.id] = runtime.svg.querySelector('[data-side-colors="' + disc.id + '"]');
+    }
+
+    if (runtime.sideRotors && runtime.sideRotors[disc.id]) {
+      runtime.sideRotors[disc.id].outerHTML = renderCapSideImageBands(disc, geometry);
+      runtime.sideRotors[disc.id] = runtime.svg.querySelector('[data-side-rotor="' + disc.id + '"]');
+    }
+  }
+
   function updateRotor(disc) {
     if (!runtime) return;
 
@@ -806,6 +1134,7 @@
       runtime.rotors[disc.id].setAttribute("transform", rotate);
     }
 
+    updateSideVisuals(disc);
     updatePlacardPositions(disc);
     sortPlacardDepth(disc);
     ensurePlacardLayerOrder();
@@ -948,7 +1277,17 @@
 
     state.discs.forEach(function (disc) {
       if (disc.dragging) return;
-      disc.angle = normalizeAngle(disc.angle + (disc.autoSpeed * delta));
+
+      if (Math.abs(disc.angularVelocity || 0) > INERTIA_VELOCITY_EPS) {
+        disc.angle = normalizeAngle(
+          disc.angle + ((disc.angularVelocity || 0) * delta * (disc.inertiaBoost || 1))
+        );
+        disc.angularVelocity *= Math.pow(INERTIA_DECAY_PER_SEC, delta * 60);
+      } else {
+        disc.angularVelocity = 0;
+        disc.angle = normalizeAngle(disc.angle + (disc.autoSpeed * delta));
+      }
+
       updateRotor(disc);
     });
 
@@ -975,19 +1314,24 @@
   function handlePointerDown(event) {
     if (!runtime) return;
 
-    var hit = event.target.closest("[data-disc-hit]");
+    var hit = event.target.closest("[data-disc-hit], [data-disc-hit-side]");
     if (!hit) return;
 
-    var discId = hit.getAttribute("data-disc-hit");
+    var hitType = hit.hasAttribute("data-disc-hit-side") ? "side" : "top";
+    var discId = hitType === "side" ?
+      hit.getAttribute("data-disc-hit-side") :
+      hit.getAttribute("data-disc-hit");
     var disc = findDisc(runtime.state, discId);
     var svgPoint = getSvgPoint(runtime, event);
-    var pointerAngle = getPointerAngle(disc, svgPoint);
+    var pointerAngle = getExtendedPointerAngle(disc, svgPoint, hitType, runtime.state.global);
 
     if (!disc || pointerAngle == null) return;
 
     disc.dragging = true;
     disc.pointerId = event.pointerId;
     disc.lastPointerAngle = pointerAngle;
+    disc.lastMoveTime = event.timeStamp || performance.now();
+    disc.angularVelocity = 0;
     runtime.state.activeDiscId = disc.id;
     runtime.state.activePointerId = event.pointerId;
     runtime.activeHitTarget = hit;
@@ -1010,12 +1354,21 @@
     if (!disc) return;
 
     var svgPoint = getSvgPoint(runtime, event);
-    var pointerAngle = getPointerAngle(disc, svgPoint);
+    var hitType = runtime.activeHitTarget && runtime.activeHitTarget.hasAttribute("data-disc-hit-side") ?
+      "side" :
+      "top";
+    var pointerAngle = getExtendedPointerAngle(disc, svgPoint, hitType, runtime.state.global);
 
     if (pointerAngle == null) return;
 
-    disc.angle = normalizeAngle(disc.angle + angleDelta(pointerAngle, disc.lastPointerAngle));
+    var deltaAngle = angleDelta(pointerAngle, disc.lastPointerAngle);
+    var now = event.timeStamp || performance.now();
+    var elapsed = Math.max(8, now - (disc.lastMoveTime || now));
+
+    disc.angle = normalizeAngle(disc.angle + deltaAngle);
     disc.lastPointerAngle = pointerAngle;
+    disc.lastMoveTime = now;
+    disc.angularVelocity = deltaAngle / (elapsed / 1000);
     updateRotor(disc);
     event.preventDefault();
   }
@@ -1028,6 +1381,7 @@
       disc.dragging = false;
       disc.pointerId = null;
       disc.lastPointerAngle = null;
+      disc.lastMoveTime = null;
     });
 
     runtime.state.activeDiscId = null;
@@ -1057,6 +1411,8 @@
     var indicatorMap = {};
     var rotorMap = {};
     var placardBucketMap = {};
+    var sideColorMap = {};
+    var sideRotorMap = {};
 
     DISC_IDS.forEach(function (discId) {
       var rotor = container.querySelector('[data-disc-rotor="' + discId + '"]');
@@ -1064,6 +1420,12 @@
 
       var placards = container.querySelector('[data-disc-placards="' + discId + '"]');
       if (placards) placardBucketMap[discId] = placards;
+
+      var sideColors = container.querySelector('[data-side-colors="' + discId + '"]');
+      if (sideColors) sideColorMap[discId] = sideColors;
+
+      var sideRotor = container.querySelector('[data-side-rotor="' + discId + '"]');
+      if (sideRotor) sideRotorMap[discId] = sideRotor;
 
       var indicator = container.querySelector('[data-disc-indicator="' + discId + '"]');
       if (indicator) indicatorMap[discId] = indicator;
@@ -1078,6 +1440,8 @@
       stage: stage,
       svg: svg,
       rotors: rotorMap,
+      sideColorGroups: sideColorMap,
+      sideRotors: sideRotorMap,
       placardStack: container.querySelector("[data-order-placard-stack]"),
       placardBuckets: placardBucketMap,
       slotImages: slotRefs.slotImages,

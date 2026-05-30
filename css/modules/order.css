@@ -1,11 +1,47 @@
-/* dress module */
+/* order module */
 
-.order-module .order-root {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-card);
+:root {
+  --order-status-block: 52px;
+  --order-viewport-chrome: calc(
+    var(--tab-bar-height) + var(--safe-top) + var(--safe-bottom) + var(--order-status-block)
+  );
 }
 
+.panel[data-panel="order"] {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.panel[data-panel="order"] > .hero {
+  display: none;
+}
+
+.panel[data-panel="order"] .panel-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+}
+
+.order-module {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.order-module .order-root {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
 .order-stage-card,
 .order-note-card {
   position: relative;
@@ -13,16 +49,19 @@
 }
 
 .order-stage-card {
-  padding: 22px 18px 18px;
-  background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.88), transparent 38%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(245, 240, 232, 0.92));
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .order-stage-card__head {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: none;
 }
 
 .order-stage-card__kicker {
@@ -40,30 +79,46 @@
 }
 
 .order-stage {
-  margin-top: 18px;
-  padding: 18px 10px 14px;
+  flex: 1;
+  width: 100%;
+  min-height: calc(100dvh - var(--order-viewport-chrome));
+  height: calc(100dvh - var(--order-viewport-chrome));
+  max-height: calc(100dvh - var(--order-viewport-chrome));
+  margin: 0;
+  padding: 0;
   overflow: visible;
-  border-radius: calc(var(--radius-card) - 2px);
-  border: 1px solid rgba(196, 168, 130, 0.22);
-  background:
-    linear-gradient(180deg, rgba(232, 223, 209, 0.56), rgba(245, 240, 232, 0.2)),
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.82), transparent 34%);
+  border: none;
+  background: transparent;
   touch-action: none;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .order-turntable {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
-.order-disc__hit {
+.order-disc__hit,
+.order-disc__hit-side {
   cursor: grab;
 }
 
-.order-disc__hit:active {
+.order-disc__hit:active,
+.order-disc__hit-side:active {
   cursor: grabbing;
+}
+
+.order-disc__side-colors,
+.order-disc__side-carousel,
+.order-disc__side-band,
+.order-disc__cap-texture {
+  pointer-events: none;
 }
 
 /* wmx 投影：扇区在椭圆 scale 组内旋转；立牌在 viewBox 层绘制以保持原图比例 */
@@ -120,26 +175,32 @@
 }
 
 .order-status {
-  margin-top: 14px;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 6px 0 4px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
 }
 
 .order-status__text {
-  min-height: 2.8em;
+  min-height: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .order-indicators {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
 }
 
 .order-indicator {
   display: grid;
-  gap: 6px;
-  padding: 10px 12px;
+  gap: 4px;
+  padding: 6px 6px;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(196, 168, 130, 0.18);
@@ -173,6 +234,10 @@
   background: linear-gradient(90deg, var(--color-matcha), var(--color-bamboo));
 }
 
+.order-indicator__swatch--cap {
+  background: linear-gradient(90deg, #f0caa7, #d7a773);
+}
+
 .order-indicator__label {
   color: var(--color-primary);
   font-size: 0.92rem;
@@ -185,6 +250,7 @@
 }
 
 .order-note-card {
+  display: none;
   padding: 20px 18px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 240, 232, 0.92));
@@ -210,18 +276,58 @@
   line-height: 1.7;
 }
 
-@media (max-width: 360px) {
-  .order-stage-card {
-    padding-left: 16px;
-    padding-right: 16px;
+body:has(.panel[data-panel="order"]:not([hidden])) .app {
+  padding-top: calc(var(--safe-top) + 6px);
+  padding-bottom: calc(var(--safe-bottom) + var(--tab-bar-height) + 6px);
+  padding-left: calc(var(--safe-left) + 4px);
+  padding-right: calc(var(--safe-right) + 4px);
+}
+
+@media (min-width: 431px) {
+  .panel[data-panel="order"] > .hero {
+    display: grid;
+  }
+
+  .order-note-card {
+    display: block;
+  }
+
+  .order-module .order-root {
+    gap: var(--space-card);
+  }
+
+  .order-turntable {
+    height: auto;
+    min-height: 0;
+    max-height: none;
   }
 
   .order-stage {
-    padding-left: 6px;
-    padding-right: 6px;
+    flex: none;
+    min-height: auto;
+    margin-top: 12px;
+  }
+
+  .order-stage-card {
+    flex: none;
+  }
+
+  .order-status {
+    margin-top: 14px;
+  }
+
+  .order-status__text {
+    min-height: 2.8em;
+    text-align: left;
   }
 
   .order-indicators {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .order-indicator {
+    padding: 10px 12px;
+    gap: 6px;
   }
 }

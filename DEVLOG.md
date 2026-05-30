@@ -49,6 +49,15 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（点餐转盘对齐 wmx）
+
+- **模块/范围：** order
+- **摘要：** 点餐转盘几何与渲染对齐 `wmx-temporary/转盘`（`INITIAL_CONFIG` 全局偏移/缩放、四层含顶柱、侧壁色带、顶内拖+侧壁拖、惯性、地面阴影）；食物立牌仍用 `getSlotOrbitDeg`、275° 换菜与 viewBox 竖立展示，格心位置改由 `getDiscGeometry` 计算。
+- **路径：** `js/modules/order/config.js`, `js/modules/order/view.js`, `js/modules/order/state.js`, `css/modules/order.css`
+- **备注：** 顶柱猫图路径 `config.turntable.capAssetsBase`；中/顶/柱 `autoSpeed` 与 wmx 同为负值反向转。
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（wmx 分支整合）
 
 - **模块/范围：** wmx-temporary | 文档
