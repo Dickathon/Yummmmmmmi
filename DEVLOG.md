@@ -49,6 +49,14 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（立牌尺寸）
+
+- **模块/范围：** order
+- **摘要：** 三层转盘立牌 `itemSize` 与 `placardDrop` 按约 1.5× 放大，提升食物图可读性；同步 wmx 转盘原型默认配置。
+- **路径：** `js/modules/order/config.js`, `js/modules/order/placards.js`, `wmx-temporary/转盘/placards.js`
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（选菜确定与宠物占位）
 
 - **模块/范围：** order | 数据层 | 全局（`index.html` 脚本顺序）

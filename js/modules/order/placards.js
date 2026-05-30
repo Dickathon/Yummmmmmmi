@@ -31,9 +31,9 @@
     sectorCount: 6,
     poolSizePerDisc: 15,
     discs: {
-      base: { catalogKey: "food1", itemSize: 66, placardDrop: 8 },
-      mid: { catalogKey: "food2", itemSize: 54, placardDrop: 7 },
-      top: { catalogKey: "food3", itemSize: 45, placardDrop: 6 }
+      base: { catalogKey: "food1", itemSize: 99, placardDrop: 12 },
+      mid: { catalogKey: "food2", itemSize: 81, placardDrop: 11 },
+      top: { catalogKey: "food3", itemSize: 68, placardDrop: 9 }
     }
   };
 
