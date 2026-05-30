@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>椭圆转盘主入口</title>
+  <style>
+    :root {
+      --color-primary: #5c4b3a;
+      --color-bg: #f5f0e8;
+      --color-text: #3d3d3d;
+      --color-text-muted: #8b7355;
+      --color-accent-light: #c4a882;
+      --color-paper: #e8dfd1;
+      --color-card: rgba(255, 255, 255, 0.94);
+      --color-sakura: #f4e1e1;
+      --color-matcha: #8fbc8f;
+      --color-bamboo: #9caf88;
+      --shadow-soft: 0 14px 34px rgba(92, 75, 58, 0.08);
+      --shadow-lift: 0 22px 44px rgba(92, 75, 58, 0.1);
+      --radius-card: 22px;
+      --radius-pill: 999px;
+      --space-page: 20px;
+      --space-card: 18px;
+      --max-width: 430px;
+      --transition-base: 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+      color: var(--color-text);
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.84), transparent 34%),
+        linear-gradient(180deg, #fbf7f2 0%, var(--color-bg) 100%);
+      letter-spacing: 0.02em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.2;
+      background-image:
+        linear-gradient(rgba(92, 75, 58, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(92, 75, 58, 0.016) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(calc(100% - 24px), var(--max-width));
+      margin: 0 auto;
+      padding: 24px 0 36px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--color-card);
+      border: 1px solid rgba(196, 168, 130, 0.18);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .hero {
+      overflow: hidden;
+      padding: 22px 18px 18px;
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.9), transparent 42%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 240, 232, 0.92));
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--color-accent-light);
+      font-size: 0.76rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 1px;
+      background: currentColor;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1,
+    h2 {
+      color: var(--color-primary);
+      font-weight: 400;
+      line-height: 1.28;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin-top: 12px;
+      font-size: clamp(1.9rem, 7vw, 2.5rem);
+    }
+
+    .hero p {
+      margin-top: 12px;
+      color: var(--color-text-muted);
+      font-size: 0.93rem;
+      line-height: 1.78;
+    }
+
+    .panel {
+      padding: 18px;
+      transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+    }
+
+    .panel:active {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lift);
+      border-color: rgba(196, 168, 130, 0.24);
+    }
+
+    .stage-shell {
+      margin-top: 14px;
+      border-radius: 20px;
+      padding: 18px 10px 16px;
+      border: 1px solid rgba(196, 168, 130, 0.18);
+      background:
+        linear-gradient(180deg, rgba(232, 223, 209, 0.6), rgba(245, 240, 232, 0.18)),
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.84), transparent 36%);
+      touch-action: none;
+      user-select: none;
+    }
+
+    .turntable {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .status {
+      margin-top: 14px;
+      min-height: 2.8em;
+      color: var(--color-text-muted);
+      font-size: 0.84rem;
+      line-height: 1.7;
+      letter-spacing: 0.04em;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .legend-item {
+      display: grid;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(196, 168, 130, 0.16);
+      transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+    }
+
+    .legend-item.is-active {
+      transform: translateY(-2px);
+      border-color: var(--color-accent-light);
+      box-shadow: 0 12px 22px rgba(92, 75, 58, 0.08);
+    }
+
+    .legend-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+    }
+
+    .legend-bar.base {
+      background: linear-gradient(90deg, var(--color-paper), var(--color-accent-light));
+    }
+
+    .legend-bar.mid {
+      background: linear-gradient(90deg, var(--color-sakura), var(--color-paper));
+    }
+
+    .legend-bar.top {
+      background: linear-gradient(90deg, var(--color-matcha), var(--color-bamboo));
+    }
+
+    .legend-title {
+      color: var(--color-primary);
+      font-size: 0.9rem;
+    }
+
+    .legend-meta {
+      color: var(--color-text-muted);
+      font-size: 0.77rem;
+      letter-spacing: 0.05em;
+    }
+
+    .notes h2 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+    }
+
+    .notes ul {
+      margin: 0;
+      padding-left: 1.15rem;
+      display: grid;
+      gap: 10px;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+      line-height: 1.75;
+    }
+
+    .turntable-hit {
+      cursor: grab;
+    }
+
+    .turntable-hit:active {
+      cursor: grabbing;
+    }
+
+    @media (max-width: 360px) {
+      .legend {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .hero {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .stage-shell {
+        padding-left: 6px;
+        padding-right: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="eyebrow">Turntable Entry</div>
+      <h1>椭圆转盘主入口</h1>
+      <p>
+        这里是独立目录下的单文件主入口。三层椭圆盘共用一条竖直中心轴，
+        每层都带固定厚度、独立角度和独立速度，真正旋转的是顶面里的扇区与刻度。
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>三层独立可拖动转盘</h2>
+      <div class="stage-shell" id="stage-shell">
+        <svg class="turntable" id="turntable" viewBox="0 0 380 398" role="img" aria-label="三层椭圆转盘"></svg>
+      </div>
+      <p class="status" id="status">正在自动转动，拖动任意可见盘面即可单独接管。</p>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="panel notes">
+      <h2>交互说明</h2>
+      <ul>
+        <li>三层都绕自身中心轴原地自转，不是整张椭圆在 2D 平面里整体旋转。</li>
+        <li>顶盘整面可拖，中盘和底盘只在露出的可见环带区域响应拖动。</li>
+        <li>拖动时只接管当前层，其他层继续自动转动；松手后当前层从最新角度继续转。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var state = {
+        discs: [
+          {
+            id: "base",
+            label: "底盘",
+            cx: 190,
+            cy: 286,
+            rx: 150,
+            ry: 38,
+            height: 64,
+            angle: 8,
+            autoSpeed: 8,
+            hitInnerRadius: 116,
+            sectorInnerRadius: 36,
+            dragging: false,
+            pointerId: null,
+            lastPointerAngle: null,
+            topColor: "#f5f0e8",
+            capColor: "#e8dfd1",
+            sideGradientId: "turntable-base-side",
+            sectorColors: ["#f5f0e8", "#f0e7d9", "#e8dfd1", "#f3ebe0", "#c4a882", "#efe3d4"]
+          },
+          {
+            id: "mid",
+            label: "中盘",
+            cx: 190,
+            cy: 212,
+            rx: 108,
+            ry: 28,
+            height: 54,
+            angle: 24,
+            autoSpeed: 12,
+            hitInnerRadius: 78,
+            sectorInnerRadius: 28,
+            dragging: false,
+            pointerId: null,
+            lastPointerAngle: null,
+            topColor: "#f4e1e1",
+            capColor: "#f7eeee",
+            sideGradientId: "turntable-mid-side",
+            sectorColors: ["#f4e1e1", "#f9efef", "#f1d7d7", "#ead1d1", "#e8dfd1", "#f8f3f1"]
+          },
+          {
+            id: "top",
+            label: "顶盘",
+            cx: 190,
+            cy: 148,
+            rx: 72,
+            ry: 19,
+            height: 42,
+            angle: 48,
+            autoSpeed: 16,
+            hitInnerRadius: 0,
+            sectorInnerRadius: 20,
+            dragging: false,
+            pointerId: null,
+            lastPointerAngle: null,
+            topColor: "#8fbc8f",
+            capColor: "#e8dfd1",
+            sideGradientId: "turntable-top-side",
+            sectorColors: ["#8fbc8f", "#a7c7a3", "#dfe9d8", "#c9dbbf", "#9caf88", "#b7d0aa"]
+          }
+        ],
+        activeDiscId: null,
+        lastTick: 0
+      };
+
+      var refs = {
+        stageShell: document.getElementById("stage-shell"),
+        svg: document.getElementById("turntable"),
+        status: document.getElementById("status"),
+        legend: document.getElementById("legend"),
+        rotors: {},
+        indicators: {},
+        hitTarget: null,
+        rafId: 0
+      };
+
+      function formatNumber(value) {
+        return Number(value.toFixed(2));
+      }
+
+      function degToRad(angle) {
+        return (angle - 90) * Math.PI / 180;
+      }
+
+      function polarToCartesian(radius, angle) {
+        var rad = degToRad(angle);
+        return {
+          x: radius * Math.cos(rad),
+          y: radius * Math.sin(rad)
+        };
+      }
+
+      function normalizeAngle(angle) {
+        var next = angle % 360;
+        return next < 0 ? next + 360 : next;
+      }
+
+      function angleDelta(nextAngle, prevAngle) {
+        var delta = nextAngle - prevAngle;
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+        return delta;
+      }
+
+      function createCirclePath(radius) {
+        return [
+          "M", formatNumber(radius), 0,
+          "A", formatNumber(radius), formatNumber(radius), 0, 1, 0, formatNumber(-radius), 0,
+          "A", formatNumber(radius), formatNumber(radius), 0, 1, 0, formatNumber(radius), 0,
+          "Z"
+        ].join(" ");
+      }
+
+      function createRingPath(outerRadius, innerRadius) {
+        if (!innerRadius || innerRadius <= 0) {
+          return createCirclePath(outerRadius);
+        }
+        return createCirclePath(outerRadius) + " " + createCirclePath(innerRadius);
+      }
+
+      function createSidePath(disc) {
+        var left = disc.cx - disc.rx;
+        var right = disc.cx + disc.rx;
+        var top = disc.cy;
+        var bottom = disc.cy + disc.height;
+
+        return [
+          "M", formatNumber(left), formatNumber(top),
+          "L", formatNumber(left), formatNumber(bottom),
+          "A", formatNumber(disc.rx), formatNumber(disc.ry), 0, 0, 0, formatNumber(right), formatNumber(bottom),
+          "L", formatNumber(right), formatNumber(top),
+          "A", formatNumber(disc.rx), formatNumber(disc.ry), 0, 0, 1, formatNumber(left), formatNumber(top),
+          "Z"
+        ].join(" ");
+      }
+
+      function createSideOutlinePath(disc) {
+        var left = disc.cx - disc.rx;
+        var right = disc.cx + disc.rx;
+        var top = disc.cy;
+        var bottom = disc.cy + disc.height;
+
+        return [
+          "M", formatNumber(left), formatNumber(top),
+          "L", formatNumber(left), formatNumber(bottom),
+          "A", formatNumber(disc.rx), formatNumber(disc.ry), 0, 0, 0, formatNumber(right), formatNumber(bottom),
+          "L", formatNumber(right), formatNumber(top)
+        ].join(" ");
+      }
+
+      function createDonutSectorPath(innerRadius, outerRadius, startAngle, endAngle) {
+        var startOuter = polarToCartesian(outerRadius, startAngle);
+        var endOuter = polarToCartesian(outerRadius, endAngle);
+        var startInner = polarToCartesian(innerRadius, endAngle);
+        var endInner = polarToCartesian(innerRadius, startAngle);
+        var largeArc = endAngle - startAngle > 180 ? 1 : 0;
+
+        return [
+          "M", formatNumber(startOuter.x), formatNumber(startOuter.y),
+          "A", formatNumber(outerRadius), formatNumber(outerRadius), 0, largeArc, 1, formatNumber(endOuter.x), formatNumber(endOuter.y),
+          "L", formatNumber(startInner.x), formatNumber(startInner.y),
+          "A", formatNumber(innerRadius), formatNumber(innerRadius), 0, largeArc, 0, formatNumber(endInner.x), formatNumber(endInner.y),
+          "Z"
+        ].join(" ");
+      }
+
+      function renderSectorMarkup(disc) {
+        var outerRadius = disc.rx - 6;
+        var innerRadius = disc.sectorInnerRadius;
+        var sectorCount = disc.sectorColors.length;
+        var step = 360 / sectorCount;
+        var parts = [];
+        var i;
+
+        for (i = 0; i < sectorCount; i += 1) {
+          var start = i * step;
+          var end = start + step;
+          parts.push(
+            '<path d="' + createDonutSectorPath(innerRadius, outerRadius, start, end) + '"' +
+              ' fill="' + disc.sectorColors[i] + '"' +
+              ' stroke="#5c4b3a" stroke-opacity="0.12" stroke-width="1"></path>'
+          );
+        }
+
+        for (i = 0; i < sectorCount; i += 1) {
+          var tickOuter = polarToCartesian(outerRadius - 1, i * step);
+          var tickInner = polarToCartesian(innerRadius + 6, i * step);
+          parts.push(
+            '<line x1="' + formatNumber(tickInner.x) + '" y1="' + formatNumber(tickInner.y) +
+            '" x2="' + formatNumber(tickOuter.x) + '" y2="' + formatNumber(tickOuter.y) +
+            '" stroke="#5c4b3a" stroke-opacity="0.46" stroke-width="1.4" stroke-linecap="round"></line>'
+          );
+        }
+
+        parts.push(
+          '<circle r="' + formatNumber(innerRadius - 2) + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.18" stroke-width="1.2"></circle>'
+        );
+        parts.push(
+          '<circle r="' + formatNumber(outerRadius - 4) + '" fill="none" stroke="#5c4b3a" stroke-opacity="0.18" stroke-width="1.2"></circle>'
+        );
+        parts.push(
+          '<path d="' + createDonutSectorPath(innerRadius + 8, outerRadius - 14, 318, 394) +
+          '" fill="rgba(255,255,255,0.34)"></path>'
+        );
+
+        return parts.join("");
+      }
+
+      function renderDisc(disc) {
+        var scaleY = disc.ry / disc.rx;
+        var capRx = Math.max(8, disc.rx * 0.16);
+        var capRy = Math.max(4, disc.ry * 0.34);
+
+        return (
+          '<g data-disc="' + disc.id + '">' +
+            '<path d="' + createSidePath(disc) + '" fill="url(#' + disc.sideGradientId + ')"></path>' +
+            '<path d="' + createSideOutlinePath(disc) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2" stroke-linejoin="round"></path>' +
+            '<g transform="translate(' + formatNumber(disc.cx) + " " + formatNumber(disc.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
+              '<circle r="' + formatNumber(disc.rx) + '" fill="' + disc.topColor + '"></circle>' +
+              '<g data-rotor="' + disc.id + '" transform="rotate(' + formatNumber(disc.angle) + ')">' +
+                renderSectorMarkup(disc) +
+              "</g>" +
+            "</g>" +
+            '<ellipse cx="' + formatNumber(disc.cx) + '" cy="' + formatNumber(disc.cy) + '" rx="' + formatNumber(disc.rx) + '" ry="' + formatNumber(disc.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
+            '<g transform="translate(' + formatNumber(disc.cx) + " " + formatNumber(disc.cy) + ')">' +
+              '<ellipse rx="' + formatNumber(capRx) + '" ry="' + formatNumber(capRy) + '" fill="' + disc.capColor + '" stroke="#5c4b3a" stroke-width="1.5"></ellipse>' +
+              '<ellipse rx="' + formatNumber(capRx * 0.52) + '" ry="' + formatNumber(capRy * 0.52) + '" fill="#ffffff" fill-opacity="0.66"></ellipse>' +
+            "</g>" +
+            '<g transform="translate(' + formatNumber(disc.cx) + " " + formatNumber(disc.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
+              '<path class="turntable-hit" data-hit="' + disc.id + '" d="' + createRingPath(disc.rx, disc.hitInnerRadius) + '" fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
+            "</g>" +
+          "</g>"
+        );
+      }
+
+      function renderTurntable() {
+        refs.svg.innerHTML =
+          '<defs>' +
+            '<linearGradient id="turntable-base-side" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0%" stop-color="#e8dfd1"></stop>' +
+              '<stop offset="100%" stop-color="#c4a882"></stop>' +
+            "</linearGradient>" +
+            '<linearGradient id="turntable-mid-side" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0%" stop-color="#f7ecec"></stop>' +
+              '<stop offset="100%" stop-color="#e8dfd1"></stop>' +
+            "</linearGradient>" +
+            '<linearGradient id="turntable-top-side" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0%" stop-color="#c8d8ba"></stop>' +
+              '<stop offset="100%" stop-color="#8fbc8f"></stop>' +
+            "</linearGradient>" +
+            '<radialGradient id="turntable-floor-shadow" cx="50%" cy="50%" r="50%">' +
+              '<stop offset="0%" stop-color="#5c4b3a" stop-opacity="0.16"></stop>' +
+              '<stop offset="100%" stop-color="#5c4b3a" stop-opacity="0"></stop>' +
+            "</radialGradient>" +
+          "</defs>" +
+          '<ellipse cx="190" cy="362" rx="156" ry="24" fill="url(#turntable-floor-shadow)"></ellipse>' +
+          state.discs.map(renderDisc).join("");
+
+        state.discs.forEach(function (disc) {
+          refs.rotors[disc.id] = refs.svg.querySelector('[data-rotor="' + disc.id + '"]');
+        });
+      }
+
+      function renderLegend() {
+        refs.legend.innerHTML = state.discs.map(function (disc) {
+          return (
+            '<div class="legend-item" data-indicator="' + disc.id + '">' +
+              '<span class="legend-bar ' + disc.id + '"></span>' +
+              '<span class="legend-title">' + disc.label + "</span>" +
+              '<span class="legend-meta">' + disc.autoSpeed + "°/s</span>" +
+            "</div>"
+          );
+        }).join("");
+
+        state.discs.forEach(function (disc) {
+          refs.indicators[disc.id] = refs.legend.querySelector('[data-indicator="' + disc.id + '"]');
+        });
+      }
+
+      function updateRotor(disc) {
+        var rotor = refs.rotors[disc.id];
+        if (!rotor) return;
+        rotor.setAttribute("transform", "rotate(" + formatNumber(disc.angle) + ")");
+      }
+
+      function updateStatus() {
+        var activeDisc = state.discs.find(function (disc) {
+          return disc.id === state.activeDiscId;
+        }) || null;
+
+        Object.keys(refs.indicators).forEach(function (discId) {
+          refs.indicators[discId].classList.toggle("is-active", discId === state.activeDiscId);
+        });
+
+        refs.status.textContent = activeDisc ?
+          (activeDisc.label + " 正在被拖动，松手后会继续自动旋转。") :
+          "正在自动转动，拖动任意可见盘面即可单独接管。";
+      }
+
+      function getSvgPoint(event) {
+        var point = refs.svg.createSVGPoint();
+        point.x = event.clientX;
+        point.y = event.clientY;
+        var ctm = refs.svg.getScreenCTM();
+        return ctm ? point.matrixTransform(ctm.inverse()) : null;
+      }
+
+      function getDiscById(discId) {
+        return state.discs.find(function (disc) {
+          return disc.id === discId;
+        }) || null;
+      }
+
+      function getPointerAngle(disc, svgPoint) {
+        if (!disc || !svgPoint) return null;
+
+        var scaleY = disc.ry / disc.rx;
+        var localX = svgPoint.x - disc.cx;
+        var localY = (svgPoint.y - disc.cy) / scaleY;
+        var radius = Math.sqrt((localX * localX) + (localY * localY));
+
+        if (radius < Math.max(10, disc.sectorInnerRadius * 0.32)) {
+          return null;
+        }
+
+        return normalizeAngle((Math.atan2(localY, localX) * 180 / Math.PI) + 90);
+      }
+
+      function releaseDisc(pointerId) {
+        state.discs.forEach(function (disc) {
+          if (disc.pointerId !== pointerId) return;
+          disc.dragging = false;
+          disc.pointerId = null;
+          disc.lastPointerAngle = null;
+        });
+        state.activeDiscId = null;
+        refs.hitTarget = null;
+        updateStatus();
+      }
+
+      function handlePointerDown(event) {
+        var hit = event.target.closest("[data-hit]");
+        if (!hit) return;
+
+        var disc = getDiscById(hit.getAttribute("data-hit"));
+        var svgPoint = getSvgPoint(event);
+        var pointerAngle = getPointerAngle(disc, svgPoint);
+
+        if (!disc || pointerAngle == null) return;
+
+        disc.dragging = true;
+        disc.pointerId = event.pointerId;
+        disc.lastPointerAngle = pointerAngle;
+        state.activeDiscId = disc.id;
+        refs.hitTarget = hit;
+
+        if (typeof hit.setPointerCapture === "function") {
+          hit.setPointerCapture(event.pointerId);
+        }
+
+        updateStatus();
+        event.preventDefault();
+      }
+
+      function handlePointerMove(event) {
+        var disc = state.discs.find(function (item) {
+          return item.pointerId === event.pointerId && item.dragging;
+        });
+        if (!disc) return;
+
+        var svgPoint = getSvgPoint(event);
+        var pointerAngle = getPointerAngle(disc, svgPoint);
+        if (pointerAngle == null) return;
+
+        disc.angle = normalizeAngle(disc.angle + angleDelta(pointerAngle, disc.lastPointerAngle));
+        disc.lastPointerAngle = pointerAngle;
+        updateRotor(disc);
+        event.preventDefault();
+      }
+
+      function handlePointerUp(event) {
+        if (refs.hitTarget && typeof refs.hitTarget.releasePointerCapture === "function") {
+          try {
+            refs.hitTarget.releasePointerCapture(event.pointerId);
+          } catch (err) {
+            /* ignore */
+          }
+        }
+        releaseDisc(event.pointerId);
+      }
+
+      function tick(timestamp) {
+        if (!state.lastTick) {
+          state.lastTick = timestamp;
+        }
+
+        var delta = Math.min((timestamp - state.lastTick) / 1000, 0.04);
+        state.lastTick = timestamp;
+
+        state.discs.forEach(function (disc) {
+          if (disc.dragging) return;
+          disc.angle = normalizeAngle(disc.angle + (disc.autoSpeed * delta));
+          updateRotor(disc);
+        });
+
+        refs.rafId = window.requestAnimationFrame(tick);
+      }
+
+      function bindEvents() {
+        refs.stageShell.addEventListener("pointerdown", handlePointerDown);
+        refs.stageShell.addEventListener("pointermove", handlePointerMove);
+        refs.stageShell.addEventListener("pointerup", handlePointerUp);
+        refs.stageShell.addEventListener("pointercancel", handlePointerUp);
+        refs.stageShell.addEventListener("lostpointercapture", handlePointerUp);
+      }
+
+      function init() {
+        renderTurntable();
+        renderLegend();
+        updateStatus();
+        bindEvents();
+        refs.rafId = window.requestAnimationFrame(tick);
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>

@@ -2,6 +2,17 @@
 
 本项目为离线静态 H5，三栏模块可并行开发。提交前请阅读 `Project Specification.md`。
 
+## 开发日志（必做）
+
+所有成员及 **AI 辅助开发** 在推送/合并前，必须在 [`DEVLOG.md`](DEVLOG.md) **最上方**追加一条记录，包含：
+
+- **日期**
+- **修改人**（姓名或 GitHub 用户名）
+- **模块/范围**（`order` / `dress` / `social` / 全局 / 资源 / 文档）
+- **修改摘要**与**主要涉及路径**
+
+与 AI 协作时，请在任务中明确要求其完成后更新 `DEVLOG.md`（模板与说明见该文件）。未更新日志的 PR 不应合并。
+
 ## 分工与目录（减少 Git 冲突）
 
 | 模块 | Tab id | 你可自由修改的路径 |
@@ -29,6 +40,11 @@ git checkout -b feat/order-menu   # 或 feat/dress-xxx / feat/social-xxx
 ## 本地预览
 
 用浏览器直接打开根目录 `index.html`，或使用本地静态服务（勿依赖在线 CDN）。
+
+- **社交 · 美食街区：** `social-map.html`（底部「社交」Tab 会跳转至此）
+- **装扮模块调试：** `dress-preview.html`（仅 dress，不经过三栏壳）
+- **转盘单页原型：** `wmx-temporary/转盘/index.html`（wmx 分支参考实现）
+- **wmx 临时资源：** `wmx-temporary/`（宠物素材、生成工具；入选包体前须压缩并迁入 `assets/modules/`）
 
 ## 模块开发步骤
 

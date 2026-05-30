@@ -59,13 +59,12 @@
       }
     });
 
-    global.Yummi.modules = global.Yummi.modules || {};
-    global.Yummi.modules[spec.id] = {
-      id: spec.id,
-      meta: spec.meta || {},
-      getInstance: function () {
-        return instance;
-      }
+    /* 保留 config/state/view/screen（各模块在 index.js 之前已挂到 modules.<id>） */
+    var mod = global.Yummi.modules[spec.id] = global.Yummi.modules[spec.id] || {};
+    mod.id = spec.id;
+    mod.meta = spec.meta || mod.meta || (mod.config && mod.config.meta) || {};
+    mod.getInstance = function () {
+      return instance;
     };
 
     return spec.id;

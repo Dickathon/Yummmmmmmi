@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yummmmmmmi Wabi-Sabi Demo</title>
+  <style>
+    :root {
+      --wood-brown: #5c4b3a;
+      --oak-light: #c4a882;
+      --washi-white: #e8dfd1;
+      --warm-cream: #f5f0e8;
+      --sakura-pink: #f4e1e1;
+      --matcha-green: #8fbc8f;
+      --bamboo-gray: #9caf88;
+      --text-dark: #3d3d3d;
+      --text-warm: #8b7355;
+      --card-shadow: rgba(92, 75, 58, 0.08);
+      --card-shadow-soft: rgba(92, 75, 58, 0.06);
+      --max-width: 1200px;
+      --section-gap: 92px;
+      --card-gap: 32px;
+      --radius-xl: 28px;
+      --radius-card: 20px;
+      --radius-pill: 999px;
+      --transition-slow: 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 0.32s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Helvetica Neue", sans-serif;
+      color: var(--text-dark);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(244, 225, 225, 0.35), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(196, 168, 130, 0.16), transparent 24%),
+        linear-gradient(180deg, #f8f4ed 0%, var(--warm-cream) 26%, #f4eee4 100%);
+      letter-spacing: 0.02em;
+      line-height: 1.8;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(92, 75, 58, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(92, 75, 58, 0.015) 1px, transparent 1px),
+        radial-gradient(rgba(92, 75, 58, 0.025) 0.7px, transparent 0.7px);
+      background-size: 180px 180px, 180px 180px, 14px 14px;
+      opacity: 0.3;
+      mix-blend-mode: multiply;
+      z-index: -1;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page-shell {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .page-shell::after {
+      content: "";
+      position: absolute;
+      top: 140px;
+      right: -120px;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(244, 225, 225, 0.55), rgba(244, 225, 225, 0));
+      z-index: -1;
+      filter: blur(18px);
+    }
+
+    .container {
+      width: min(calc(100% - 48px), var(--max-width));
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: var(--section-gap) 0;
+    }
+
+    .section-head {
+      display: grid;
+      gap: 14px;
+      max-width: 660px;
+      margin-bottom: 40px;
+    }
+
+    .eyebrow {
+      color: var(--text-warm);
+      font-size: 0.85rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      color: var(--wood-brown);
+      font-weight: 300;
+      line-height: 1.3;
+      letter-spacing: 0.1em;
+    }
+
+    h1 {
+      font-size: clamp(2.9rem, 5vw, 5.4rem);
+    }
+
+    h2 {
+      font-size: clamp(2rem, 3vw, 3rem);
+    }
+
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .subtle {
+      color: var(--text-warm);
+      font-size: 0.92rem;
+      letter-spacing: 0.05em;
+    }
+
+    .price {
+      color: var(--wood-brown);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      transition: background var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), backdrop-filter var(--transition-base);
+      border-bottom: 1px solid transparent;
+    }
+
+    .site-nav.is-scrolled {
+      background: rgba(245, 240, 232, 0.7);
+      backdrop-filter: blur(16px);
+      border-bottom-color: rgba(232, 223, 209, 0.95);
+      box-shadow: 0 14px 40px rgba(92, 75, 58, 0.05);
+    }
+
+    .nav-inner {
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      letter-spacing: 0.16em;
+      color: var(--wood-brown);
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(196, 168, 130, 0.25), rgba(92, 75, 58, 0.92));
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(245, 240, 232, 0.92);
+    }
+
+    .brand-mark::before {
+      width: 18px;
+      height: 2px;
+      top: 18px;
+      left: 10px;
+      transform: rotate(-28deg);
+    }
+
+    .brand-mark::after {
+      width: 10px;
+      height: 10px;
+      right: 10px;
+      top: 9px;
+      opacity: 0.85;
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      font-size: 0.95rem;
+    }
+
+    .brand-copy span {
+      display: block;
+      color: var(--text-warm);
+      font-size: 0.74rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      position: relative;
+      padding: 6px 0;
+      color: var(--text-warm);
+      transition: color var(--transition-base);
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 1px;
+      background: var(--oak-light);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform var(--transition-base);
+    }
+
+    .nav-links a:hover {
+      color: var(--wood-brown);
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .hero {
+      padding: 34px 0 22px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 28px;
+    }
+
+    .hero-copy p {
+      max-width: 590px;
+      font-size: 1.04rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 4px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 0 28px;
+      border-radius: var(--radius-pill);
+      border: 1px solid transparent;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      transition: transform var(--transition-slow), color var(--transition-base), background var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+      cursor: pointer;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button.primary {
+      background: var(--wood-brown);
+      color: var(--warm-cream);
+      border-color: var(--wood-brown);
+      box-shadow: 0 16px 30px rgba(92, 75, 58, 0.12);
+    }
+
+    .button.primary:hover {
+      background: transparent;
+      color: var(--wood-brown);
+      box-shadow: none;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--oak-light);
+      border-color: rgba(196, 168, 130, 0.9);
+    }
+
+    .button.secondary:hover {
+      color: var(--warm-cream);
+      background: var(--oak-light);
+    }
+
+    .hero-notes {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: var(--radius-pill);
+      color: var(--wood-brown);
+      font-size: 0.84rem;
+      letter-spacing: 0.06em;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .tag::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(92, 75, 58, 0.45);
+    }
+
+    .tag-sakura {
+      background: rgba(244, 225, 225, 0.92);
+    }
+
+    .tag-matcha {
+      background: rgba(143, 188, 143, 0.22);
+    }
+
+    .tag-bamboo {
+      background: rgba(156, 175, 136, 0.22);
+    }
+
+    .tag-oak {
+      background: rgba(196, 168, 130, 0.22);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 700px;
+      border-radius: 36px;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(232, 223, 209, 0.95) 0%, rgba(244, 225, 225, 0.96) 58%, rgba(245, 240, 232, 0.98) 100%);
+      border: 1px solid rgba(232, 223, 209, 0.8);
+      box-shadow: 0 28px 70px rgba(92, 75, 58, 0.1);
+      isolation: isolate;
+    }
+
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 70% 25%, rgba(255, 255, 255, 0.7), transparent 26%),
+        radial-gradient(circle at 25% 75%, rgba(196, 168, 130, 0.18), transparent 24%);
+      opacity: 0.9;
+    }
+
+    .hero-visual::after {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+    }
+
+    .paper-card,
+    .plate-card,
+    .story-card,
+    .mini-card {
+      position: absolute;
+      border-radius: var(--radius-card);
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(232, 223, 209, 0.95);
+      box-shadow: 0 20px 50px rgba(92, 75, 58, 0.08);
+      backdrop-filter: blur(4px);
+    }
+
+    .paper-card {
+      top: 44px;
+      left: 42px;
+      width: 250px;
+      padding: 24px;
+      transform: rotate(-5deg);
+    }
+
+    .plate-card {
+      right: 34px;
+      top: 94px;
+      width: 260px;
+      height: 310px;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.74);
+    }
+
+    .story-card {
+      left: 70px;
+      bottom: 64px;
+      width: 290px;
+      padding: 24px;
+    }
+
+    .mini-card {
+      right: 58px;
+      bottom: 42px;
+      width: 220px;
+      padding: 22px;
+    }
+
+    .paper-card h3,
+    .story-card h3,
+    .mini-card h3 {
+      margin-bottom: 10px;
+    }
+
+    .paper-card ul,
+    .story-card ul,
+    .mini-card ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      color: var(--text-warm);
+      font-size: 0.92rem;
+    }
+
+    .plate {
+      width: 100%;
+      height: 100%;
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at 50% 44%, rgba(245, 240, 232, 0.92) 0 34%, rgba(143, 188, 143, 0.22) 34% 47%, transparent 47%),
+        radial-gradient(circle at 50% 48%, rgba(244, 225, 225, 0.82) 0 11%, transparent 11%),
+        radial-gradient(circle at 62% 40%, rgba(196, 168, 130, 0.24) 0 10%, transparent 10%),
+        radial-gradient(circle at 42% 58%, rgba(196, 168, 130, 0.2) 0 13%, transparent 13%),
+        radial-gradient(circle at 55% 54%, rgba(92, 75, 58, 0.16) 0 4%, transparent 4%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.95) 0 66%, rgba(232, 223, 209, 0.95) 67% 68%, transparent 68%);
+      position: relative;
+    }
+
+    .plate::before,
+    .plate::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(143, 188, 143, 0.55);
+    }
+
+    .plate::before {
+      width: 22px;
+      height: 72px;
+      left: 65px;
+      top: 142px;
+      transform: rotate(-30deg);
+      filter: blur(0.4px);
+    }
+
+    .plate::after {
+      width: 16px;
+      height: 56px;
+      right: 68px;
+      top: 84px;
+      transform: rotate(28deg);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 8px;
+    }
+
+    .metric {
+      border-top: 1px solid rgba(196, 168, 130, 0.45);
+      padding-top: 14px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .metric strong {
+      color: var(--wood-brown);
+      font-weight: 600;
+      font-size: 1.3rem;
+      letter-spacing: 0.03em;
+    }
+
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--card-gap);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--washi-white);
+      border-radius: var(--radius-card);
+      padding: 28px;
+      transition: transform var(--transition-slow), border-color var(--transition-base), box-shadow var(--transition-base);
+      box-shadow: 0 14px 32px var(--card-shadow-soft);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: var(--oak-light);
+      box-shadow: 0 20px 42px var(--card-shadow);
+    }
+
+    .swatch {
+      display: grid;
+      gap: 18px;
+      min-height: 214px;
+    }
+
+    .swatch-color {
+      height: 128px;
+      border-radius: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .swatch-color::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+    }
+
+    .swatch-meta {
+      display: grid;
+      gap: 8px;
+    }
+
+    .swatch-meta strong {
+      color: var(--wood-brown);
+      font-weight: 600;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--card-gap);
+      align-items: start;
+    }
+
+    .type-sample {
+      display: grid;
+      gap: 18px;
+    }
+
+    .type-lockup {
+      padding: 26px 28px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(245, 240, 232, 0.55), rgba(255, 255, 255, 0.96));
+      border: 1px solid rgba(232, 223, 209, 0.95);
+    }
+
+    .type-lockup h1,
+    .type-lockup h2,
+    .type-lockup h3,
+    .type-lockup p {
+      margin-bottom: 12px;
+    }
+
+    .chip-row,
+    .button-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--card-gap);
+    }
+
+    .menu-card {
+      display: grid;
+      gap: 22px;
+      min-height: 420px;
+    }
+
+    .category-card {
+      min-height: 470px;
+      align-content: start;
+    }
+
+    .menu-image {
+      height: 210px;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(232, 223, 209, 0.8);
+      background: #f9f5ef;
+    }
+
+    .menu-image::before,
+    .menu-image::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .image-dessert {
+      background:
+        radial-gradient(circle at 48% 62%, rgba(255, 248, 242, 0.96) 0 24%, transparent 24%),
+        radial-gradient(circle at 48% 62%, rgba(92, 75, 58, 0.08) 0 26%, transparent 26%),
+        radial-gradient(circle at 48% 42%, rgba(244, 225, 225, 0.92) 0 10%, transparent 10%),
+        radial-gradient(circle at 42% 34%, rgba(196, 168, 130, 0.35) 0 4%, transparent 4%),
+        radial-gradient(circle at 58% 32%, rgba(196, 168, 130, 0.25) 0 3%, transparent 3%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(244, 225, 225, 0.82));
+    }
+
+    .image-matcha {
+      background:
+        radial-gradient(circle at 58% 58%, rgba(245, 240, 232, 0.95) 0 26%, transparent 26%),
+        radial-gradient(circle at 58% 58%, rgba(143, 188, 143, 0.28) 0 28%, transparent 28%),
+        radial-gradient(circle at 43% 42%, rgba(143, 188, 143, 0.78) 0 10%, transparent 10%),
+        radial-gradient(circle at 64% 37%, rgba(255, 255, 255, 0.65) 0 6%, transparent 6%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(143, 188, 143, 0.2));
+    }
+
+    .image-light {
+      background:
+        radial-gradient(circle at 52% 62%, rgba(255, 255, 255, 0.98) 0 24%, transparent 24%),
+        radial-gradient(circle at 52% 62%, rgba(156, 175, 136, 0.24) 0 27%, transparent 27%),
+        radial-gradient(circle at 40% 42%, rgba(156, 175, 136, 0.76) 0 9%, transparent 9%),
+        radial-gradient(circle at 58% 38%, rgba(196, 168, 130, 0.28) 0 5%, transparent 5%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(232, 223, 209, 0.82));
+    }
+
+    .menu-copy {
+      display: grid;
+      gap: 14px;
+    }
+
+    .menu-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .menu-copy p {
+      color: var(--text-warm);
+      font-size: 0.95rem;
+    }
+
+    .ingredients {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ingredients span {
+      padding: 7px 12px;
+      border-radius: var(--radius-pill);
+      background: rgba(232, 223, 209, 0.6);
+      color: var(--text-warm);
+      font-size: 0.78rem;
+    }
+
+    .food-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .food-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: var(--radius-pill);
+      color: var(--wood-brown);
+      font-size: 0.86rem;
+      letter-spacing: 0.04em;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(232, 223, 209, 0.96);
+      transition: transform var(--transition-base), border-color var(--transition-base), background var(--transition-base), box-shadow var(--transition-base);
+      box-shadow: 0 10px 22px rgba(92, 75, 58, 0.05);
+    }
+
+    .food-pill:hover {
+      transform: translateY(-4px);
+      border-color: var(--oak-light);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 16px 30px rgba(92, 75, 58, 0.08);
+    }
+
+    .food-pill.sakura {
+      background: rgba(244, 225, 225, 0.55);
+    }
+
+    .food-pill.matcha {
+      background: rgba(143, 188, 143, 0.18);
+    }
+
+    .food-pill.bamboo {
+      background: rgba(156, 175, 136, 0.18);
+    }
+
+    .food-note {
+      color: var(--text-warm);
+      font-size: 0.92rem;
+    }
+
+    .experience-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: var(--card-gap);
+    }
+
+    .atmosphere-card {
+      min-height: 430px;
+      display: grid;
+      align-content: space-between;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(245, 240, 232, 0.96)),
+        repeating-linear-gradient(90deg, rgba(232, 223, 209, 0.15), rgba(232, 223, 209, 0.15) 1px, transparent 1px, transparent 24px);
+    }
+
+    .atmosphere-scene {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: end;
+    }
+
+    .scene-paper,
+    .scene-window,
+    .scene-table {
+      border-radius: 18px;
+      border: 1px solid rgba(232, 223, 209, 0.95);
+      background: rgba(255, 255, 255, 0.88);
+      min-height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scene-paper::before {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      background:
+        linear-gradient(180deg, rgba(196, 168, 130, 0.14), rgba(196, 168, 130, 0)),
+        repeating-linear-gradient(0deg, rgba(92, 75, 58, 0.035), rgba(92, 75, 58, 0.035) 1px, transparent 1px, transparent 12px);
+      border-radius: 12px;
+    }
+
+    .scene-window {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(244, 225, 225, 0.48)),
+        repeating-linear-gradient(90deg, rgba(196, 168, 130, 0.2), rgba(196, 168, 130, 0.2) 1px, transparent 1px, transparent 38px);
+    }
+
+    .scene-window::before {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+    }
+
+    .scene-table {
+      grid-column: 1 / -1;
+      min-height: 128px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(245, 240, 232, 0.96)),
+        repeating-linear-gradient(90deg, rgba(92, 75, 58, 0.035), rgba(92, 75, 58, 0.035) 2px, transparent 2px, transparent 22px);
+    }
+
+    .scene-table::before,
+    .scene-table::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(244, 225, 225, 0.82);
+      filter: blur(0.2px);
+    }
+
+    .scene-table::before {
+      width: 72px;
+      height: 72px;
+      left: 74px;
+      top: 28px;
+      box-shadow: 138px 8px 0 rgba(143, 188, 143, 0.38), 280px 0 0 rgba(196, 168, 130, 0.24);
+    }
+
+    .quote-card {
+      min-height: 430px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    blockquote {
+      margin: 0;
+      color: var(--wood-brown);
+      font-size: 1.38rem;
+      line-height: 1.8;
+      letter-spacing: 0.08em;
+      font-weight: 300;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .timeline-item {
+      padding-left: 18px;
+      border-left: 1px solid rgba(196, 168, 130, 0.4);
+      color: var(--text-warm);
+    }
+
+    .footer {
+      background: var(--wood-brown);
+      color: var(--warm-cream);
+      padding: 46px 0 54px;
+      margin-top: 24px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .footer p,
+    .footer a {
+      color: rgba(245, 240, 232, 0.88);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: 0.08s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: 0.16s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: 0.24s;
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid,
+      .grid-two,
+      .experience-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .palette-grid,
+      .menu-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .hero-visual {
+        min-height: 620px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .container {
+        width: min(calc(100% - 32px), var(--max-width));
+      }
+
+      .section {
+        padding: 72px 0;
+      }
+
+      .nav-inner {
+        min-height: 72px;
+        align-items: flex-start;
+        padding: 14px 0;
+        flex-direction: column;
+      }
+
+      .nav-links {
+        gap: 18px;
+      }
+
+      .palette-grid,
+      .menu-grid,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 10px;
+      }
+
+      .hero-grid {
+        gap: 36px;
+      }
+
+      .hero-visual {
+        min-height: 760px;
+      }
+
+      .paper-card,
+      .story-card,
+      .mini-card,
+      .plate-card {
+        width: auto;
+        left: 18px;
+        right: 18px;
+        transform: none;
+      }
+
+      .paper-card {
+        top: 24px;
+      }
+
+      .plate-card {
+        top: 228px;
+        height: 250px;
+      }
+
+      .story-card {
+        bottom: 154px;
+      }
+
+      .mini-card {
+        bottom: 20px;
+      }
+
+      .atmosphere-scene {
+        grid-template-columns: 1fr;
+      }
+
+      blockquote {
+        font-size: 1.18rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-nav" id="site-nav">
+      <div class="container nav-inner">
+        <a class="brand" href="#top" aria-label="Yummmmmmmi demo">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-copy">
+            <strong>YUMMMMMMMI</strong>
+            <span>Kyoto Tea & Dessert Demo</span>
+          </span>
+        </a>
+        <nav class="nav-links" aria-label="页面导航">
+          <a href="#palette">颜色系统</a>
+          <a href="#typography">字体排版</a>
+          <a href="#menu">卡片展示</a>
+          <a href="#atmosphere">氛围叙事</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero section">
+        <div class="container hero-grid">
+          <div class="hero-copy reveal visible">
+            <div class="eyebrow">Japanese Minimal / Wabi-Sabi / Warm Craft</div>
+            <h1>像走进京都小巷里的茶室，<br>把克制与温度做成一页设计。</h1>
+            <p>
+              这个 demo 不是单纯的风格板，而是把你给出的整套视觉规范落成可滚动、可交互、可直接展示的实际页面。每一个部分都被用上了，从毛玻璃导航、非对称 Hero、纸感纹理，到配色系统、标签、卡片、按钮、留白节奏和慢速动效。
+            </p>
+            <div class="hero-notes">
+              <span class="tag tag-sakura">季节限定</span>
+              <span class="tag tag-matcha">招牌饮品</span>
+              <span class="tag tag-bamboo">轻食慢食</span>
+              <span class="tag tag-oak">木质留白</span>
+            </div>
+            <div class="hero-actions">
+              <a class="button primary" href="#menu">查看示例卡片</a>
+              <a class="button secondary" href="#palette">浏览色彩体系</a>
+            </div>
+            <div class="metrics">
+              <div class="metric">
+                <strong>32px</strong>
+                <span class="subtle">卡片间距，维持呼吸感</span>
+              </div>
+              <div class="metric">
+                <strong>92px</strong>
+                <span class="subtle">区块节奏，慢而有层次</span>
+              </div>
+              <div class="metric">
+                <strong>20px</strong>
+                <span class="subtle">卡片圆角，柔和却不甜腻</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-visual reveal reveal-delay-1 visible" aria-hidden="true">
+            <div class="paper-card">
+              <h3>设计语气</h3>
+              <ul>
+                <li>宁静，不炫技</li>
+                <li>克制，但不冰冷</li>
+                <li>有手作感，有空气感</li>
+              </ul>
+            </div>
+
+            <div class="plate-card">
+              <div class="plate"></div>
+            </div>
+
+            <div class="story-card">
+              <h3>材质隐喻</h3>
+              <ul>
+                <li>和纸白作为结构边界</li>
+                <li>浅橡木作为节奏与描边</li>
+                <li>樱花粉与抹茶绿只做柔和提气</li>
+              </ul>
+            </div>
+
+            <div class="mini-card">
+              <h3>交互节奏</h3>
+              <ul>
+                <li>hover 上浮 8px</li>
+                <li>阴影柔和扩散</li>
+                <li>导航随滚动变成毛玻璃</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="palette">
+        <div class="container">
+          <div class="section-head reveal">
+            <div class="eyebrow">Color System</div>
+            <h2>颜色系统不是平铺样本，而是层次与情绪的分工。</h2>
+            <p class="subtle">主色用于建立品牌重心，辅助色与中性色负责收边和组织信息，点缀色只在恰当的地方轻轻出现。</p>
+          </div>
+
+          <div class="palette-grid">
+            <article class="card swatch reveal">
+              <div class="swatch-color" style="background:#5c4b3a;"></div>
+              <div class="swatch-meta">
+                <strong>深木棕 #5C4B3A</strong>
+                <p>品牌色、标题、主按钮、价格、页脚背景。负责稳住整个页面的视觉重心。</p>
+              </div>
+            </article>
+            <article class="card swatch reveal reveal-delay-1">
+              <div class="swatch-color" style="background:#c4a882;"></div>
+              <div class="swatch-meta">
+                <strong>浅橡木 #C4A882</strong>
+                <p>分割线、悬停边框、次按钮描边、结构提示色。温暖，但不喧宾夺主。</p>
+              </div>
+            </article>
+            <article class="card swatch reveal reveal-delay-2">
+              <div class="swatch-color" style="background:#e8dfd1;"></div>
+              <div class="swatch-meta">
+                <strong>和纸白 #E8DFD1</strong>
+                <p>卡片边界、导航底线、背景过渡。像纸张本身，而不是纯白屏幕。</p>
+              </div>
+            </article>
+            <article class="card swatch reveal reveal-delay-3">
+              <div class="swatch-color" style="background:#f5f0e8;"></div>
+              <div class="swatch-meta">
+                <strong>暖 Cream #F5F0E8</strong>
+                <p>全局底色、页脚文字、按钮文字的温柔底。负责整页空气感。</p>
+              </div>
+            </article>
+            <article class="card swatch reveal">
+              <div class="swatch-color" style="background:#f4e1e1;"></div>
+              <div class="swatch-meta">
+                <strong>桜花粉 #F4E1E1</strong>
+                <p>季节限定、甜品卡片气氛、Hero 右侧渐变。带来柔软和轻盈。</p>
+              </div>
+            </article>
+            <article class="card swatch reveal reveal-delay-1">
+              <div class="swatch-color" style="background:#8fbc8f;"></div>
+              <div class="swatch-meta">
+                <strong>抹茶绿 #8FBC8F</strong>
+                <p>招牌饮品、健康分类、茶感联想。自然、清爽、有呼吸。</p>
+              </div>
+            </article>
+            <article class="card swatch reveal reveal-delay-2">
+              <div class="swatch-color" style="background:#9caf88;"></div>
+              <div class="swatch-meta">
+                <strong>竹青灰 #9CAF88</strong>
+                <p>轻食、沙拉、沉稳标签。比绿更内敛，更适合做平衡角色。</p>
+              </div>
+            </article>
+            <article class="card swatch reveal reveal-delay-3">
+              <div class="swatch-color" style="background:linear-gradient(180deg,#3d3d3d 0 50%, #8b7355 50% 100%);"></div>
+              <div class="swatch-meta">
+                <strong>文字层级</strong>
+                <p>正文深灰 #3D3D3D，辅助说明暖褐 #8B7355。既清晰，也保留温度。</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="typography">
+        <div class="container grid-two">
+          <div class="section-head reveal">
+            <div class="eyebrow">Typography & Rhythm</div>
+            <h2>排版轻，节奏松，靠留白和字距建立气氛。</h2>
+            <p class="subtle">标题保持细字重和呼吸感，正文清晰稳定，辅助文字更轻一些，让视觉层级自然形成。</p>
+          </div>
+
+          <div class="card type-sample reveal reveal-delay-1">
+            <div class="type-lockup">
+              <h1>抹茶与桜の余韵</h1>
+              <p>标题使用深木棕，字重偏轻，字间距被刻意拉开，让页面气质更接近日式极简与侘寂。</p>
+              <h3>Kyoto Afternoon Set</h3>
+              <p class="subtle">辅助文字使用暖褐色，字距更松一点，适合说明产地、做法、季节限定或短句叙事。</p>
+              <p><span class="price">¥48</span> 价格数字略重一点，与正文形成微妙对比，但仍维持整体克制感。</p>
+            </div>
+
+            <div class="chip-row">
+              <span class="tag tag-sakura">樱香和果子</span>
+              <span class="tag tag-matcha">现刷抹茶</span>
+              <span class="tag tag-bamboo">亚麻肌理</span>
+              <span class="tag tag-oak">浅木边界</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container grid-two">
+          <article class="card reveal">
+            <div class="section-head" style="margin-bottom:24px;">
+              <div class="eyebrow">Buttons</div>
+              <h2 style="font-size:1.7rem;">主次按钮的反转与克制</h2>
+            </div>
+            <div class="button-row">
+              <a class="button primary" href="#atmosphere">预约一席静谧</a>
+              <a class="button secondary" href="#menu">查看时令菜单</a>
+            </div>
+            <p class="subtle" style="margin-top:18px;">主按钮用深木色实心 pill 形，hover 时反转为线框；次按钮用浅橡木描边，hover 再转为实心。</p>
+          </article>
+
+          <article class="card reveal reveal-delay-1">
+            <div class="section-head" style="margin-bottom:24px;">
+              <div class="eyebrow">Materials</div>
+              <h2 style="font-size:1.7rem;">纸、木、亚麻的轻微隐喻</h2>
+            </div>
+            <p>背景保持暖 cream 纯色基调，上面只叠极淡纹理，不做玻璃拟态和霓虹光泽。卡片是哑光纯白，阴影非常克制，像柔和自然光下的纸张边缘。</p>
+            <p class="subtle" style="margin-top:14px;">整体的“高级感”来自收敛，而不是堆砌。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="menu">
+        <div class="container">
+          <div class="section-head reveal">
+            <div class="eyebrow">Menu Cards</div>
+            <h2>把食物按类别聚在一起展示，不再一行只放一个。</h2>
+            <p class="subtle">这一段改成主食、甜品、饮品三组集中陈列，用同一张卡片承载一类食物，让信息更紧凑，也更像真实菜单。</p>
+          </div>
+
+          <div class="menu-grid">
+            <article class="card menu-card category-card reveal">
+              <div class="menu-image image-dessert" aria-hidden="true"></div>
+              <div class="menu-copy">
+                <div class="menu-topline">
+                  <h3>甜品集合</h3>
+                  <span class="price">15 款</span>
+                </div>
+                <div class="chip-row">
+                  <span class="tag tag-sakura">樱花系柔色</span>
+                  <span class="tag tag-oak">手作甜品</span>
+                </div>
+                <p>甜品不再拆成一条一条单独摆放，而是聚成一组，利用桜花粉与暖 cream 去营造柔软、安静、带一点季节感的视觉氛围。</p>
+                <div class="food-cloud">
+                  <span class="food-pill sakura">奶油蛋糕</span>
+                  <span class="food-pill sakura">奶油泡芙</span>
+                  <span class="food-pill sakura">焦糖布丁</span>
+                  <span class="food-pill sakura">香草冰淇淋</span>
+                  <span class="food-pill sakura">芒果冰沙</span>
+                  <span class="food-pill sakura">水果软糖</span>
+                  <span class="food-pill sakura">黑巧克力</span>
+                  <span class="food-pill sakura">芝麻汤圆</span>
+                  <span class="food-pill sakura">杨枝甘露</span>
+                  <span class="food-pill sakura">芝士奶酪块</span>
+                  <span class="food-pill sakura">葡式蛋挞</span>
+                  <span class="food-pill sakura">黄油曲奇</span>
+                  <span class="food-pill sakura">话梅</span>
+                  <span class="food-pill sakura">水果捞</span>
+                  <span class="food-pill sakura">榴莲制品</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card menu-card category-card reveal reveal-delay-1">
+              <div class="menu-image image-matcha" aria-hidden="true"></div>
+              <div class="menu-copy">
+                <div class="menu-topline">
+                  <h3>饮品集合</h3>
+                  <span class="price">13 款</span>
+                </div>
+                <div class="chip-row">
+                  <span class="tag tag-matcha">茶饮与清爽感</span>
+                  <span class="tag tag-oak">慢饮节奏</span>
+                </div>
+                <p>饮品集中排在一起后，抹茶绿就更适合作为一整组的识别色，既能提示“茶感与自然”，又不会把页面变得太跳。</p>
+                <div class="food-cloud">
+                  <span class="food-pill matcha">冰红茶</span>
+                  <span class="food-pill matcha">珍珠奶茶</span>
+                  <span class="food-pill matcha">冰镇酸梅汤</span>
+                  <span class="food-pill matcha">青岛啤酒</span>
+                  <span class="food-pill matcha">鸡尾酒</span>
+                  <span class="food-pill matcha">抹茶奶茶</span>
+                  <span class="food-pill matcha">美式咖啡</span>
+                  <span class="food-pill matcha">薄荷柠檬水</span>
+                  <span class="food-pill matcha">龙井茶</span>
+                  <span class="food-pill matcha">姜糖水</span>
+                  <span class="food-pill matcha">碳酸饮</span>
+                  <span class="food-pill matcha">酸奶</span>
+                  <span class="food-pill matcha">牛奶</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="card menu-card category-card reveal reveal-delay-2">
+              <div class="menu-image image-light" aria-hidden="true"></div>
+              <div class="menu-copy">
+                <div class="menu-topline">
+                  <h3>主食集合</h3>
+                  <span class="price">56 款</span>
+                </div>
+                <div class="chip-row">
+                  <span class="tag tag-bamboo">主食与热菜</span>
+                  <span class="tag tag-oak">丰富但整齐</span>
+                </div>
+                <p>主食数量最多，所以更需要写在一起做集中浏览。这样既保留内容量，也不会让页面变成密密麻麻的一行一个清单。</p>
+                <div class="food-cloud">
+                  <span class="food-pill bamboo">炸酱面</span>
+                  <span class="food-pill bamboo">北京烤鸭</span>
+                  <span class="food-pill bamboo">春卷</span>
+                  <span class="food-pill bamboo">刀削面</span>
+                  <span class="food-pill bamboo">锅包肉</span>
+                  <span class="food-pill bamboo">小鸡炖蘑菇</span>
+                  <span class="food-pill bamboo">红烧肉</span>
+                  <span class="food-pill bamboo">糖醋排骨</span>
+                  <span class="food-pill bamboo">清炒虾仁</span>
+                  <span class="food-pill bamboo">黄山炖鸽</span>
+                  <span class="food-pill bamboo">海蛎煎</span>
+                  <span class="food-pill bamboo">蒸螃蟹</span>
+                  <span class="food-pill bamboo">瓦罐汤</span>
+                  <span class="food-pill bamboo">炒腊肉</span>
+                  <span class="food-pill bamboo">九转大肠</span>
+                  <span class="food-pill bamboo">胡辣汤</span>
+                  <span class="food-pill bamboo">热干面</span>
+                  <span class="food-pill bamboo">酸辣粉</span>
+                  <span class="food-pill bamboo">剁椒鱼头</span>
+                  <span class="food-pill bamboo">小炒黄牛肉</span>
+                  <span class="food-pill bamboo">臭豆腐</span>
+                  <span class="food-pill bamboo">白切鸡</span>
+                  <span class="food-pill bamboo">烧鹅</span>
+                  <span class="food-pill bamboo">肠粉</span>
+                  <span class="food-pill bamboo">虾饺</span>
+                  <span class="food-pill bamboo">螺蛳粉</span>
+                  <span class="food-pill bamboo">桂林米粉</span>
+                  <span class="food-pill bamboo">火锅</span>
+                  <span class="food-pill bamboo">麻辣小龙虾</span>
+                  <span class="food-pill bamboo">回锅肉</span>
+                  <span class="food-pill bamboo">麻婆豆腐</span>
+                  <span class="food-pill bamboo">酸菜鱼</span>
+                  <span class="food-pill bamboo">过桥米线</span>
+                  <span class="food-pill bamboo">酥油茶</span>
+                  <span class="food-pill bamboo">糍粑</span>
+                  <span class="food-pill bamboo">肉夹馍</span>
+                  <span class="food-pill bamboo">羊肉泡馍</span>
+                  <span class="food-pill bamboo">兰州拉面</span>
+                  <span class="food-pill bamboo">手抓羊肉</span>
+                  <span class="food-pill bamboo">大盘鸡</span>
+                  <span class="food-pill bamboo">烤串</span>
+                  <span class="food-pill bamboo">牛排</span>
+                  <span class="food-pill bamboo">意大利面</span>
+                  <span class="food-pill bamboo">披萨</span>
+                  <span class="food-pill bamboo">汉堡</span>
+                  <span class="food-pill bamboo">薯条</span>
+                  <span class="food-pill bamboo">炸鸡</span>
+                  <span class="food-pill bamboo">蔬菜沙拉</span>
+                  <span class="food-pill bamboo">寿司</span>
+                  <span class="food-pill bamboo">刺身</span>
+                  <span class="food-pill bamboo">日式拉面</span>
+                  <span class="food-pill bamboo">石锅拌饭</span>
+                  <span class="food-pill bamboo">泡菜</span>
+                  <span class="food-pill bamboo">冬阴功汤</span>
+                  <span class="food-pill bamboo">咖喱饭</span>
+                  <span class="food-pill bamboo">鹅肝</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="atmosphere">
+        <div class="container experience-grid">
+          <article class="card atmosphere-card reveal">
+            <div>
+              <div class="eyebrow">Atmosphere</div>
+              <h2 style="margin-top:12px;">去装饰化，但依然让人闻得到抹茶和樱花的味道。</h2>
+              <p style="margin-top:16px;">这一块把“和纸、原木、樟子纸光线、亚麻纤维”的暗示组合在一起。它们都不直接写实，而是用最小化的图形语言去表达材质和光感。</p>
+            </div>
+            <div class="atmosphere-scene">
+              <div class="scene-paper"></div>
+              <div class="scene-window"></div>
+              <div class="scene-table"></div>
+            </div>
+          </article>
+
+          <article class="card quote-card reveal reveal-delay-1">
+            <div class="eyebrow">Mood Keywords</div>
+            <blockquote>
+              “像阳光穿过和纸屏风，空气里浮着一点抹茶、一点木香，还有樱花落下时几乎听不见的声音。”
+            </blockquote>
+            <div class="timeline">
+              <div class="timeline-item">滚动时导航从透明变成毛玻璃，让页面像慢慢进入室内。</div>
+              <div class="timeline-item">卡片 hover 上浮 8px，并扩散出 20px 左右的柔和阴影。</div>
+              <div class="timeline-item">所有转场统一用 ease 或 cubic-bezier，节奏慢，不打扰，不抢内容。</div>
+            </div>
+            <p class="subtle">这部分也同时验证了你的风格关键词是否真正能落到页面情绪上，而不是停留在文案里。</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+        <div>
+          <h3 style="color:#f5f0e8; letter-spacing:0.16em;">YUMMMMMMMI STYLE DEMO</h3>
+          <p style="margin-top:10px;">深木棕、和纸白、浅橡木、樱花粉、抹茶绿与竹青灰，共同完成这份日式极简示例。</p>
+        </div>
+        <p>Offline HTML Demo · Calm, Warm, Handcrafted</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const nav = document.getElementById("site-nav");
+    const updateNav = () => {
+      nav.classList.toggle("is-scrolled", window.scrollY > 12);
+    };
+
+    updateNav();
+    window.addEventListener("scroll", updateNav, { passive: true });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.18
+    });
+
+    document.querySelectorAll(".reveal:not(.visible)").forEach((element) => {
+      observer.observe(element);
+    });
+  </script>
+</body>
+</html>

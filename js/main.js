@@ -1,5 +1,5 @@
 /**
- * Yummi app shell: tab routing and screen lifecycle wiring.
+ * Yummi 应用壳 — 三栏路由 + 界面生命周期调度
  */
 (function (global) {
   "use strict";
@@ -55,7 +55,7 @@
 
     var list = screens.getAll();
     if (!list.length) {
-      root.innerHTML = '<div class="card"><p class="caption">No screens registered.</p></div>';
+      root.innerHTML = '<div class="card"><p class="caption">未注册任何界面模块。</p></div>';
       return;
     }
 
@@ -72,12 +72,17 @@
   function setActiveTab(tabId) {
     var screens = getScreens();
 
+    /* 社交栏：跳转 ljh 分支「美食街区」独立页 */
     if (tabId === "social") {
       window.location.href = "social-map.html";
       return;
     }
 
-    if (!screens || !screens.has(tabId) || tabId === currentTab) return;
+    if (!screens || !screens.has(tabId)) return;
+    if (tabId === currentTab) {
+      mountTab(tabId);
+      return;
+    }
 
     currentTab = tabId;
 
@@ -94,15 +99,18 @@
     mountTab(tabId);
   }
 
+  function onTabActivate(tabId) {
+    if (tabId) setActiveTab(tabId);
+  }
+
   function setupTabBar() {
     var tabBar = document.getElementById("tab-bar");
     if (!tabBar) return;
 
-    tabBar.addEventListener("click", function (e) {
-      var btn = e.target.closest(".tab-bar__item");
-      if (!btn) return;
-      var tabId = btn.getAttribute("data-tab");
-      if (tabId) setActiveTab(tabId);
+    tabBar.querySelectorAll(".tab-bar__item").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        onTabActivate(btn.getAttribute("data-tab"));
+      });
     });
 
     tabBar.querySelectorAll(".tab-bar__icon").forEach(function (img) {
