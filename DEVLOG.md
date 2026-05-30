@@ -49,6 +49,15 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（wmx 整合）
+
+- **模块/范围：** dress | 全局文档 | 资源
+- **摘要：** 整合 `origin/wmx`：装扮 Tab 三层椭圆转盘（`view/state/screen` + `dress.css`）、`dress-preview.html` 调试页、`wmx-temporary/` 宠物素材与转盘原型；保留 main 已有 `source/` 食物图与 `DEVLOG`。
+- **路径：** `js/modules/dress/`, `css/modules/dress.css`, `css/modules/dress-preview.css`, `dress-preview.html`, `wmx-temporary/`, `CONTRIBUTING.md`
+- **备注：** `wmx-temporary` 内大图仅作开发参考，正式打包请用 `source/compressed/` 或 `assets/modules/` 内已压缩资源。
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助
 
 - **模块/范围：** 文档

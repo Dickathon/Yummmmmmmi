@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  >
+  <meta name="format-detection" content="telephone=no">
+  <title>Yummi Dress Preview</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/modules/dress.css">
+  <link rel="stylesheet" href="css/modules/dress-preview.css">
+</head>
+<body class="dress-preview-page">
+  <div class="dress-preview-shell">
+    <header class="dress-preview-header">
+      <p class="dress-preview-header__eyebrow caption">Dress Prototype</p>
+      <h1 class="dress-preview-header__title">装扮栏独立原型页</h1>
+      <p class="dress-preview-header__desc caption">
+        这个页面只用于开发和调试 dress 内容区，不替代正式入口 `index.html`。
+      </p>
+    </header>
+
+    <main class="dress-preview-workspace">
+      <section class="dress-preview-device" aria-label="移动端预览">
+        <div class="dress-preview-device__frame">
+          <div class="dress-preview-device__notch" aria-hidden="true"></div>
+          <div class="dress-preview-device__screen">
+            <section class="dress-preview-hero">
+              <p class="dress-preview-hero__kicker caption">Module Preview</p>
+              <h2 class="dress-preview-hero__title" data-preview-title></h2>
+              <p class="dress-preview-hero__desc caption" data-preview-desc></p>
+            </section>
+
+            <div class="dress-preview-module" data-dress-preview-mount></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card dress-preview-notes">
+        <div class="dress-preview-notes__block">
+          <h2 class="dress-preview-notes__title">当前边界</h2>
+          <ul class="dress-preview-notes__list">
+            <li>只复用 dress 模块现有脚本与样式，不改主框架。</li>
+            <li>预览目标按手机端 375px 视口调试，适配 360px 到 430px。</li>
+            <li>所有内容默认离线运行，不引入远程资源和第三方依赖。</li>
+          </ul>
+        </div>
+
+        <div class="dress-preview-notes__block">
+          <h2 class="dress-preview-notes__title">调试操作</h2>
+          <div class="panel-actions">
+            <button type="button" class="btn btn--primary" data-preview-action="remount">
+              重新挂载
+            </button>
+            <button type="button" class="btn btn--secondary" data-preview-action="toggle">
+              暂停动效
+            </button>
+          </div>
+        </div>
+
+        <div class="dress-preview-notes__block">
+          <h2 class="dress-preview-notes__title">回填方式</h2>
+          <p class="caption">
+            在这个预览页把内容区定下来后，优先回填
+            <code>js/modules/dress/</code> 和 <code>css/modules/dress.css</code>，
+            不动 <code>index.html</code> 和公共框架。
+          </p>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    window.Yummi = window.Yummi || {};
+    window.Yummi.modules = window.Yummi.modules || {};
+  </script>
+  <script src="js/core/util.js"></script>
+  <script src="js/modules/dress/config.js"></script>
+  <script src="js/modules/dress/state.js"></script>
+  <script src="js/modules/dress/view.js"></script>
+  <script src="js/modules/dress/screen.js"></script>
+  <script src="js/modules/dress/preview.js"></script>
+</body>
+</html>

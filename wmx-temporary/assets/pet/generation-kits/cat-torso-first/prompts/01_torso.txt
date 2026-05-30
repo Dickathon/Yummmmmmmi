@@ -1,0 +1,11 @@
+Use case: identity-preserve
+Asset type: pet layer for a dress-up compositing system
+Primary request: Generate only the torso component of the cat.
+Input images:
+- Image 1: transparent target canvas; generate only inside the mask and keep everything outside the mask fully transparent.
+- Image 2: original full reference image; preserve pose, position, scale, line art, stripes, shading, and color exactly.
+Canvas/layout: keep the 1024x1024 canvas and keep the component at the exact same coordinates as the original reference. Do not recenter, resize, rotate, or re-stage the character.
+Style/medium: keep the exact original illustrated cat design, line quality, stripe pattern language, color palette, and shading.
+Constraints: generate only the neck-to-body torso mass. Exclude the head, face details, all legs, and the tail. Small overlap around the neck root and leg root is allowed.
+Avoid: no background, no white fill, no black fill, no watermark, no text, no extra anatomy, no style drift, no pose drift, and no cropping.
+Output: a single transparent PNG-sized layer that can be stacked back with the other layers to reconstruct the original cat.

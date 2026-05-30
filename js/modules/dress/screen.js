@@ -19,8 +19,12 @@
           container.innerHTML = "";
           mod.state.reset(state);
         },
-        onShow: function () {},
-        onHide: function () {}
+        onShow: function () {
+          mod.view.resume();
+        },
+        onHide: function () {
+          mod.view.pause();
+        }
       };
     }
   };
