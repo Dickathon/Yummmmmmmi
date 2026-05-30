@@ -49,6 +49,15 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（wmx 分支整合）
+
+- **模块/范围：** wmx-temporary | 文档
+- **摘要：** 合并 `origin/wmx`（`63f70cb` 及祖先）：宠物 `latest-pictures` 标准底图、头/腿/尾生成与校验工具、转盘原型侧壁与惯性试验；**未改动** `js/modules/order/view.js` / `state.js` 立牌公转、竖立展示与 `updatePlacardPositions` 逻辑；`dress` 仍为占位视图。
+- **路径：** `wmx-temporary/装扮/`, `wmx-temporary/tools/`, `wmx-temporary/转盘/index.html`, `wmx-temporary/README.md`, `assets/modules/dress/placards/README.md`
+- **备注：** `displayment-wmx/` 大图已迁至 `装扮/latest-pictures/标准底图/`；主应用点餐立牌仍用 `source/compressed/10kb/`。
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（ljh + wmx 分支整合）
 
 - **模块/范围：** social | dress | 资源 | 文档

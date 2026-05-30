@@ -6,9 +6,9 @@
 | 路径 | 说明 |
 |------|------|
 | `assets/pet/` | 猫咪分层素材（开发参考） |
-| `displayment-wmx/` | 展示/合成试验图 |
-| `tools/` | `compress_images.py` 等（主仓库副本在 `source/tools/`） |
-| `转盘/index.html` | 椭圆转盘单页原型 |
+| `装扮/latest-pictures/标准底图/` | 1254 标准底图与组件合并规范（原 `displayment-wmx/` 已迁入此处） |
+| `tools/` | 宠物部件生成/校验脚本；`compress_images.py` 主副本在 `source/tools/` |
+| `转盘/index.html` | 椭圆转盘单页原型（侧壁渲染、拖动惯性等试验，不直接改主应用立牌逻辑） |
 
 ---
 
