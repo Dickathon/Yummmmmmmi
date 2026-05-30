@@ -1,12 +1,12 @@
 /**
  * 小鱼干币系统 — 全局虚拟货币
- * 初始 10 个，投喂消耗 1 个
+ * 初始 200 个，投喂消耗 1 个
  */
 (function (global) {
   "use strict";
 
   var KEY = "yummi_fish_coins";
-  var DEFAULT = 10;
+  var DEFAULT = 200;
 
   function get() {
     try {

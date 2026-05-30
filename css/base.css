@@ -113,6 +113,36 @@ img {
   letter-spacing: var(--letter-caption);
 }
 
+/* 右上角装扮按钮 */
+.top-dress-btn {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-paper);
+  background: rgba(245, 240, 232, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-rest);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-body);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.top-dress-btn:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.95);
+}
+
 .fish-coin__icon {
   font-size: 1rem;
   line-height: 1;
@@ -122,4 +152,119 @@ img {
   font-weight: var(--font-weight-title);
   min-width: 1.2em;
   text-align: center;
+}
+
+
+/* 装扮面板 */
+.dress-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.dress-panel[aria-hidden="false"] {
+  pointer-events: auto;
+}
+
+.dress-panel__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(92, 75, 58, 0.35);
+  opacity: 0;
+  transition: opacity var(--transition-standard);
+}
+
+.dress-panel[aria-hidden="false"] .dress-panel__overlay {
+  opacity: 1;
+}
+
+.dress-panel__sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 105;
+  background: rgba(245, 240, 232, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 24px rgba(92, 75, 58, 0.12);
+  padding: 20px 20px calc(24px + var(--safe-bottom));
+  height: 50vh;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform var(--transition-standard);
+}
+
+.dress-panel[aria-hidden="false"] .dress-panel__sheet {
+  transform: translateY(0);
+}
+
+.dress-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.dress-panel__title {
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-title);
+}
+
+.dress-panel__close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-paper);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+  cursor: pointer;
+}
+
+.dress-panel__close:active {
+  transform: scale(0.92);
+  color: var(--color-primary);
+}
+
+.dress-panel__body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dress-panel__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 10px;
+}
+
+.dress-panel__placeholder-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+}
+
+.dress-panel__placeholder-text {
+  font-size: 1rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+}
+
+.dress-panel__placeholder-sub {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-caption);
 }

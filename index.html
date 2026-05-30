@@ -18,6 +18,30 @@
 </head>
 <body>
   <div class="fish-coin" id="fishCoinBar" title="小鱼干币"></div>
+  <button type="button" class="top-dress-btn" id="topDressBtn" title="装扮">装扮</button>
+
+  <!-- 装扮面板 -->
+  <div class="dress-panel" id="dressPanel" aria-hidden="true">
+    <div class="dress-panel__overlay" id="dressPanelOverlay"></div>
+    <div class="dress-panel__sheet" id="dressPanelSheet">
+      <div class="dress-panel__header">
+        <h2 class="dress-panel__title">装扮</h2>
+        <button type="button" class="dress-panel__close" id="dressPanelClose" aria-label="关闭">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="dress-panel__body" id="dressPanelBody">
+        <div class="dress-panel__placeholder">
+          <div class="dress-panel__placeholder-icon">👗</div>
+          <div class="dress-panel__placeholder-text">宠物装扮玩法开发中</div>
+          <div class="dress-panel__placeholder-sub">敬请期待 ~</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="app" class="app">
     <main id="screen-root" class="app-main" role="main"></main>

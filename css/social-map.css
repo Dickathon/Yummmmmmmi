@@ -49,8 +49,7 @@
   z-index: 5;
 }
 
-.map-circle,
-.map-friend {
+.map-circle {
   padding: 6px 16px;
   border-radius: var(--radius-pill);
   font-size: 0.8rem;
@@ -65,8 +64,7 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.map-circle:active,
-.map-friend:active {
+.map-circle:active {
   transform: scale(0.95);
   background: var(--color-primary);
   color: var(--color-bg);
