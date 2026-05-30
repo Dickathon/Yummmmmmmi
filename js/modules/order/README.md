@@ -16,7 +16,8 @@
 | `items-catalog.js` | food1/2/3 WebP 路径列表 |
 | `config.js` | 转盘与 meta 配置 |
 | `state.js` | 三层 disc、洗牌、换菜逻辑 |
-| `view.js` | SVG 转盘、交互、动画 |
+| `view.js` | wmx 转盘 SVG、交互、动画（与调参页同源） |
+| `placards.js` | 食物立牌公转、θ 可见性、275° 换菜 |
 | `screen.js` | 生命周期 |
 | `preview.js` | 仅 `dress-preview.html` |
 | `index.js` | 注册入口 |

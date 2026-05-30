@@ -28,7 +28,78 @@
     return getCapAssetBase() + "top-texture-cat.jpg";
   }
 
-  var STATUS_IDLE = "正在自动转动，拖动任意可见盘面即可单独接管。底盘 / 中盘 / 顶盘各 6 格食物立牌，θ=275° 换菜。";
+  var PLACARD_TAP_THRESHOLD_SQ = 400;
+
+  function escapeAttr(text) {
+    return String(text == null ? "" : text)
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;");
+  }
+
+  function getFoodCategory(name) {
+    var foods = global.Yummi && global.Yummi.foods;
+    var cats = foods && foods.categories;
+    var cat;
+
+    if (!cats || !name) {
+      return "";
+    }
+
+    for (cat in cats) {
+      if (!Object.prototype.hasOwnProperty.call(cats, cat)) {
+        continue;
+      }
+      if (cats[cat].indexOf(name) >= 0) {
+        return cat;
+      }
+    }
+
+    return "";
+  }
+
+  var foodImageIndex = null;
+
+  function buildFoodImageIndex() {
+    var catalog;
+    var base;
+    var keys;
+    var i;
+    var j;
+    var paths;
+    var path;
+    var name;
+
+    if (foodImageIndex) {
+      return foodImageIndex;
+    }
+
+    foodImageIndex = {};
+    catalog = root.itemsCatalog || {};
+    base = (root.config && root.config.itemsBase) || "source/compressed/10kb/";
+    keys = Object.keys(catalog);
+
+    for (i = 0; i < keys.length; i += 1) {
+      paths = catalog[keys[i]];
+      if (!paths) {
+        continue;
+      }
+      for (j = 0; j < paths.length; j += 1) {
+        path = paths[j];
+        name = path.split("/").pop().replace(/-10kb\.webp$/i, "").replace(/\.webp$/i, "");
+        if (name && !foodImageIndex[name]) {
+          foodImageIndex[name] = base + path;
+        }
+      }
+    }
+
+    return foodImageIndex;
+  }
+
+  function getFoodImageUrl(name) {
+    var index = buildFoodImageIndex();
+    return index[name] || "";
+  }
 
 
 function formatNumber(value) {
@@ -539,14 +610,111 @@ function renderCapSideImageBands(disc, geometry) {
         }
       }
 
-      function updateStatus() {
-        var activeDisc = runtime.state.discs.find(function (disc) {
-          return disc.id === runtime.state.activeDiscId;
-        }) || null;
+      function refreshSelectionUi() {
+        global.TurntablePlacards.refreshSelectionVisuals();
+        updateSelectionPanel();
+      }
 
-        runtime.status.textContent = activeDisc ?
-          (activeDisc.label + " 正在被拖动，松手后会继续自动旋转。") :
-          "正在自动转动，拖动任意可见盘面即可单独接管。底盘 / 中盘 / 顶盘各 6 格食物立牌，θ=275° 换菜。";
+      function renderSelectionStrip(names) {
+        var html = [];
+        var i;
+        var name;
+        var imageUrl;
+        var cat;
+
+        if (!runtime.selectionStrip) {
+          return;
+        }
+
+        for (i = 0; i < names.length; i += 1) {
+          name = names[i];
+          imageUrl = getFoodImageUrl(name);
+          cat = getFoodCategory(name);
+          html.push(
+            '<article class="order-selection-chip" role="listitem" data-order-selection-chip="' +
+              escapeAttr(name) + '">' +
+              '<div class="order-selection-chip__media">' +
+                (imageUrl ?
+                  '<img class="order-selection-chip__img" src="' + escapeAttr(imageUrl) + '"' +
+                    ' alt="' + escapeAttr(name) + '" width="56" height="56" loading="lazy" decoding="async">' :
+                  '<span class="order-selection-chip__placeholder" aria-hidden="true"></span>') +
+                '<button type="button" class="order-selection-chip__remove"' +
+                  ' data-order-selection-remove="' + escapeAttr(name) + '"' +
+                  ' aria-label="移除 ' + escapeAttr(name) + '">' +
+                  '<span aria-hidden="true">×</span>' +
+                "</button>" +
+              "</div>" +
+              '<p class="order-selection-chip__name">' + util.escapeHtml(name) + "</p>" +
+              (cat ?
+                '<span class="order-selection-chip__tag">' + util.escapeHtml(cat) + "</span>" :
+                "") +
+            "</article>"
+          );
+        }
+
+        runtime.selectionStrip.innerHTML = html.join("");
+      }
+
+      function removeSelectionItem(name) {
+        var sel = global.Yummi && global.Yummi.foodSelection;
+        var result;
+
+        if (!sel || !name) {
+          return;
+        }
+
+        result = sel.remove(name);
+        if (result.ok) {
+          refreshSelectionUi();
+        }
+      }
+
+      function updateSelectionPanel() {
+        var sel = global.Yummi && global.Yummi.foodSelection;
+        var names = sel ? sel.getNames() : [];
+        var count = names.length;
+
+        if (!runtime.selectionCount) {
+          return;
+        }
+
+        runtime.selectionCount.textContent = "已选 " + count + " 道";
+
+        if (runtime.selectionClear) {
+          runtime.selectionClear.hidden = count === 0;
+        }
+
+        if (runtime.selectionScroll) {
+          runtime.selectionScroll.hidden = count === 0;
+        }
+
+        renderSelectionStrip(names);
+      }
+
+      function handlePlacardSelect(slotNode) {
+        var foodName = slotNode.getAttribute("data-food-name");
+        var sel = global.Yummi && global.Yummi.foodSelection;
+        var result;
+
+        if (!foodName || !sel) {
+          return;
+        }
+
+        result = sel.toggle(foodName);
+        if (!result.ok) {
+          return;
+        }
+
+        refreshSelectionUi();
+      }
+
+      function clearPendingPlacardTap(pointerId) {
+        if (!runtime.pendingPlacardTap) {
+          return;
+        }
+        if (pointerId == null || runtime.pendingPlacardTap.pointerId === pointerId) {
+          runtime.pendingPlacardTap = null;
+        }
       }
 
       function getSvgPoint(event) {
@@ -598,10 +766,26 @@ function renderCapSideImageBands(disc, geometry) {
         });
         runtime.state.activeDiscId = null;
         runtime.hitTarget = null;
-        updateStatus();
       }
 
       function handlePointerDown(event) {
+        var placardHit = event.target.closest("[data-placard-hit]");
+        var slotNode;
+
+        if (placardHit) {
+          slotNode = placardHit.closest("[data-placard-slot]");
+          if (slotNode && slotNode.getAttribute("data-placard-interactive") === "true") {
+            runtime.pendingPlacardTap = {
+              pointerId: event.pointerId,
+              x: event.clientX,
+              y: event.clientY,
+              slotNode: slotNode
+            };
+            event.preventDefault();
+          }
+          return;
+        }
+
         var hit = event.target.closest("[data-hit], [data-hit-side]");
         if (!hit) return;
 
@@ -625,7 +809,6 @@ function renderCapSideImageBands(disc, geometry) {
           hit.setPointerCapture(event.pointerId);
         }
 
-        updateStatus();
         event.preventDefault();
       }
 
@@ -653,6 +836,21 @@ function renderCapSideImageBands(disc, geometry) {
       }
 
       function handlePointerUp(event) {
+        var tap = runtime.pendingPlacardTap;
+        var dx;
+        var dy;
+
+        if (tap && tap.pointerId === event.pointerId) {
+          dx = event.clientX - tap.x;
+          dy = event.clientY - tap.y;
+          if ((dx * dx) + (dy * dy) <= PLACARD_TAP_THRESHOLD_SQ) {
+            handlePlacardSelect(tap.slotNode);
+          }
+          clearPendingPlacardTap(event.pointerId);
+          event.preventDefault();
+          return;
+        }
+
         if (runtime.hitTarget && typeof runtime.hitTarget.releasePointerCapture === "function") {
           try {
             runtime.hitTarget.releasePointerCapture(event.pointerId);
@@ -661,6 +859,7 @@ function renderCapSideImageBands(disc, geometry) {
           }
         }
         releaseDisc(event.pointerId);
+        clearPendingPlacardTap(event.pointerId);
       }
 
       function tick(timestamp) {
@@ -690,11 +889,21 @@ function renderCapSideImageBands(disc, geometry) {
   function render(state) {
     return (
       '<div class="order-root">' +
-        '<section class="turntable-root" data-order-stage>' +
+        '<section class="order-turntable-stage" data-order-turntable-stage data-order-stage>' +
           '<svg class="turntable" data-order-svg viewBox="0 0 380 398" preserveAspectRatio="xMidYMid meet" role="img" aria-label="椭圆转盘"></svg>' +
-          '<p class="order-status" data-order-status>' + STATUS_IDLE + '</p>' +
-        '</section>' +
-      '</div>'
+        "</section>" +
+        '<aside class="order-footer" data-order-footer>' +
+          '<div class="order-selection-panel" data-order-selection-panel>' +
+            '<div class="order-selection-panel__head">' +
+              '<span class="order-selection-panel__count" data-order-selection-count>已选 0 道</span>' +
+              '<button type="button" class="order-selection-panel__clear" data-order-selection-clear hidden>清空</button>' +
+            "</div>" +
+            '<div class="order-selection-panel__scroll" data-order-selection-scroll hidden>' +
+              '<div class="order-selection-strip" data-order-selection-strip role="list"></div>' +
+            "</div>" +
+          "</div>" +
+        "</aside>" +
+      "</div>"
     );
   }
 
@@ -718,7 +927,10 @@ function renderCapSideImageBands(disc, geometry) {
   function bind(container, ctx, state) {
     var stage = container.querySelector("[data-order-stage]");
     var svg = container.querySelector("[data-order-svg]");
-    var status = container.querySelector("[data-order-status]");
+    var selectionCount = container.querySelector("[data-order-selection-count]");
+    var selectionClear = container.querySelector("[data-order-selection-clear]");
+    var selectionScroll = container.querySelector("[data-order-selection-scroll]");
+    var selectionStrip = container.querySelector("[data-order-selection-strip]");
     var unbinds = [];
 
     runtime = {
@@ -727,11 +939,15 @@ function renderCapSideImageBands(disc, geometry) {
       state: state,
       stage: stage,
       svg: svg,
-      status: status,
+      selectionCount: selectionCount,
+      selectionClear: selectionClear,
+      selectionScroll: selectionScroll,
+      selectionStrip: selectionStrip,
       rotors: {},
       sideColorGroups: {},
       sideRotors: {},
       hitTarget: null,
+      pendingPlacardTap: null,
       running: false,
       rafId: 0,
       unbinds: unbinds
@@ -745,13 +961,42 @@ function renderCapSideImageBands(disc, geometry) {
     global.TurntablePlacards.applyFoodToDiscs(state.discs);
 
     renderTurntable();
-    updateStatus();
+    updateSelectionPanel();
 
     unbinds.push(util.on(stage, "pointerdown", handlePointerDown));
     unbinds.push(util.on(stage, "pointermove", handlePointerMove));
     unbinds.push(util.on(stage, "pointerup", handlePointerUp));
     unbinds.push(util.on(stage, "pointercancel", handlePointerUp));
     unbinds.push(util.on(stage, "lostpointercapture", handlePointerUp));
+
+    if (selectionStrip) {
+      unbinds.push(util.on(selectionStrip, "click", function (event) {
+        var removeBtn = event.target.closest("[data-order-selection-remove]");
+        var name;
+
+        if (!removeBtn) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        name = removeBtn.getAttribute("data-order-selection-remove");
+        removeSelectionItem(name);
+      }));
+    }
+
+    if (selectionClear) {
+      unbinds.push(util.on(selectionClear, "click", function (event) {
+        var sel = global.Yummi && global.Yummi.foodSelection;
+
+        event.stopPropagation();
+        if (!sel) {
+          return;
+        }
+        sel.clear();
+        refreshSelectionUi();
+      }));
+    }
 
     startAnimation();
   }

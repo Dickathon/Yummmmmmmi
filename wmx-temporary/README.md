@@ -8,7 +8,8 @@
 | `assets/pet/` | 猫咪分层素材（开发参考） |
 | `装扮/latest-pictures/标准底图/` | 1254 标准底图与组件合并规范（原 `displayment-wmx/` 已迁入此处） |
 | `tools/` | 宠物部件生成/校验脚本；`compress_images.py` 主副本在 `source/tools/` |
-| `转盘/index.html` | 椭圆转盘单页原型（侧壁渲染、拖动惯性等试验，不直接改主应用立牌逻辑） |
+| `转盘/index.html` | 椭圆转盘单页（加载 `js/modules/order/` 主应用同源模块） |
+| `转盘/placards.js` | 已迁至 `js/modules/order/placards.js`（本目录副本可删） |
 
 ---
 

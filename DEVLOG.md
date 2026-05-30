@@ -49,6 +49,46 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（已选区图片条）
+
+- **模块/范围：** order
+- **摘要：** 移除下拉列表；底部直接展示已选食物缩略图、名称与分类，横向滑条浏览；保留 × 单项移除与清空。
+- **路径：** `js/modules/order/view.js`, `css/modules/order.css`
+
+---
+
+### 2026-05-30 — 项目维护 / AI 协助（已选区可点与滑条）
+
+- **模块/范围：** order
+- **摘要：** 已选区移出转盘 `touch-action:none` 层，改为底部可滚动 footer；下拉改为内联展开；列表与 footer 均加可见细滑条；避开 Tab 栏遮挡。
+- **路径：** `js/modules/order/view.js`, `css/modules/order.css`
+
+---
+
+### 2026-05-30 — 项目维护 / AI 协助（已选下拉与单项删除）
+
+- **模块/范围：** order
+- **摘要：** 「已选 N 道」改为可展开下拉，列出菜名与分类标签，每项可单独 × 移除；底部保留「清空全部」；点击外部自动收起。
+- **路径：** `js/modules/order/view.js`, `css/modules/order.css`
+
+---
+
+### 2026-05-30 — 项目维护 / AI 协助（点餐转盘选菜 UI）
+
+- **模块/范围：** order
+- **摘要：** 前弧立牌可点击选菜，联动 `Yummi.foodSelection`；已选计数条与清空按钮；选中态高亮底座与标签；选菜持久化沿用 localStorage。
+- **路径：** `js/modules/order/view.js`, `js/modules/order/placards.js`, `css/modules/order.css`
+
+---
+
+### 2026-05-30 — 项目维护 / AI 协助（用户选菜记录 API）
+
+- **模块/范围：** 全局 | 数据层
+- **摘要：** 新增 `Yummi.foodSelection`：记录/移除/切换选菜、localStorage 持久化、口味画像缓存、分享码导出与相似度比对；校验脚本覆盖基本流程。
+- **路径：** `js/data/food-selection.js`, `index.html`, `js/data/scripts/validate-food-taste.mjs`
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（全局删除 19 个食物）
 
 - **模块/范围：** 全局 | 资源 | 文档

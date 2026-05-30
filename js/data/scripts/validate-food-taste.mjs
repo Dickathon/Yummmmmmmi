@@ -13,6 +13,7 @@ wrap("foods.js");
 wrap("food-taste-db.js");
 wrap("food-taste.js");
 wrap("food-selection-codec.js");
+wrap("food-selection.js");
 
 const foods = sandbox.Yummi.foods.getAll();
 const missing = sandbox.Yummi.foodTaste.assertCoverage();
@@ -42,3 +43,32 @@ if (!cmp.ok || cmp.similarity < 0 || cmp.similarity > 100) {
   throw new Error("compareImport failed: " + JSON.stringify(cmp));
 }
 console.log("Compare import:", cmp);
+
+const sel = sandbox.Yummi.foodSelection;
+sel.clear();
+let rec = sel.record("九转大肠");
+if (!rec.ok || rec.count !== 1) throw new Error("record failed: " + JSON.stringify(rec));
+rec = sel.record("九转大肠");
+if (!rec.ok || !rec.alreadySelected || rec.count !== 1) {
+  throw new Error("record dedupe failed: " + JSON.stringify(rec));
+}
+rec = sel.toggle("珍珠奶茶");
+if (!rec.ok || !rec.selected || rec.count !== 2) {
+  throw new Error("toggle add failed: " + JSON.stringify(rec));
+}
+rec = sel.toggle("九转大肠");
+if (!rec.ok || rec.selected !== false || rec.count !== 1) {
+  throw new Error("toggle remove failed: " + JSON.stringify(rec));
+}
+const prof = sel.getProfile();
+if (!prof || prof.count !== 1 || prof.used[0] !== "珍珠奶茶") {
+  throw new Error("getProfile failed: " + JSON.stringify(prof));
+}
+const exp = sel.exportCode();
+if (!exp.ok) throw new Error("exportCode failed");
+const cmpSel = sel.compareWithCode(exp.code);
+if (!cmpSel.ok || cmpSel.similarity !== 100) {
+  throw new Error("compareWithCode self failed: " + JSON.stringify(cmpSel));
+}
+sel.clear();
+console.log("Food selection API OK");

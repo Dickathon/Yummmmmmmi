@@ -26,7 +26,8 @@ mount: function (container, mountCtx) {
 
 **结论：** 转盘与食物立牌 100% 由 [`view.js`](view.js) 的 `render()` → `renderSvg()` 字符串拼接生成。
 
-调试入口：[`dress-preview.html`](../../../dress-preview.html)（同样挂载 order 模块）。
+调试入口：[`dress-preview.html`](../../../dress-preview.html)（同样挂载 order 模块）。  
+**独立调参页（含立牌）：** [`wmx-temporary/转盘/index.html`](../../../wmx-temporary/转盘/index.html) + [`placards.js`](../../../wmx-temporary/转盘/placards.js)。
 
 ---
 
