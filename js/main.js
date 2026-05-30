@@ -1,5 +1,5 @@
 /**
- * Yummi 应用壳 — 三栏路由 + 界面生命周期调度
+ * Yummi app shell: tab routing and screen lifecycle wiring.
  */
 (function (global) {
   "use strict";
@@ -55,7 +55,7 @@
 
     var list = screens.getAll();
     if (!list.length) {
-      root.innerHTML = '<div class="card"><p class="caption">未注册任何界面模块。</p></div>';
+      root.innerHTML = '<div class="card"><p class="caption">No screens registered.</p></div>';
       return;
     }
 
@@ -71,6 +71,12 @@
 
   function setActiveTab(tabId) {
     var screens = getScreens();
+
+    if (tabId === "social") {
+      window.location.href = "social-map.html";
+      return;
+    }
+
     if (!screens || !screens.has(tabId) || tabId === currentTab) return;
 
     currentTab = tabId;
