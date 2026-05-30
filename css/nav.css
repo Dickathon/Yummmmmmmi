@@ -1,0 +1,111 @@
+/* 底部三栏导航 */
+.tab-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: 100%;
+  max-width: var(--layout-max-width);
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  gap: 4px;
+  padding:
+    8px 12px
+    calc(8px + var(--safe-bottom))
+    12px;
+  background: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid var(--color-paper);
+  box-shadow: 0 -4px 24px rgba(92, 75, 58, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.tab-bar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 52px;
+  padding: 4px 8px;
+  border-radius: 14px;
+  color: var(--color-text-muted);
+  transition:
+    color var(--transition-base),
+    background-color var(--transition-base),
+    transform var(--transition-base);
+}
+
+.tab-bar__item:active {
+  transform: scale(0.96);
+}
+
+.tab-bar__item--active {
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-paper) 60%, transparent);
+}
+
+.tab-bar__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.tab-bar__icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* 图标未放入 source 时的占位 */
+.tab-bar__icon-wrap--fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--color-paper);
+}
+
+.tab-bar__icon-wrap--fallback[data-tab="order"]::before {
+  content: "餐";
+  font-size: 14px;
+  color: var(--color-primary);
+  line-height: 32px;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.tab-bar__icon-wrap--fallback[data-tab="dress"]::before {
+  content: "扮";
+  font-size: 14px;
+  color: var(--color-primary);
+  line-height: 32px;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.tab-bar__icon-wrap--fallback[data-tab="social"]::before {
+  content: "友";
+  font-size: 14px;
+  color: var(--color-primary);
+  line-height: 32px;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+.tab-bar__label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.tab-bar__item--active .tab-bar__label {
+  font-weight: 500;
+}
