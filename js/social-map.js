@@ -179,13 +179,12 @@
     if (overlay) overlay.addEventListener("click", close);
     if (closeBtn) closeBtn.addEventListener("click", close);
 
-    // 进入店铺按钮 — 功能预留，待店铺界面完成后实现跳转
+    // 进入店铺按钮 — 跳转店铺详情页
     if (enterBtn) {
       enterBtn.addEventListener("click", function () {
         var index = parseInt(enterBtn.getAttribute("data-shop-index"), 10);
-        var shop = SHOPS[index];
-        // TODO: 店铺界面设计完成后，在此处实现跳转逻辑
-        console.log("[预留] 进入店铺:", shop ? shop.name : "unknown", "index:", index);
+        if (isNaN(index)) return;
+        window.location.href = "shop.html?shop=" + index;
       });
     }
 
