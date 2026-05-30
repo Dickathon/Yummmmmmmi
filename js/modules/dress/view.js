@@ -8,15 +8,216 @@
   var VIEWBOX_WIDTH = 380;
   var VIEWBOX_HEIGHT = 398;
   var DISC_IDS = ["base", "mid", "top"];
+  /** 立牌绘制顺序：先画的在下，底盘最后画在最上 */
+  var PLACARD_LAYER_ORDER = ["top", "mid", "base"];
   var CELL_RADIUS_RATIO = 0.58;
+  var PLACARD_PRESENCE = {
+    minScale: 0,
+    maxScale: 1,
+    minOpacity: 0,
+    maxOpacity: 1,
+    maxBlurPx: 4,
+    /** 轨道角 θ = normalize(αslot + δdisc)；仅下列区间允许 t 变化 */
+    solidStartDeg: 60,
+    solidEndDeg: 70,
+    fadeStartDeg: 260,
+    fadeEndDeg: 270,
+    /** 换菜只在此角度触发一次（须先经过 swapRearmDeg 以下重新武装） */
+    swapDeg: 275,
+    swapRearmDeg: 90
+  };
+
+  function clamp01(value) {
+    return Math.max(0, Math.min(1, value));
+  }
+
+  function lerp(min, max, t) {
+    return min + (max - min) * t;
+  }
+
+  /** 硬性定义：θ = 格心角 + 盘面角，不用 atan2 / 屏幕坐标 */
+  function getSlotOrbitDeg(disc, centerAngle) {
+    return normalizeAngle(centerAngle + disc.angle);
+  }
+
+  /**
+   * 0 = 虚小，1 = 实大。θ∈[60,70] 渐实；(70,260) 纯实；[260,270] 渐虚；其余恒 0。
+   */
+  function getPlacardPresenceT(disc, centerAngle) {
+    var p = PLACARD_PRESENCE;
+    var deg = getSlotOrbitDeg(disc, centerAngle);
+    var solidSpan = p.solidEndDeg - p.solidStartDeg;
+    var fadeSpan = p.fadeEndDeg - p.fadeStartDeg;
+
+    if (deg >= p.solidStartDeg && deg <= p.solidEndDeg) {
+      return clamp01((deg - p.solidStartDeg) / solidSpan);
+    }
+
+    if (deg >= p.fadeStartDeg && deg <= p.fadeEndDeg) {
+      return clamp01(1 - (deg - p.fadeStartDeg) / fadeSpan);
+    }
+
+    if (deg > p.solidEndDeg && deg < p.fadeStartDeg) {
+      return 1;
+    }
+
+    return 0;
+  }
 
   function escapeAttr(text) {
     return util.escapeHtml(text).replace(/"/g, "&quot;");
   }
 
-  function getItemSrc(disc, slotIndex) {
-    if (!disc.itemUrls || !disc.itemUrls[slotIndex]) return "";
-    return disc.itemUrls[slotIndex];
+  function getItemSrcForSlot(disc, slot) {
+    var idx = slot.imageIndex;
+
+    if (idx === undefined || idx === null) {
+      idx = slot.index;
+    }
+
+    if (!disc.itemUrls || !disc.itemUrls[idx]) {
+      return "";
+    }
+
+    return disc.itemUrls[idx];
+  }
+
+  function buildPlacardImageUrl(url, swapGeneration) {
+    if (!url) {
+      return "";
+    }
+
+    if (swapGeneration === undefined || swapGeneration === null) {
+      return url;
+    }
+
+    return url + (url.indexOf("?") >= 0 ? "&" : "?") + "v=" + swapGeneration;
+  }
+
+  function setPlacardImageHref(imageEl, url, swapGeneration) {
+    var src;
+
+    if (!imageEl || !url) {
+      return;
+    }
+
+    src = buildPlacardImageUrl(url, swapGeneration);
+    imageEl.setAttributeNS("http://www.w3.org/1999/xlink", "href", src);
+    imageEl.setAttribute("href", src);
+  }
+
+  function getSlotImageEl(disc, slot, slotNode) {
+    var key = getSlotKey(disc.id, slot.index);
+
+    if (runtime && runtime.slotImages && runtime.slotImages[key]) {
+      return runtime.slotImages[key];
+    }
+
+    return slotNode ? slotNode.querySelector("[data-dress-slot-image]") : null;
+  }
+
+  /**
+   * 换菜节点：θ 到达 swapDeg（默认 275°）且已 re-arm 时执行一次；
+   * 此前须 θ < swapRearmDeg（默认 90°）才会 re-arm，保证每圈最多换一次。
+   */
+  function maybeCycleSlotItemAtSwapAngle(disc, slot, slotNode, orbitDeg) {
+    var p = PLACARD_PRESENCE;
+
+    if (orbitDeg < p.swapRearmDeg) {
+      slot.swapArmed = true;
+    }
+
+    if (!slot.swapArmed || orbitDeg < p.swapDeg) {
+      return;
+    }
+
+    slot.swapArmed = false;
+    cycleSlotItem(disc, slot, slotNode);
+  }
+
+  function ensureSlotImageMatchesState(disc, slot, slotNode, reveal) {
+    var imageEl = getSlotImageEl(disc, slot, slotNode);
+    var url;
+    var cached;
+
+    if (!imageEl || !disc.itemUrls) {
+      return;
+    }
+
+    url = disc.itemUrls[Number(slot.imageIndex)];
+
+    if (!url) {
+      return;
+    }
+
+    if (!hrefMatches(getImageHref(imageEl), url) || slot.pendingReveal) {
+      setPlacardImageHref(imageEl, url, slot.swapGeneration);
+      cached = lookupImageSize(url);
+
+      if (cached) {
+        applyPlacardImageLayout(imageEl, cached.w, cached.h, !reveal);
+      }
+
+      slot.pendingReveal = false;
+    }
+
+    if (reveal) {
+      imageEl.removeAttribute("opacity");
+    } else {
+      imageEl.setAttribute("opacity", "0");
+    }
+  }
+
+  function cycleSlotItem(disc, slot, slotNode) {
+    var urls = disc.itemUrls;
+    var imageEl;
+    var url;
+    var cached;
+    var previousIndex;
+    var nextIndex;
+
+    if (!urls || !urls.length || !slotNode) {
+      return;
+    }
+
+    imageEl = getSlotImageEl(disc, slot, slotNode);
+
+    if (!imageEl) {
+      return;
+    }
+
+    previousIndex = Number(slot.imageIndex);
+    nextIndex = root.state.pickNextFoodIndex(disc, slot, previousIndex);
+
+    if (nextIndex === previousIndex) {
+      return;
+    }
+
+    slot.imageIndex = nextIndex;
+    slot.swapGeneration = (slot.swapGeneration || 0) + 1;
+    slot.pendingReveal = true;
+    url = urls[nextIndex];
+    setPlacardImageHref(imageEl, url, slot.swapGeneration);
+    imageEl.setAttribute("opacity", "0");
+
+    cached = lookupImageSize(url);
+
+    if (cached) {
+      applyPlacardImageLayout(imageEl, cached.w, cached.h, true);
+      return;
+    }
+
+    var loader = new Image();
+    loader.decoding = "async";
+    loader.onload = function () {
+      if (!hrefMatches(getImageHref(imageEl), url)) {
+        return;
+      }
+
+      rememberImageSize(url, loader.naturalWidth, loader.naturalHeight);
+      applyPlacardImageLayout(imageEl, loader.naturalWidth, loader.naturalHeight, true);
+    };
+    loader.src = url;
   }
 
   function getSlotKey(discId, slotIndex) {
@@ -279,7 +480,7 @@
     };
   }
 
-  function applyPlacardImageLayout(imageEl, naturalW, naturalH) {
+  function applyPlacardImageLayout(imageEl, naturalW, naturalH, keepHidden) {
     if (!imageEl) return;
 
     var cached = lookupImageSize(getImageHref(imageEl));
@@ -298,7 +499,10 @@
     imageEl.setAttribute("width", formatNumber(size.w));
     imageEl.setAttribute("height", formatNumber(size.h));
     imageEl.removeAttribute("preserveAspectRatio");
-    imageEl.removeAttribute("opacity");
+
+    if (!keepHidden) {
+      imageEl.removeAttribute("opacity");
+    }
   }
 
   function getSlotCenterOnDisc(disc, slot, innerRadius, outerRadius) {
@@ -315,7 +519,7 @@
   function renderHotpotPlacard(disc, slot, innerRadius, outerRadius) {
     var center = getSlotCenterOnDisc(disc, slot, innerRadius, outerRadius);
     var anchor = getSlotPositionInViewBox(disc, center.x, center.y);
-    var src = getItemSrc(disc, slot.index);
+    var src = getItemSrcForSlot(disc, slot);
     var slotKey = getSlotKey(disc.id, slot.index);
     var maxDim = disc.itemSize || 24;
     var drop = disc.placardDrop || 0;
@@ -325,22 +529,78 @@
     return (
       '<g class="dress-disc__slot" data-dress-slot="' + slotKey + '"' +
         ' data-slot-index="' + slot.index + '"' +
+        ' data-slot-center-angle="' + formatNumber(slot.centerAngle) + '"' +
         ' data-slot-x="' + formatNumber(center.x) + '"' +
         ' data-slot-y="' + formatNumber(center.y) + '"' +
         ' data-depth-view="' + formatNumber(anchor.y) + '"' +
         ' transform="translate(' + formatNumber(anchor.x) + " " + formatNumber(anchor.y) + ')">' +
-        '<ellipse class="dress-disc__slot-base" cx="0" cy="0"' +
-          ' rx="' + formatNumber(baseRx) + '" ry="' + formatNumber(baseRy) + '"></ellipse>' +
-        '<g class="dress-disc__placard-rise" transform="translate(0 ' + formatNumber(drop) + ')">' +
-          '<g class="dress-disc__placard-body">' +
-            '<image class="dress-disc__slot-image" data-dress-slot-image="' + slotKey + '"' +
-              ' data-max-dim="' + formatNumber(maxDim) + '"' +
-              ' href="' + escapeAttr(src) + '"' +
-              ' opacity="0"></image>' +
+        '<g class="dress-disc__placard-presence">' +
+          '<ellipse class="dress-disc__slot-base" cx="0" cy="0"' +
+            ' rx="' + formatNumber(baseRx) + '" ry="' + formatNumber(baseRy) + '"></ellipse>' +
+          '<g class="dress-disc__placard-rise" transform="translate(0 ' + formatNumber(drop) + ')">' +
+            '<g class="dress-disc__placard-body">' +
+              '<image class="dress-disc__slot-image" data-dress-slot-image="' + slotKey + '"' +
+                ' data-max-dim="' + formatNumber(maxDim) + '"' +
+                ' href="' + escapeAttr(src) + '"' +
+                ' opacity="0"></image>' +
+            "</g>" +
           "</g>" +
         "</g>" +
       "</g>"
     );
+  }
+
+  function applyPlacardPresence(slotNode, disc) {
+    var presence = slotNode && slotNode.querySelector(".dress-disc__placard-presence");
+    var hidden;
+    var centerAngle;
+    var t;
+    var scale;
+    var opacity;
+    var blur;
+    var shadowAlpha;
+
+    if (!presence || !slotNode) {
+      return;
+    }
+
+    centerAngle = parseFloat(slotNode.getAttribute("data-slot-center-angle") || "0");
+    t = getPlacardPresenceT(disc, centerAngle);
+    hidden = t <= 0.0001;
+    scale = lerp(PLACARD_PRESENCE.minScale, PLACARD_PRESENCE.maxScale, t);
+    opacity = lerp(PLACARD_PRESENCE.minOpacity, PLACARD_PRESENCE.maxOpacity, t);
+    blur = lerp(PLACARD_PRESENCE.maxBlurPx, 0, t);
+    shadowAlpha = 0.08 + 0.14 * t;
+
+    presence.setAttribute("transform", "scale(" + formatNumber(scale) + ")");
+    presence.setAttribute("opacity", formatNumber(opacity));
+
+    if (hidden) {
+      presence.setAttribute("visibility", "hidden");
+      slotNode.setAttribute("visibility", "hidden");
+      presence.style.filter = "none";
+      if (disc.sectorSlots) {
+        var hiddenIndex = parseInt(slotNode.getAttribute("data-slot-index") || "0", 10);
+        var hiddenSlot = disc.sectorSlots[hiddenIndex];
+        if (hiddenSlot) {
+          ensureSlotImageMatchesState(disc, hiddenSlot, slotNode, false);
+        }
+      }
+      return;
+    }
+
+    presence.removeAttribute("visibility");
+    slotNode.removeAttribute("visibility");
+    presence.style.filter =
+      "blur(" + blur.toFixed(2) + "px) drop-shadow(0 3px 6px rgba(92, 75, 58, " + shadowAlpha.toFixed(2) + "))";
+
+    if (disc.sectorSlots) {
+      var visibleIndex = parseInt(slotNode.getAttribute("data-slot-index") || "0", 10);
+      var visibleSlot = disc.sectorSlots[visibleIndex];
+      if (visibleSlot) {
+        ensureSlotImageMatchesState(disc, visibleSlot, slotNode, true);
+      }
+    }
   }
 
   function renderSurface(disc) {
@@ -362,10 +622,32 @@
         '<path class="dress-disc__side" d="' + createSidePath(disc) + '" fill="url(#' + disc.sideGradientId + ')"></path>' +
         '<path class="dress-disc__side-outline" d="' + createSideOutlinePath(disc) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2" stroke-linejoin="round"></path>' +
         renderSurface(disc) +
-        renderPlacardSlots(disc) +
         '<ellipse class="dress-disc__outline" cx="' + formatNumber(disc.cx) + '" cy="' + formatNumber(disc.cy) + '" rx="' + formatNumber(disc.rx) + '" ry="' + formatNumber(disc.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
       "</g>"
     );
+  }
+
+  function renderPlacardStack(state) {
+    var markup = ['<g class="dress-placard-stack" data-dress-placard-stack>'];
+    var i;
+
+    for (i = 0; i < PLACARD_LAYER_ORDER.length; i += 1) {
+      var disc = findDisc(state, PLACARD_LAYER_ORDER[i]);
+      if (disc) markup.push(renderPlacardSlots(disc));
+    }
+
+    markup.push("</g>");
+    return markup.join("");
+  }
+
+  function ensurePlacardLayerOrder() {
+    if (!runtime || !runtime.placardStack) return;
+
+    var i;
+    for (i = 0; i < PLACARD_LAYER_ORDER.length; i += 1) {
+      var bucket = runtime.placardBuckets[PLACARD_LAYER_ORDER[i]];
+      if (bucket) runtime.placardStack.appendChild(bucket);
+    }
   }
 
   function renderHitArea(disc) {
@@ -403,6 +685,7 @@
         "</defs>" +
         '<ellipse cx="190" cy="362" rx="156" ry="24" fill="url(#dress-floor-shadow)"></ellipse>' +
         state.discs.map(renderDisc).join("") +
+        renderPlacardStack(state) +
         '<g class="dress-disc__hit-layer">' +
           DISC_IDS.map(function (discId) {
             return renderHitArea(findDisc(state, discId));
@@ -498,6 +781,19 @@
         "translate(" + formatNumber(anchor.x) + " " + formatNumber(anchor.y) + ")"
       );
       slotNode.setAttribute("data-depth-view", formatNumber(anchor.y));
+
+      if (disc.sectorSlots) {
+        var slotIndex = parseInt(slotNode.getAttribute("data-slot-index") || "0", 10);
+        var slot = disc.sectorSlots[slotIndex];
+        var centerAngle = parseFloat(slotNode.getAttribute("data-slot-center-angle") || "0");
+        var orbitDeg = getSlotOrbitDeg(disc, centerAngle);
+
+        if (slot) {
+          maybeCycleSlotItemAtSwapAngle(disc, slot, slotNode, orbitDeg);
+        }
+      }
+
+      applyPlacardPresence(slotNode, disc);
     });
   }
 
@@ -512,6 +808,7 @@
 
     updatePlacardPositions(disc);
     sortPlacardDepth(disc);
+    ensurePlacardLayerOrder();
   }
 
   function sortPlacardDepth(disc) {
@@ -781,6 +1078,7 @@
       stage: stage,
       svg: svg,
       rotors: rotorMap,
+      placardStack: container.querySelector("[data-dress-placard-stack]"),
       placardBuckets: placardBucketMap,
       slotImages: slotRefs.slotImages,
       slotNodes: slotRefs.slotNodes,
@@ -796,6 +1094,8 @@
       updatePlacardPositions(disc);
       sortPlacardDepth(disc);
     });
+
+    ensurePlacardLayerOrder();
 
     preloadDiscItems(state, container);
     layoutPlacardImages(container);
