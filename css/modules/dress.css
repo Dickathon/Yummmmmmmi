@@ -66,7 +66,7 @@
   cursor: grabbing;
 }
 
-/* wmx 投影：扇区在 rotor 内旋转；立牌在 rotor 外公转，牌身始终朝上 */
+/* wmx 投影：扇区在椭圆 scale 组内旋转；立牌在 viewBox 层绘制以保持原图比例 */
 .dress-disc__cells {
   pointer-events: none;
 }

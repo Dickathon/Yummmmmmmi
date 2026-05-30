@@ -6,7 +6,7 @@
 
 - 主应用 `index.html` → **装扮** Tab：三层椭圆转盘，**回转小火锅**式（6 格 × 每格固定一道菜）
 - 旋转：`translate(cx,cy) scale(1,ry/rx)` 后顶面色固定，扇区在 `data-disc-rotor` 内 `rotate(angle)`（同 wmx 转盘）
-- 立牌：与 rotor 同级，槽位公转、牌身朝上；加载后按 `naturalWidth/Height` 等比缩放至 `itemSize`，并对椭圆 `scaleY` 做高度补偿以保持屏幕上的原图比例
+- 立牌：在 viewBox 层（不在椭圆 `scale` 组内），槽位公转、牌身朝上；`Image` 预载取 `naturalWidth/Height` 等比缩至 `itemSize`
 - 独立调试页：[`dress-preview.html`](../../../dress-preview.html)
 - 规范与原型：[`wmx-temporary/displayment-wmx/组件合并规范.md`](../../../wmx-temporary/displayment-wmx/组件合并规范.md)、[`wmx-temporary/转盘/index.html`](../../../wmx-temporary/转盘/index.html)
 
