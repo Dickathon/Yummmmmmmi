@@ -1,33 +1,12 @@
 /**
- * Yummi 应用入口 — 三栏：点餐 / 装扮 / 社交
- * UI 遵循 style.md
+ * Yummi 应用壳 — 三栏路由 + 界面生命周期调度
  */
 (function (global) {
   "use strict";
 
   var root = null;
   var currentTab = "order";
-
-  var TAB_CONFIG = {
-    order: {
-      label: "点餐",
-      title: "点餐",
-      desc: "挑选美食，像走进京都小巷里的茶室",
-      heroClass: "hero--order"
-    },
-    dress: {
-      label: "装扮",
-      title: "装扮",
-      desc: "搭配造型，质朴温暖的手工感",
-      heroClass: "hero--dress"
-    },
-    social: {
-      label: "社交",
-      title: "社交",
-      desc: "与好友分享，宁静而不打扰的相聚",
-      heroClass: "hero--social"
-    }
-  };
+  var DEFAULT_TAB = "order";
 
   function escapeHtml(text) {
     var div = document.createElement("div");
@@ -35,89 +14,78 @@
     return div.innerHTML;
   }
 
-  function renderHero(cfg) {
+  function getScreens() {
+    return global.Yummi && global.Yummi.screens;
+  }
+
+  function renderHero(meta) {
+    var heroClass = meta.heroClass || "";
     return (
-      '<header class="hero ' + escapeHtml(cfg.heroClass) + '">' +
+      '<header class="hero ' + escapeHtml(heroClass) + '">' +
         '<div class="hero__content">' +
-          '<h1 class="panel-title">' + escapeHtml(cfg.title) + "</h1>" +
-          '<p class="panel-desc caption">' + escapeHtml(cfg.desc) + "</p>" +
+          '<h1 class="panel-title">' + escapeHtml(meta.title || "") + "</h1>" +
+          '<p class="panel-desc caption">' + escapeHtml(meta.desc || "") + "</p>" +
         "</div>" +
         '<div class="hero__visual" aria-hidden="true"></div>' +
       "</header>"
     );
   }
 
-  function renderOrderPanel() {
-    var foods = global.Yummi && global.Yummi.foods;
-    if (!foods) {
-      return '<div class="card"><p class="caption">食物数据加载中…</p></div>';
-    }
-
-    var types = Object.keys(foods.categories);
-    return types.map(function (type) {
-      var count = foods.getByType(type).length;
-      var cardMod = type === "甜品" ? " card--甜品" : "";
-      return (
-        '<article class="card' + cardMod + '">' +
-          '<div class="card__head">' +
-            '<span class="tag tag--' + escapeHtml(type) + '">' + escapeHtml(type) + "</span>" +
-            '<span class="stat">' + count + "</span>" +
-          "</div>" +
-          '<p class="card__meta caption">共 <span class="stat">' + count +
-            "</span> 种 · 玩法开发中</p>" +
-        "</article>"
-      );
-    }).join("") +
-      '<div class="panel-actions">' +
-        '<button type="button" class="btn btn--primary">开始点餐</button>' +
-        '<button type="button" class="btn btn--secondary">浏览菜单</button>' +
-      "</div>";
-  }
-
-  function renderPlaceholderPanel(cfg) {
-    return (
-      '<div class="card">' +
-        '<p class="caption">「' + escapeHtml(cfg.label) + "」模块开发中，敬请期待。</p>" +
-      "</div>" +
-      '<div class="panel-actions">' +
-        '<button type="button" class="btn btn--primary">即将开放</button>' +
-      "</div>"
-    );
-  }
-
-  function renderPanelContent(tabId) {
-    var cfg = TAB_CONFIG[tabId];
-    var body = tabId === "order" ? renderOrderPanel() : renderPlaceholderPanel(cfg);
+  function buildPanelShell(screen) {
+    var id = screen.id;
+    var meta = screen.meta || {};
+    var hidden = id !== currentTab ? " hidden" : "";
 
     return (
-      '<section class="panel" data-panel="' + escapeHtml(tabId) + '" role="tabpanel"' +
-        (tabId === currentTab ? "" : " hidden") + ">" +
-        renderHero(cfg) +
-        '<div class="panel-body">' + body + "</div>" +
+      '<section class="panel" data-panel="' + escapeHtml(id) + '" role="tabpanel"' + hidden + ">" +
+        renderHero(meta) +
+        '<div class="panel-body" data-screen-mount="' + escapeHtml(id) + '"></div>' +
       "</section>"
     );
   }
 
-  function renderScreens() {
-    if (!root) return;
-    root.innerHTML = Object.keys(TAB_CONFIG).map(renderPanelContent).join("");
+  function getMountHost(tabId) {
+    if (!root) return null;
+    return root.querySelector('[data-screen-mount="' + tabId + '"]');
+  }
+
+  function renderShells() {
+    var screens = getScreens();
+    if (!root || !screens) return;
+
+    var list = screens.getAll();
+    if (!list.length) {
+      root.innerHTML = '<div class="card"><p class="caption">未注册任何界面模块。</p></div>';
+      return;
+    }
+
+    root.innerHTML = list.map(buildPanelShell).join("");
+  }
+
+  function mountTab(tabId) {
+    var screens = getScreens();
+    var host = getMountHost(tabId);
+    if (!screens || !host) return;
+    screens.show(tabId, host);
   }
 
   function setActiveTab(tabId) {
-    if (!TAB_CONFIG[tabId] || tabId === currentTab) return;
+    var screens = getScreens();
+    if (!screens || !screens.has(tabId) || tabId === currentTab) return;
+
     currentTab = tabId;
 
-    var panels = root.querySelectorAll(".panel");
-    panels.forEach(function (panel) {
+    root.querySelectorAll(".panel").forEach(function (panel) {
       panel.hidden = panel.getAttribute("data-panel") !== tabId;
     });
 
-    var tabs = document.querySelectorAll(".tab-bar__item");
-    tabs.forEach(function (btn) {
+    document.querySelectorAll(".tab-bar__item").forEach(function (btn) {
       var active = btn.getAttribute("data-tab") === tabId;
       btn.classList.toggle("tab-bar__item--active", active);
       btn.setAttribute("aria-selected", active ? "true" : "false");
     });
+
+    mountTab(tabId);
   }
 
   function setupTabBar() {
@@ -154,10 +122,23 @@
     onScroll();
   }
 
+  function initScreens() {
+    var screens = getScreens();
+    if (!screens) return;
+
+    var list = screens.getAll();
+    var initial = screens.has(DEFAULT_TAB) ? DEFAULT_TAB : (list[0] && list[0].id);
+    if (!initial) return;
+
+    currentTab = initial;
+    renderShells();
+    mountTab(initial);
+  }
+
   function init() {
     root = document.getElementById("screen-root");
     if (!root) return;
-    renderScreens();
+    initScreens();
     setupTabBar();
     setupScrollNav();
   }
@@ -166,7 +147,10 @@
   global.Yummi.app = {
     init: init,
     setActiveTab: setActiveTab,
-    TAB_CONFIG: TAB_CONFIG
+    getActiveTab: function () {
+      return currentTab;
+    },
+    getScreens: getScreens
   };
 
   if (document.readyState === "loading") {

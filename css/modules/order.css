@@ -1,0 +1,11 @@
+/* 点餐模块样式 — 仅使用 .order- 前缀，避免影响其他模块 */
+
+.order-module .order-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-card);
+}
+
+.order-module .order-card {
+  /* 模块专属样式写在此处 */
+}
