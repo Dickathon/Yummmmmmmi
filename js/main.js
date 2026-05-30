@@ -136,16 +136,40 @@
     onScroll();
   }
 
+  function getParam(name) {
+    var search = window.location.search;
+    if (!search) return "";
+    var pairs = search.slice(1).split("&");
+    for (var i = 0; i < pairs.length; i++) {
+      var pair = pairs[i].split("=");
+      if (decodeURIComponent(pair[0]) === name) {
+        return decodeURIComponent(pair[1] || "");
+      }
+    }
+    return "";
+  }
+
   function initScreens() {
     var screens = getScreens();
     if (!screens) return;
 
     var list = screens.getAll();
-    var initial = screens.has(DEFAULT_TAB) ? DEFAULT_TAB : (list[0] && list[0].id);
+    var urlTab = getParam("tab");
+    var initial = (urlTab && screens.has(urlTab)) ? urlTab : (screens.has(DEFAULT_TAB) ? DEFAULT_TAB : (list[0] && list[0].id));
     if (!initial) return;
 
     currentTab = initial;
     renderShells();
+
+    // 如果 URL 指定了非默认 tab，同步激活样式
+    if (urlTab && urlTab !== DEFAULT_TAB) {
+      document.querySelectorAll(".tab-bar__item").forEach(function (btn) {
+        var active = btn.getAttribute("data-tab") === urlTab;
+        btn.classList.toggle("tab-bar__item--active", active);
+        btn.setAttribute("aria-selected", active ? "true" : "false");
+      });
+    }
+
     mountTab(initial);
   }
 

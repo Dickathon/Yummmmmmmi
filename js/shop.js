@@ -26,89 +26,115 @@
 
   var SVG_BASE = "source/svgSHOP/";
 
-  // 虚构食客留言数据
-  var REVIEWS = [
-    // 星巴克 [0]
+  // ============================================================
+  // 【小猫位置配置】每个店铺独立配置，可手动调整
+  //
+  // 说明：
+  //   - SHOP_CATS 是一个数组，索引 0~15 对应 16 个店铺
+  //   - 每个店铺对应一个「小猫数组」，里面放 2~4 只猫
+  //   - 每只猫是一个对象，包含以下字段：
+  //       img   : 图片路径（如 "source/CatImage/cat1.jpg"）
+  //       left  : 距离背景左侧的距离（百分比如 "30%" 或像素如 "100px"）
+  //       top   : 距离背景顶部的距离（百分比如 "60%" 或像素如 "200px"）
+  //       width : 图片显示宽度（如 "40px"）
+  //       alt   : 图片描述（可选）
+  //
+  // 当前店铺顺序（与 SHOPS 数组对应）：
+  //   0=星巴克  1=麦当劳  2=喜茶  3=肯德基  4=海底捞  5=蜜雪冰城
+  //   6=瑞幸    7=汉堡王  8=茶百道 9=必胜客 10=奈雪   11=赛百味
+  //   12=一点点 13=沪上阿姨 14=古茗 15=老乡鸡
+  // ============================================================
+  var SHOP_CATS = [
+    // 0 星巴克
     [
-      { user: "小鹿", food: "美式咖啡", text: "每天早上的精神支柱，苦得刚刚好。" },
-      { user: "阿茶", food: "奶油蛋糕", text: "二楼靠窗的位置最适合发呆，咖啡配蛋糕，下午就这么过去了。" }
+      { img: "source/CatImage/cat2.png",  left: "40%", top: "80%", width: "42px", alt: "小猫A" },
+      { img: "source/CatImage/cat3.png",  left: "55%", top: "72%", width: "38px", alt: "小猫B" },
     ],
-    // 麦当劳 [1]
+    // 1 麦当劳
     [
-      { user: "大胃王", food: "汉堡", text: "薯条永远是刚出锅的最好吃，酥脆满分。" },
-      { user: "小黄", food: "炸鸡", text: "周末带小朋友来，开心乐园餐的玩具收集了一抽屉。" }
+      { img: "source/CatImage/cat2.png", left: "25%", top: "80%", width: "40px", alt: "小猫A" },
+      { img: "source/CatImage/cat4.png",  left: "60%", top: "65%", width: "36px", alt: "小猫B" },
+      { img: "source/CatImage/cat5.png",  left: "45%", top: "85%", width: "44px", alt: "小猫C" },
     ],
-    // 喜茶 [2]
+    // 2 喜茶
     [
-      { user: "甜甜", food: "珍珠奶茶", text: "多肉葡萄永远的神，层次感太丰富了。" },
-      { user: "木子", food: "芒果冰沙", text: "排队二十分钟也值得，第一口就被治愈了。" }
+      { img: "source/CatImage/cat5.png",  left: "30%", top: "70%", width: "38px", alt: "小猫A" },
+      { img: "source/CatImage/cat2.png", left: "70%", top: "65%", width: "42px", alt: "小猫B" },
     ],
-    // 肯德基 [3]
+    // 3 肯德基
     [
-      { user: "脆皮控", food: "炸鸡", text: "原味鸡的脆皮是无可替代的童年记忆。" },
-      { user: "可乐加冰", food: "薯条", text: "疯狂星期四不来一趟，总觉得这周少了点什么。" }
+      { img: "source/CatImage/cat3.png",  left: "15%", top: "58%", width: "40px", alt: "小猫A" },
+      { img: "source/CatImage/cat4.png",  left: "50%", top: "75%", width: "36px", alt: "小猫B" },
+      { img: "source/CatImage/cat5.png",  left: "10%", top: "85%", width: "44px", alt: "小猫C" },
     ],
-    // 海底捞 [4]
+    // 4 海底捞
     [
-      { user: "火锅仙子", food: "火锅", text: "一个人来吃也不会尴尬，服务太贴心了。" },
-      { user: "麻酱党", food: "麻辣小龙虾", text: "番茄锅yyds，最后一定要下一碗面。" }
+      
+      { img: "source/CatImage/cat3.png", left: "60%", top: "68%", width: "38px", alt: "小猫B" },
     ],
-    // 蜜雪冰城 [5]
+    // 5 蜜雪冰城
     [
-      { user: "学生仔", food: "冰淇淋", text: "四块钱的柠檬水，夏天救命神器。" },
-      { user: "雪王", food: "珍珠奶茶", text: "便宜又大碗，还要什么自行车。" }
+      { img: "source/CatImage/cat3.png",  left: "15%", top: "57%", width: "40px", alt: "小猫A" },
+      { img: "source/CatImage/cat4.png",  left: "75%", top: "72%", width: "36px", alt: "小猫B" },
+      { img: "source/CatImage/cat5.png",  left: "55%", top: "82%", width: "42px", alt: "小猫C" },
     ],
-    // 瑞幸咖啡 [6]
+    // 6 瑞幸咖啡
     [
-      { user: "打工人", food: "美式咖啡", text: "9.9的生椰拿铁，续命神器。" },
-      { user: "早起鸟", food: "芝士奶酪块", text: "公司楼下就有，取餐不用排队，效率max。" }
+      { img: "source/CatImage/cat5.png",  left: "19%", top: "55%", width: "38px", alt: "小猫A" },
+      { img: "source/CatImage/cat2.png", left: "68%", top: "75%", width: "44px", alt: "小猫B" },
     ],
-    // 汉堡王 [7]
+    // 7 汉堡王
     [
-      { user: "肉食者", food: "汉堡", text: "皇堡的牛肉饼汁水很足，火烤香味独一无二。" },
-      { user: "洋葱圈", food: "薯条", text: "洋葱圈比薯条还上瘾，每次必点。" }
+      { img: "source/CatImage/cat3.png",  left: "18%", top: "70%", width: "40px", alt: "小猫A" },
+      
+      { img: "source/CatImage/cat5.png",  left: "40%", top: "78%", width: "42px", alt: "小猫C" },
     ],
-    // 茶百道 [8]
+    // 8 茶百道
     [
-      { user: "芋泥控", food: "珍珠奶茶", text: "豆乳玉麒麟的口感好绵密，芋圆很有嚼劲。" },
-      { user: "水果脑袋", food: "水果捞", text: "西瓜啵啵清爽解腻，夏天必喝。" }
+      { img: "source/CatImage/cat3.png",  left: "37%", top: "63%", width: "40px", alt: "小猫A" },
+      { img: "source/CatImage/cat2.png", left: "54%", top: "63%", width: "38px", alt: "小猫B" },
     ],
-    // 必胜客 [9]
+    // 9 必胜客
     [
-      { user: "芝士狂", food: "披萨", text: "超级至尊的料太足了，两个人吃一个刚好。" },
-      { user: "意面控", food: "披萨", text: "奶油蘑菇汤配蒜香面包，永远的经典组合。" }
+      { img: "source/CatImage/cat3.png",  left: "10%", top: "53%", width: "42px", alt: "小猫A" },
+      { img: "source/CatImage/cat4.png",  left: "64%", top: "70%", width: "36px", alt: "小猫B" },
+      { img: "source/CatImage/cat5.png",  left: "44%", top: "80%", width: "44px", alt: "小猫C" },
     ],
-    // 奈雪的茶 [10]
+    // 10 奈雪的茶
     [
-      { user: "欧包迷", food: "奶油蛋糕", text: "霸气芝士草莓配上草莓魔法棒，幸福感爆棚。" },
-      { user: "茉莉", food: "龙井茶", text: "Pro店的座位很宽敞，适合带电脑来办公。" }
+      { img: "source/CatImage/cat5.png",  left: "26%", top: "85%", width: "38px", alt: "小猫A" },
+      
     ],
-    // 赛百味 [11]
+    // 11 赛百味
     [
-      { user: "减脂党", food: "蔬菜沙拉", text: "全麦面包加鸡胸肉，健身餐首选。" },
-      { user: "芥末酱", food: "三明治", text: "蜂蜜芥末酱是灵魂，让三明治不再枯燥。" }
+      { img: "source/CatImage/cat3.png",  left: "20%", top: "69%", width: "40px", alt: "小猫A" },
+      
+      { img: "source/CatImage/cat5.png",  left: "80%", top: "76%", width: "42px", alt: "小猫C" },
     ],
-    // 一点点 [12]
+    // 12 一点点
     [
-      { user: "波霸", food: "珍珠奶茶", text: "三分糖去冰加波霸，永远不会出错。" },
-      { user: "四季春", food: "冰红茶", text: "四季春茶底很清香，搭配奶霜绝了。" }
+      { img: "source/CatImage/cat4.png",  left: "15%", top: "64%", width: "40px", alt: "小猫A" },
+      { img: "source/CatImage/cat5.png", left: "74%", top: "85%", width: "38px", alt: "小猫B" },
     ],
-    // 沪上阿姨 [13]
+    // 13 沪上阿姨
     [
-      { user: "血糯米", food: "珍珠奶茶", text: "血糯米奶茶很有饱腹感，可以当下午茶。" },
-      { user: "养生派", food: "姜糖水", text: "姨妈期来一杯热的，比男朋友还暖。" }
+      { img: "source/CatImage/cat3.png",  left: "16%", top: "64%", width: "42px", alt: "小猫A" },
+      { img: "source/CatImage/cat4.png",  left: "56%", top: "73%", width: "36px", alt: "小猫B" },
+      { img: "source/CatImage/cat5.png",  left: "38%", top: "83%", width: "44px", alt: "小猫C" },
     ],
-    // 古茗 [14]
+    // 14 古茗
     [
-      { user: "江南客", food: "珍珠奶茶", text: "布蕾脆脆奶芙的奶盖很厚，满足感很强。" },
-      { user: "杨枝", food: "固体杨枝甘露", text: "杨枝甘露清爽不甜腻，芒果很新鲜。" }
+      { img: "source/CatImage/cat4.png",  left: "30%", top: "85%", width: "38px", alt: "小猫A" },
+      
     ],
-    // 老乡鸡 [15]
+    // 15 老乡鸡
     [
-      { user: "干饭人", food: "红烧肉", text: "肥西老母鸡汤太鲜了，一碗下去整个人都暖了。" },
-      { user: "工作餐", food: "酸菜鱼", text: "干净卫生出餐快，打工人的食堂。" }
-    ]
+      { img: "source/CatImage/cat3.png",  left: "22%", top: "56%", width: "40px", alt: "小猫A" },
+      { img: "source/CatImage/cat4.png",  left: "62%", top: "73%", width: "36px", alt: "小猫B" },
+      
+    ],
   ];
+  // ============================================================
 
   function getParam(name) {
     var search = window.location.search;
@@ -142,33 +168,6 @@
     return SVG_BASE + "interior_" + name + ".svg";
   }
 
-  function getAvatarInitial(name) {
-    return name.charAt(0);
-  }
-
-  function renderReviews(reviews) {
-    var container = document.getElementById("shopReviews");
-    if (!container) return;
-
-    var html = "";
-    reviews.forEach(function (review) {
-      var visits = review.visits || Math.floor(Math.random() * 4) + 2;
-      html +=
-        '<div class="review-card">' +
-          '<div class="review-card__header">' +
-            '<span class="review-card__avatar">' + escapeHtml(getAvatarInitial(review.user)) + '</span>' +
-            '<div class="review-card__meta">' +
-              '<span class="review-card__name">' + escapeHtml(review.user) + '</span>' +
-              '<span class="review-card__food">喜欢' + escapeHtml(review.food) + '<span class="review-card__visits">最近来过 ' + visits + ' 次</span></span>' +
-            '</div>' +
-            '<button type="button" class="review-card__dm" aria-label="私信留言">私信留言</button>' +
-          '</div>' +
-          '<p class="review-card__text">' + escapeHtml(review.text) + '</p>' +
-        '</div>';
-    });
-    container.innerHTML = html;
-  }
-
   function init() {
     var index = getShopIndex();
     if (index === -1) {
@@ -181,22 +180,31 @@
     }
 
     var shop = SHOPS[index];
-    var reviews = REVIEWS[index] || [];
 
     var bgImg = document.getElementById("shopBgImg");
-    var shopName = document.getElementById("shopName");
-    var shopTag = document.getElementById("shopTag");
-    var shopDesc = document.getElementById("shopDesc");
-
     if (bgImg) {
       bgImg.src = getSvgFile(shop.file);
       bgImg.alt = shop.name + "店内";
     }
-    if (shopName) shopName.textContent = shop.name;
-    if (shopTag) shopTag.textContent = shop.tag;
-    if (shopDesc) shopDesc.textContent = shop.desc;
 
-    renderReviews(reviews);
+    // 渲染该店铺的小猫
+    var catsContainer = document.getElementById("shopCats");
+    if (catsContainer) {
+      var cats = SHOP_CATS[index] || [];
+      var html = "";
+      for (var i = 0; i < cats.length; i++) {
+        var c = cats[i];
+        html +=
+          '<div class="shop-cat" style="left:' + escapeHtml(c.left) +
+          ';top:' + escapeHtml(c.top) + ';">' +
+            '<img class="shop-cat__img" src="' + escapeHtml(c.img) +
+            '" alt="' + escapeHtml(c.alt || "小猫") +
+            '" width="' + escapeHtml(c.width) +
+            '" style="width:' + escapeHtml(c.width) + ';">' +
+          '</div>';
+      }
+      catsContainer.innerHTML = html;
+    }
   }
 
   if (document.readyState === "loading") {

@@ -1,0 +1,328 @@
+/* 食物圈 — 日式极简 · 侘寂 · 和风现代 */
+
+.fc-body {
+  background-color: var(--color-bg);
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.fc-page {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* 返回按钮 */
+.fc-back {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background: rgba(245, 240, 232, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-paper);
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  letter-spacing: var(--letter-caption);
+  box-shadow: var(--shadow-rest);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  text-decoration: none;
+}
+
+.fc-back:active {
+  transform: scale(0.95);
+}
+
+/* 背景图 */
+.fc-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.fc-bg__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.fc-bg__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(92, 75, 58, 0.15) 0%,
+    rgba(92, 75, 58, 0.05) 30%,
+    rgba(92, 75, 58, 0) 50%,
+    rgba(245, 240, 232, 0.4) 70%,
+    rgba(245, 240, 232, 0.8) 100%
+  );
+  pointer-events: none;
+}
+
+/* 内容区 — 右上方 */
+.fc-content {
+  position: absolute;
+  top: 72px;
+  right: 16px;
+  z-index: 10;
+  padding: 0;
+  opacity: 0;
+  transform: translateX(12px);
+  animation: fcSlideIn 0.4s var(--ease-standard) 0.1s forwards;
+}
+
+@keyframes fcSlideIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fc-title {
+  display: none;
+}
+
+/* 栏目网格 — 右上方垂直排列 */
+.fc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 栏目卡片 — 半透明毛玻璃，小巧 */
+.fc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 8px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(232, 223, 209, 0.5);
+  box-shadow: var(--shadow-rest);
+  color: var(--color-primary);
+  cursor: pointer;
+  min-width: 56px;
+  transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fc-card:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.fc-card__icon {
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.fc-card__label {
+  font-size: 0.65rem;
+  font-weight: var(--font-weight-body);
+  letter-spacing: var(--letter-caption);
+  color: var(--color-primary);
+}
+
+/* 收信箱面板 */
+.fc-inbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-standard);
+}
+
+.fc-inbox[aria-hidden="false"] {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.fc-inbox__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(61, 61, 61, 0.25);
+  backdrop-filter: blur(2px);
+}
+
+.fc-inbox__sheet {
+  position: relative;
+  width: 100%;
+  max-width: var(--layout-max-width);
+  height: 78vh;
+  background: var(--color-card);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  border: 1px solid var(--color-paper);
+  border-bottom: none;
+  box-shadow: var(--shadow-lift);
+  padding: 24px 20px calc(24px + var(--safe-bottom));
+  transform: translateY(100%);
+  transition: transform 0.35s var(--ease-standard);
+  display: flex;
+  flex-direction: column;
+}
+
+.fc-inbox[aria-hidden="false"] .fc-inbox__sheet {
+  transform: translateY(0);
+}
+
+.fc-inbox__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.fc-inbox__title {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-title);
+  letter-spacing: var(--letter-title);
+  color: var(--color-primary);
+  line-height: var(--line-title);
+}
+
+.fc-inbox__close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-paper);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+  cursor: pointer;
+}
+
+.fc-inbox__close:active {
+  transform: scale(0.92);
+  color: var(--color-primary);
+}
+
+.fc-inbox__list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 消息条目 */
+.fc-msg {
+  background: var(--color-bg);
+  border-radius: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-paper);
+  box-shadow: var(--shadow-rest);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.fc-msg:active {
+  transform: scale(0.98);
+}
+
+.fc-msg__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.fc-msg__from {
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-body);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-body);
+}
+
+.fc-msg__time {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-caption);
+}
+
+.fc-msg__text {
+  font-size: 0.875rem;
+  color: var(--color-text);
+  line-height: var(--line-body);
+  letter-spacing: var(--letter-body);
+  margin-bottom: 10px;
+}
+
+.fc-msg__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.fc-msg__reply,
+.fc-msg__delete {
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fc-msg__reply {
+  color: var(--color-primary);
+  background: transparent;
+  border: 1px solid var(--color-accent-light);
+}
+
+.fc-msg__reply:active {
+  transform: scale(0.95);
+  background: var(--color-accent-light);
+  color: var(--color-bg);
+}
+
+.fc-msg__delete {
+  color: var(--color-bg);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.fc-msg__delete:active {
+  transform: scale(0.95);
+  background: transparent;
+  color: var(--color-primary);
+}
+
+/* 无消息提示 */
+.fc-inbox__empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  letter-spacing: var(--letter-body);
+}
+
+/* 无背景图时的兜底 */
+.fc-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--color-bg);
+}
