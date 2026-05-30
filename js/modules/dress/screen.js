@@ -8,10 +8,10 @@
       var state = mod.state.create();
 
       return {
-        mount: function (container, mountCtx) {
+        mount: function (container) {
           container.classList.add("dress-module");
           container.innerHTML = mod.view.render(state);
-          mod.view.bind(container, mountCtx || ctx, state);
+          mod.view.bind(container, ctx, state);
         },
         unmount: function (container) {
           mod.view.unbind();
@@ -19,12 +19,8 @@
           container.innerHTML = "";
           mod.state.reset(state);
         },
-        onShow: function () {
-          mod.view.resume();
-        },
-        onHide: function () {
-          mod.view.pause();
-        }
+        onShow: function () {},
+        onHide: function () {}
       };
     }
   };

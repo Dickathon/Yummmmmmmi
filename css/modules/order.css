@@ -1,4 +1,4 @@
-/* 点餐模块样式 — 仅使用 .order- 前缀，避免影响其他模块 */
+/* dress module */
 
 .order-module .order-root {
   display: flex;
@@ -6,6 +6,222 @@
   gap: var(--space-card);
 }
 
-.order-module .order-card {
-  /* 模块专属样式写在此处 */
+.order-stage-card,
+.order-note-card {
+  position: relative;
+  overflow: visible;
+}
+
+.order-stage-card {
+  padding: 22px 18px 18px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.88), transparent 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(245, 240, 232, 0.92));
+}
+
+.order-stage-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-stage-card__kicker {
+  color: var(--color-accent-light);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.order-stage-card__title {
+  font-size: 1.35rem;
+}
+
+.order-stage-card__desc {
+  max-width: 28em;
+}
+
+.order-stage {
+  margin-top: 18px;
+  padding: 18px 10px 14px;
+  overflow: visible;
+  border-radius: calc(var(--radius-card) - 2px);
+  border: 1px solid rgba(196, 168, 130, 0.22);
+  background:
+    linear-gradient(180deg, rgba(232, 223, 209, 0.56), rgba(245, 240, 232, 0.2)),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.82), transparent 34%);
+  touch-action: none;
+  user-select: none;
+}
+
+.order-turntable {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.order-disc__hit {
+  cursor: grab;
+}
+
+.order-disc__hit:active {
+  cursor: grabbing;
+}
+
+/* wmx 投影：扇区在椭圆 scale 组内旋转；立牌在 viewBox 层绘制以保持原图比例 */
+.order-disc__cells {
+  pointer-events: none;
+}
+
+.order-disc__cell {
+  fill: rgba(255, 255, 255, 0.38);
+  stroke: rgba(92, 75, 58, 0.22);
+  stroke-width: 1;
+}
+
+.order-disc__slots {
+  pointer-events: none;
+}
+
+.order-disc__slot {
+  pointer-events: none;
+}
+
+/* 格心锚点：与 sectorSlots.centerAngle 绑定，随 data-disc-rotor 旋转 */
+.order-disc__slot-center {
+  pointer-events: none;
+}
+
+/* 格心小碟（贴在盘面椭圆上） */
+.order-disc__slot-base {
+  fill: rgba(232, 223, 209, 0.96);
+  stroke: rgba(92, 75, 58, 0.32);
+  stroke-width: 1;
+}
+
+.order-placard-stack {
+  pointer-events: none;
+}
+
+.order-disc__slots--upright {
+  pointer-events: none;
+}
+
+.order-disc__placard-presence {
+  pointer-events: none;
+  transform-origin: 0 0;
+  transform-box: fill-box;
+}
+
+.order-disc__placard-rise {
+  pointer-events: none;
+}
+
+.order-disc__slot-image {
+  pointer-events: none;
+}
+
+.order-status {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-status__text {
+  min-height: 2.8em;
+}
+
+.order-indicators {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.order-indicator {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(196, 168, 130, 0.18);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.order-indicator.is-active {
+  transform: translateY(-2px);
+  border-color: var(--color-accent-light);
+  box-shadow: 0 10px 18px rgba(92, 75, 58, 0.08);
+}
+
+.order-indicator__swatch {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+}
+
+.order-indicator__swatch--base {
+  background: linear-gradient(90deg, var(--color-paper), var(--color-accent-light));
+}
+
+.order-indicator__swatch--mid {
+  background: linear-gradient(90deg, var(--color-sakura), var(--color-paper));
+}
+
+.order-indicator__swatch--top {
+  background: linear-gradient(90deg, var(--color-matcha), var(--color-bamboo));
+}
+
+.order-indicator__label {
+  color: var(--color-primary);
+  font-size: 0.92rem;
+}
+
+.order-indicator__meta {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  letter-spacing: var(--letter-caption);
+}
+
+.order-note-card {
+  padding: 20px 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 240, 232, 0.92));
+}
+
+.order-note-card__row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-note-card__title {
+  font-size: 1.02rem;
+}
+
+.order-note-list {
+  margin-top: 14px;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 10px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 360px) {
+  .order-stage-card {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .order-stage {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .order-indicators {
+    grid-template-columns: 1fr;
+  }
 }

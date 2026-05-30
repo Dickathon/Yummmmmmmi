@@ -13,7 +13,7 @@
       return {
         mount: function (container, mountCtx) {
           container.classList.add("order-module");
-          container.innerHTML = mod.view.render(mountCtx || ctx, state);
+          container.innerHTML = mod.view.render(state);
           mod.view.bind(container, mountCtx || ctx, state);
         },
         unmount: function (container) {
@@ -23,10 +23,10 @@
           mod.state.reset(state);
         },
         onShow: function () {
-          /* 从其他 Tab 返回时可刷新数据 */
+          mod.view.resume();
         },
         onHide: function () {
-          /* 切走时可暂停动画或音效 */
+          mod.view.pause();
         }
       };
     }

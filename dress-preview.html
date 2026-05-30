@@ -11,16 +11,16 @@
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/modules/dress.css">
+  <link rel="stylesheet" href="css/modules/order.css">
   <link rel="stylesheet" href="css/modules/dress-preview.css">
 </head>
 <body class="dress-preview-page">
   <div class="dress-preview-shell">
     <header class="dress-preview-header">
       <p class="dress-preview-header__eyebrow caption">Dress Prototype</p>
-      <h1 class="dress-preview-header__title">装扮栏独立原型页</h1>
+      <h1 class="dress-preview-header__title">点餐转盘调试页</h1>
       <p class="dress-preview-header__desc caption">
-        这个页面只用于开发和调试 dress 内容区，不替代正式入口 `index.html`。
+        用于开发和调试 order 模块转盘，不替代正式入口 `index.html`。
       </p>
     </header>
 
@@ -44,7 +44,7 @@
         <div class="dress-preview-notes__block">
           <h2 class="dress-preview-notes__title">当前边界</h2>
           <ul class="dress-preview-notes__list">
-            <li>只复用 dress 模块现有脚本与样式，不改主框架。</li>
+            <li>挂载 order 模块转盘脚本与样式，不改主框架。</li>
             <li>预览目标按手机端 375px 视口调试，适配 360px 到 430px。</li>
             <li>所有内容默认离线运行，不引入远程资源和第三方依赖。</li>
           </ul>
@@ -65,9 +65,8 @@
         <div class="dress-preview-notes__block">
           <h2 class="dress-preview-notes__title">回填方式</h2>
           <p class="caption">
-            在这个预览页把内容区定下来后，优先回填
-            <code>js/modules/dress/</code> 和 <code>css/modules/dress.css</code>，
-            不动 <code>index.html</code> 和公共框架。
+            转盘已位于
+            <code>js/modules/order/</code> 与 <code>css/modules/order.css</code>。
           </p>
         </div>
       </aside>
@@ -79,11 +78,11 @@
     window.Yummi.modules = window.Yummi.modules || {};
   </script>
   <script src="js/core/util.js"></script>
-  <script src="js/modules/dress/items-catalog.js"></script>
-  <script src="js/modules/dress/config.js"></script>
-  <script src="js/modules/dress/state.js"></script>
-  <script src="js/modules/dress/view.js"></script>
-  <script src="js/modules/dress/screen.js"></script>
-  <script src="js/modules/dress/preview.js"></script>
+  <script src="js/modules/order/items-catalog.js"></script>
+  <script src="js/modules/order/config.js"></script>
+  <script src="js/modules/order/state.js"></script>
+  <script src="js/modules/order/view.js"></script>
+  <script src="js/modules/order/screen.js"></script>
+  <script src="js/modules/order/preview.js"></script>
 </body>
 </html>
