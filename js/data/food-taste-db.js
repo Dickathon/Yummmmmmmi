@@ -115,30 +115,6 @@
       "fresh": 30,
       "temp": 1
     },
-    "清炒虾仁": {
-      "name": "清炒虾仁",
-      "sweet": 12,
-      "salty": 48,
-      "sour": 10,
-      "spicy": 5,
-      "bitter": 3,
-      "umami": 72,
-      "oily": 35,
-      "fresh": 65,
-      "temp": 1
-    },
-    "黄山炖鸽": {
-      "name": "黄山炖鸽",
-      "sweet": 15,
-      "salty": 52,
-      "sour": 10,
-      "spicy": 8,
-      "bitter": 12,
-      "umami": 80,
-      "oily": 40,
-      "fresh": 55,
-      "temp": 1
-    },
     "海蛎煎": {
       "name": "海蛎煎",
       "sweet": 10,
@@ -211,18 +187,6 @@
       "fresh": 45,
       "temp": 1
     },
-    "热干面": {
-      "name": "热干面",
-      "sweet": 15,
-      "salty": 62,
-      "sour": 25,
-      "spicy": 45,
-      "bitter": 10,
-      "umami": 68,
-      "oily": 52,
-      "fresh": 35,
-      "temp": 1
-    },
     "酸辣粉": {
       "name": "酸辣粉",
       "sweet": 12,
@@ -271,18 +235,6 @@
       "fresh": 30,
       "temp": 1
     },
-    "白切鸡": {
-      "name": "白切鸡",
-      "sweet": 8,
-      "salty": 52,
-      "sour": 12,
-      "spicy": 5,
-      "bitter": 4,
-      "umami": 75,
-      "oily": 42,
-      "fresh": 58,
-      "temp": 1
-    },
     "烧鹅": {
       "name": "烧鹅",
       "sweet": 15,
@@ -307,18 +259,6 @@
       "fresh": 62,
       "temp": 1
     },
-    "虾饺": {
-      "name": "虾饺",
-      "sweet": 8,
-      "salty": 45,
-      "sour": 6,
-      "spicy": 3,
-      "bitter": 2,
-      "umami": 72,
-      "oily": 32,
-      "fresh": 60,
-      "temp": 1
-    },
     "螺蛳粉": {
       "name": "螺蛳粉",
       "sweet": 10,
@@ -329,18 +269,6 @@
       "umami": 75,
       "oily": 48,
       "fresh": 35,
-      "temp": 1
-    },
-    "桂林米粉": {
-      "name": "桂林米粉",
-      "sweet": 12,
-      "salty": 52,
-      "sour": 22,
-      "spicy": 35,
-      "bitter": 8,
-      "umami": 65,
-      "oily": 40,
-      "fresh": 48,
       "temp": 1
     },
     "火锅": {
@@ -379,18 +307,6 @@
       "fresh": 28,
       "temp": 1
     },
-    "麻婆豆腐": {
-      "name": "麻婆豆腐",
-      "sweet": 8,
-      "salty": 58,
-      "sour": 12,
-      "spicy": 88,
-      "bitter": 8,
-      "umami": 72,
-      "oily": 55,
-      "fresh": 32,
-      "temp": 1
-    },
     "酸菜鱼": {
       "name": "酸菜鱼",
       "sweet": 8,
@@ -401,54 +317,6 @@
       "umami": 82,
       "oily": 48,
       "fresh": 45,
-      "temp": 1
-    },
-    "过桥米线": {
-      "name": "过桥米线",
-      "sweet": 12,
-      "salty": 58,
-      "sour": 15,
-      "spicy": 42,
-      "bitter": 6,
-      "umami": 75,
-      "oily": 45,
-      "fresh": 48,
-      "temp": 1
-    },
-    "酥油茶": {
-      "name": "酥油茶",
-      "sweet": 15,
-      "salty": 42,
-      "sour": 5,
-      "spicy": 5,
-      "bitter": 12,
-      "umami": 45,
-      "oily": 65,
-      "fresh": 35,
-      "temp": 1
-    },
-    "糍粑": {
-      "name": "糍粑",
-      "sweet": 55,
-      "salty": 25,
-      "sour": 8,
-      "spicy": 3,
-      "bitter": 5,
-      "umami": 35,
-      "oily": 42,
-      "fresh": 40,
-      "temp": 1
-    },
-    "肉夹馍": {
-      "name": "肉夹馍",
-      "sweet": 12,
-      "salty": 62,
-      "sour": 15,
-      "spicy": 25,
-      "bitter": 6,
-      "umami": 72,
-      "oily": 58,
-      "fresh": 35,
       "temp": 1
     },
     "羊肉泡馍": {
@@ -523,18 +391,6 @@
       "fresh": 35,
       "temp": 1
     },
-    "意大利面": {
-      "name": "意大利面",
-      "sweet": 22,
-      "salty": 52,
-      "sour": 28,
-      "spicy": 15,
-      "bitter": 5,
-      "umami": 62,
-      "oily": 48,
-      "fresh": 45,
-      "temp": 1
-    },
     "披萨": {
       "name": "披萨",
       "sweet": 35,
@@ -595,18 +451,6 @@
       "fresh": 88,
       "temp": 0
     },
-    "寿司": {
-      "name": "寿司",
-      "sweet": 18,
-      "salty": 48,
-      "sour": 22,
-      "spicy": 3,
-      "bitter": 3,
-      "umami": 72,
-      "oily": 32,
-      "fresh": 62,
-      "temp": 0
-    },
     "刺身": {
       "name": "刺身",
       "sweet": 5,
@@ -619,18 +463,6 @@
       "fresh": 75,
       "temp": -1
     },
-    "日式拉面": {
-      "name": "日式拉面",
-      "sweet": 22,
-      "salty": 68,
-      "sour": 12,
-      "spicy": 18,
-      "bitter": 12,
-      "umami": 78,
-      "oily": 52,
-      "fresh": 40,
-      "temp": 1
-    },
     "石锅拌饭": {
       "name": "石锅拌饭",
       "sweet": 25,
@@ -642,18 +474,6 @@
       "oily": 48,
       "fresh": 45,
       "temp": 1
-    },
-    "泡菜": {
-      "name": "泡菜",
-      "sweet": 15,
-      "salty": 55,
-      "sour": 68,
-      "spicy": 55,
-      "bitter": 12,
-      "umami": 58,
-      "oily": 28,
-      "fresh": 52,
-      "temp": 0
     },
     "冬阴功汤": {
       "name": "冬阴功汤",
@@ -703,18 +523,6 @@
       "fresh": 25,
       "temp": 0
     },
-    "奶油泡芙": {
-      "name": "奶油泡芙",
-      "sweet": 82,
-      "salty": 18,
-      "sour": 6,
-      "spicy": 0,
-      "bitter": 4,
-      "umami": 32,
-      "oily": 68,
-      "fresh": 28,
-      "temp": 0
-    },
     "焦糖布丁": {
       "name": "焦糖布丁",
       "sweet": 85,
@@ -751,18 +559,6 @@
       "fresh": 82,
       "temp": -1
     },
-    "水果软糖": {
-      "name": "水果软糖",
-      "sweet": 90,
-      "salty": 5,
-      "sour": 25,
-      "spicy": 0,
-      "bitter": 2,
-      "umami": 15,
-      "oily": 15,
-      "fresh": 45,
-      "temp": 0
-    },
     "黑巧克力": {
       "name": "黑巧克力",
       "sweet": 45,
@@ -774,18 +570,6 @@
       "oily": 52,
       "fresh": 30,
       "temp": 0
-    },
-    "芝麻汤圆": {
-      "name": "芝麻汤圆",
-      "sweet": 75,
-      "salty": 12,
-      "sour": 5,
-      "spicy": 0,
-      "bitter": 8,
-      "umami": 38,
-      "oily": 45,
-      "fresh": 35,
-      "temp": 1
     },
     "固体杨枝甘露": {
       "name": "固体杨枝甘露",
@@ -967,18 +751,6 @@
       "fresh": 55,
       "temp": 1
     },
-    "薄荷柠檬水": {
-      "name": "薄荷柠檬水",
-      "sweet": 42,
-      "salty": 5,
-      "sour": 55,
-      "spicy": 0,
-      "bitter": 8,
-      "umami": 15,
-      "oily": 5,
-      "fresh": 92,
-      "temp": -1
-    },
     "龙井茶": {
       "name": "龙井茶",
       "sweet": 8,
@@ -1044,7 +816,7 @@
 
   global.Yummi = global.Yummi || {};
   global.Yummi.foodTasteDb = {
-    version: 1,
+    version: 2,
     axisKeys: AXIS_KEYS,
     axisLabels: AXIS_LABELS,
     records: records

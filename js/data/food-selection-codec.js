@@ -1,7 +1,7 @@
 /**
  * 用户选菜导出编解码（仅数据层）
  *
- * - encode：食物名称列表 → 不透明分享码（如 YUMMI1.xK9m…），无法直接读出菜名
+ * - encode：食物名称列表 → 不透明分享码（如 YUMMI2.xK9m…），无法直接读出菜名
  * - decode：分享码 → 名称列表（供本应用导入/还原，不在 UI 展示明文过程）
  *
  * 依赖：foods.js（菜品顺序与版本绑定，变更 foods 列表会破坏旧码）
@@ -10,7 +10,7 @@
 (function (global) {
   "use strict";
 
-  var PREFIX = "YUMMI1.";
+  var PREFIX = "YUMMI2.";
   var SALT = [0x59, 0x75, 0x6d, 0x6d, 0x69, 0x2d, 0x73, 0x65, 0x6c];
 
   var nameToIndex = null;
@@ -244,7 +244,7 @@
    * 输入对方分享码，与己方选菜比对相似度（内部 decode，不向 UI 返回对方菜名）
    *
    * @param {string[]} myNames 己方已选食物名称
-   * @param {string} theirCode 对方 YUMMI1.* 分享码
+   * @param {string} theirCode 对方 YUMMI2.* 分享码
    * @param {{ tasteWeight?: number, overlapWeight?: number }} [options] 传给 compareSelections
    */
   function compareImport(myNames, theirCode, options) {

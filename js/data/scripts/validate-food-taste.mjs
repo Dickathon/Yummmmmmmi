@@ -21,21 +21,21 @@ if (missing.length) {
   process.exit(1);
 }
 console.log("OK:", foods.length, "foods,", Object.keys(sandbox.Yummi.foodTasteDb.records).length, "taste records");
-const agg = sandbox.Yummi.foodTaste.profileFromSelection(["麻婆豆腐", "珍珠奶茶", "薄荷柠檬水"]);
+const agg = sandbox.Yummi.foodTaste.profileFromSelection(["九转大肠", "珍珠奶茶", "美式咖啡"]);
 console.log("Sample aggregate profile:", agg.profile, "count", agg.count);
-console.log("Sample match 麻婆豆腐 vs neutral:", sandbox.Yummi.foodTaste.matchScore(sandbox.Yummi.foodTaste.createNeutralProfile(), "麻婆豆腐"));
+console.log("Sample match 九转大肠 vs neutral:", sandbox.Yummi.foodTaste.matchScore(sandbox.Yummi.foodTaste.createNeutralProfile(), "九转大肠"));
 
-const enc = sandbox.Yummi.foodSelectionCodec.encode(["麻婆豆腐", "珍珠奶茶", "薄荷柠檬水"]);
+const enc = sandbox.Yummi.foodSelectionCodec.encode(["九转大肠", "珍珠奶茶", "美式咖啡"]);
 if (!enc.ok) throw new Error("encode failed");
 const dec = sandbox.Yummi.foodSelectionCodec.decode(enc.code);
-const expectSet = new Set(["麻婆豆腐", "珍珠奶茶", "薄荷柠檬水"]);
+const expectSet = new Set(["九转大肠", "珍珠奶茶", "美式咖啡"]);
 if (!dec.ok || dec.names.length !== expectSet.size || !dec.names.every((n) => expectSet.has(n))) {
   throw new Error("codec roundtrip failed: " + JSON.stringify(dec));
 }
 console.log("Codec export sample (opaque):", enc.code);
 
 const cmp = sandbox.Yummi.foodSelectionCodec.compareImport(
-  ["麻婆豆腐", "酸辣粉"],
+  ["九转大肠", "酸辣粉"],
   enc.code
 );
 if (!cmp.ok || cmp.similarity < 0 || cmp.similarity > 100) {

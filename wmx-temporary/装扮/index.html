@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <title>装扮</title>
+  <style>
+    :root {
+      --cream: #f5f0e8;
+      --paper: #e8dfd1;
+      --wood: #5c4b3a;
+      --muted: #8b7355;
+      --sakura: #f4e1e1;
+      --matcha: #8fbc8f;
+      --cat-size: min(92vw, 540px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow: hidden;
+      color: var(--wood);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0) 34%),
+        radial-gradient(circle at 18% 78%, rgba(244, 225, 225, 0.5), rgba(244, 225, 225, 0) 28%),
+        linear-gradient(180deg, #fbf7f1 0%, var(--cream) 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.04;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(92, 75, 58, 0.8) 0 1px, transparent 1px 7px),
+        repeating-linear-gradient(90deg, rgba(196, 168, 130, 0.7) 0 1px, transparent 1px 9px);
+    }
+
+    .dress-page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: max(24px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom));
+    }
+
+    .dress-title {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(1.45rem, 6vw, 2.2rem);
+      font-weight: 300;
+      letter-spacing: 0.32em;
+      text-indent: 0.32em;
+    }
+
+    .dress-subtitle {
+      margin: 8px 0 0;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+    }
+
+    .cat-wrap {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+
+    .cat-stage {
+      position: relative;
+      width: var(--cat-size);
+      aspect-ratio: 1 / 1;
+      transform: translate(-1.5vw, -2vh);
+      filter: drop-shadow(0 30px 30px rgba(92, 75, 58, 0.12));
+      animation: cat-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .cat-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .cat-layer--tail {
+      z-index: 1;
+    }
+
+    .cat-layer--legs {
+      z-index: 2;
+    }
+
+    .cat-layer--body {
+      z-index: 3;
+    }
+
+    .cat-layer--head {
+      z-index: 4;
+    }
+
+    .cat-layer--face {
+      z-index: 5;
+    }
+
+    .cat-aura {
+      position: absolute;
+      z-index: 0;
+      width: min(58vw, 300px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.08) 58%, rgba(255, 255, 255, 0) 72%),
+        radial-gradient(circle at 28% 26%, rgba(244, 225, 225, 0.58), transparent 42%),
+        radial-gradient(circle at 76% 70%, rgba(143, 188, 143, 0.18), transparent 42%);
+      transform: translate(-5%, -4%);
+      filter: blur(1px);
+    }
+
+    .dress-footer {
+      margin: 0;
+      text-align: center;
+      color: rgba(139, 115, 85, 0.84);
+      font-size: 0.76rem;
+      letter-spacing: 0.08em;
+    }
+
+    @keyframes cat-enter {
+      from {
+        opacity: 0;
+        transform: translate(-1.5vw, 18px) scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-1.5vw, -2vh) scale(1);
+      }
+    }
+
+    @media (max-width: 360px) {
+      :root {
+        --cat-size: min(96vw, 500px);
+      }
+
+      .dress-page {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cat-stage {
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dress-page" aria-label="装扮页面">
+    <header>
+      <h1 class="dress-title">装扮</h1>
+      <p class="dress-subtitle">LAYERED CAT</p>
+    </header>
+
+    <section class="cat-wrap" aria-label="由多个图层拼成的猫">
+      <div class="cat-aura" aria-hidden="true"></div>
+      <div class="cat-stage" role="img" aria-label="由尾巴、四肢、身体、头部和表情图层拼成的猫">
+        <img class="cat-layer cat-layer--tail" src="latest-pictures/标准底图/tail_1254.png" alt="">
+        <img class="cat-layer cat-layer--legs" src="latest-pictures/标准底图/legs_1254.png" alt="">
+        <img class="cat-layer cat-layer--body" src="latest-pictures/标准底图/body_1254.png" alt="">
+        <img class="cat-layer cat-layer--head" src="latest-pictures/标准底图/head_1254_no_face_base.png" alt="">
+        <img class="cat-layer cat-layer--face" src="latest-pictures/标准底图/head_1254_face_expression.png" alt="">
+      </div>
+    </section>
+
+    <p class="dress-footer">透明图层叠放 · 无外框</p>
+  </main>
+</body>
+</html>

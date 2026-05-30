@@ -49,6 +49,15 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（全局删除 19 个食物）
+
+- **模块/范围：** 全局 | 资源 | 文档
+- **摘要：** 从白名单、口味库、分享码目录、转盘压缩素材和示例页中移除 19 个食物；`YUMMI1.*` 旧分享码作废，避免下标变更后误解码。
+- **路径：** `js/data/foods.js`, `js/data/food-selection-codec.js`, `js/data/food-taste-db.js`, `js/modules/dress/items-catalog.js`, `js/modules/order/items-catalog.js`, `source/compressed/`, `README.md`
+- **备注：** 同步更新 `Project Specification.md`、`wmx-temporary/README.md`、`版面设计示例.html`、`wmx-temporary/版面设计示例.html`、`js/shop.js` 与校验脚本。
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（点餐转盘对齐 wmx）
 
 - **模块/范围：** order
