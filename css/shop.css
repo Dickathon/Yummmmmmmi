@@ -68,178 +68,30 @@
   pointer-events: none;
 }
 
-/* 底部信息栏 */
-.shop-info {
+/* 小猫容器 */
+.shop-cats {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  padding: 48px 20px calc(24px + var(--safe-bottom));
-  opacity: 0;
-  transform: translateY(16px);
-  animation: shopInfoSlideIn 0.5s var(--ease-standard) 0.15s forwards;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
 }
 
-@keyframes shopInfoSlideIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* 单只小猫 */
+.shop-cat {
+  position: absolute;
+  pointer-events: auto;
+  transition: transform var(--transition-fast);
 }
 
-.shop-info__header {
-  text-align: center;
-  margin-bottom: 24px;
+.shop-cat:active {
+  transform: scale(1.1);
 }
 
-.shop-info__tag {
-  display: inline-block;
-  padding: 4px 14px;
-  border-radius: var(--radius-pill);
-  font-size: 0.75rem;
-  letter-spacing: var(--letter-caption);
-  background: color-mix(in srgb, var(--color-matcha) 20%, var(--color-paper));
-  color: var(--color-primary);
-}
-
-.shop-info__name {
-  margin-top: 10px;
-  font-size: 1.5rem;
-  font-weight: var(--font-weight-title);
-  letter-spacing: var(--letter-title);
-  color: var(--color-primary);
-  line-height: var(--line-title);
-}
-
-.shop-info__desc {
-  margin-top: 6px;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-  line-height: var(--line-body);
-  letter-spacing: var(--letter-body);
-}
-
-/* 食客留言 */
-.shop-reviews__title {
-  font-size: 0.85rem;
-  font-weight: var(--font-weight-body);
-  letter-spacing: var(--letter-caption);
-  color: var(--color-text-muted);
-  margin-bottom: 12px;
-  padding-left: 4px;
-}
-
-.shop-reviews__list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* 评论卡片 */
-.review-card {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid rgba(232, 223, 209, 0.6);
-  box-shadow: var(--shadow-rest);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.review-card:active {
-  transform: scale(0.98);
-}
-
-.review-card__header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.review-card__avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(232, 223, 209, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: var(--font-weight-stat);
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-.review-card__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.review-card__name {
-  font-size: 0.875rem;
-  font-weight: var(--font-weight-body);
-  color: var(--color-primary);
-  letter-spacing: var(--letter-body);
-}
-
-.review-card__food {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  letter-spacing: var(--letter-caption);
-}
-
-.review-card__food span {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-sakura) 30%, var(--color-paper));
-  color: var(--color-primary);
-  margin-left: 4px;
-}
-
-.review-card__visits {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-matcha) 20%, var(--color-paper));
-  color: var(--color-primary);
-  font-size: 0.7rem;
-  margin-left: 4px;
-}
-
-.review-card__text {
-  font-size: 0.875rem;
-  color: var(--color-text);
-  line-height: var(--line-body);
-  letter-spacing: var(--letter-body);
-  padding-left: 46px;
-}
-
-/* 私信留言按钮 */
-.review-card__dm {
-  margin-left: auto;
-  padding: 5px 14px;
-  border-radius: var(--radius-pill);
-  font-size: 0.75rem;
-  letter-spacing: var(--letter-caption);
-  color: var(--color-primary);
-  background: transparent;
-  border: 1px solid var(--color-accent-light);
-  cursor: pointer;
-  transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
-  -webkit-tap-highlight-color: transparent;
-  flex-shrink: 0;
-}
-
-.review-card__dm:active {
-  transform: scale(0.95);
-  background: var(--color-accent-light);
-  color: var(--color-bg);
+.shop-cat__img {
+  display: block;
+  height: auto;
+  min-width: 120px;
+  filter: drop-shadow(0 2px 4px rgba(92, 75, 58, 0.2));
 }
 
 /* 错误状态 */

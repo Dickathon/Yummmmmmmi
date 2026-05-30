@@ -36,6 +36,16 @@
     var container = document.getElementById("mapStreet");
     if (!container) return;
 
+    // 读取最近一次进入的店铺索引
+    var lastShopIndex = -1;
+    try {
+      var raw = localStorage.getItem("yummi_last_shop");
+      if (raw !== null) {
+        var parsed = parseInt(raw, 10);
+        if (!isNaN(parsed)) lastShopIndex = parsed;
+      }
+    } catch (e) {}
+
     // 3×3 街区网格，16个店铺分配到9个街区块
     var blocks = [
       [0, 1],    // 星巴克, 麦当劳
@@ -56,11 +66,15 @@
       var blockHtml = "";
       blockShops.forEach(function (shopIndex) {
         var shop = SHOPS[shopIndex];
+        var catHtml = (shopIndex === lastShopIndex)
+          ? '<img class="map-shop__cat" src="source/cat2.png" alt="" aria-hidden="true" width="34" height="34">'
+          : '';
         blockHtml +=
           '<button type="button" class="map-shop" data-shop-index="' + shopIndex + '" aria-label="' + escapeHtml(shop.name) + '">' +
             '<span class="map-shop__icon">' +
               '<img src="' + ASSET_BASE + escapeHtml(shop.file) + '" alt="' + escapeHtml(shop.name) + '" loading="lazy" width="36" height="36">' +
             '</span>' +
+            catHtml +
             '<span class="map-shop__name">' + escapeHtml(shop.name) + '</span>' +
           '</button>';
       });
@@ -143,6 +157,8 @@
     var tag = document.getElementById("mapPreviewTag");
     var desc = document.getElementById("mapPreviewDesc");
     var enterBtn = document.getElementById("mapPreviewEnter");
+    var circleBtn = document.getElementById("mapCircleBtn");
+    var friendBtn = document.getElementById("mapFriendBtn");
     var street = document.getElementById("mapStreet");
 
     if (!preview || !street) return;
@@ -173,7 +189,11 @@
       var btn = e.target.closest(".map-shop");
       if (!btn) return;
       var index = parseInt(btn.getAttribute("data-shop-index"), 10);
-      if (!isNaN(index)) open(index);
+      if (isNaN(index)) return;
+      try {
+        localStorage.setItem("yummi_last_shop", String(index));
+      } catch (e) {}
+      window.location.href = "shop.html?shop=" + index;
     });
 
     if (overlay) overlay.addEventListener("click", close);
@@ -184,7 +204,25 @@
       enterBtn.addEventListener("click", function () {
         var index = parseInt(enterBtn.getAttribute("data-shop-index"), 10);
         if (isNaN(index)) return;
+        try {
+          localStorage.setItem("yummi_last_shop", String(index));
+        } catch (e) {}
         window.location.href = "shop.html?shop=" + index;
+      });
+    }
+
+    // 食物圈按钮 — 跳转食物圈页面
+    if (circleBtn) {
+      circleBtn.addEventListener("click", function () {
+        window.location.href = "food-circle.html";
+      });
+    }
+
+    // 好友按钮 — 功能预留
+    if (friendBtn) {
+      friendBtn.addEventListener("click", function () {
+        // TODO: 好友功能完成后在此实现
+        console.log("[预留] 点击好友按钮");
       });
     }
 

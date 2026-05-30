@@ -32,6 +32,40 @@
   backdrop-filter: blur(6px);
 }
 
+/* 右上角操作按钮组 */
+.map-actions {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+}
+
+.map-circle,
+.map-friend {
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-body);
+  letter-spacing: var(--letter-caption);
+  color: var(--color-primary);
+  background: var(--color-card);
+  border: 1px solid var(--color-accent-light);
+  box-shadow: var(--shadow-rest);
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.map-circle:active,
+.map-friend:active {
+  transform: scale(0.95);
+  background: var(--color-primary);
+  color: var(--color-bg);
+}
+
 .map-back {
   display: inline-flex;
   align-items: center;
@@ -91,13 +125,13 @@
   position: relative;
   background: var(--color-bg);
   border-radius: 16px;
-  padding: 12px 6px;
+  padding: 8px 2px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   align-content: center;
-  gap: 8px 6px;
+  gap: 3px 2px;
   min-height: 120px;
   border: 1px solid var(--color-paper);
   z-index: 1;
@@ -105,25 +139,24 @@
 
 /* 店铺图标 — 网格内紧凑排列 */
 .map-shop {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  width: 50px;
+  gap: 2px;
+  width: 72px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
 .map-shop__icon {
-  width: 38px;
-  height: 38px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
   background: var(--color-card);
-  border: 1px solid var(--color-paper);
   box-shadow: var(--shadow-rest);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  padding: 3px;
 }
 
 .map-shop__icon img {
@@ -131,6 +164,17 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+}
+
+/* 猫咪 — 店铺图标右下角 */
+.map-shop__cat {
+  position: absolute;
+  bottom: 12px;
+  right: 0px;
+  width: 34px;
+  height: auto;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .map-shop:active .map-shop__icon {
@@ -146,12 +190,12 @@
 }
 
 .map-shop__name {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--color-primary);
   letter-spacing: var(--letter-caption);
   text-align: center;
   line-height: 1.3;
-  max-width: 48px;
+  max-width: 58px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -357,7 +401,7 @@
   border: 1px solid var(--color-paper);
   border-bottom: none;
   box-shadow: var(--shadow-lift);
-  padding: 28px var(--space-loose) calc(28px + var(--safe-bottom));
+  padding: 28px var(--space-loose) calc(48px + var(--tab-bar-height) + var(--safe-bottom));
   transform: translateY(100%);
   transition: transform 0.35s var(--ease-standard);
 }
