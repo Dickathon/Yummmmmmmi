@@ -36,23 +36,47 @@
     var container = document.getElementById("mapStreet");
     if (!container) return;
 
+    // 3×3 街区网格，16个店铺分配到9个街区块
+    var blocks = [
+      [0, 1],    // 星巴克, 麦当劳
+      [2, 3],    // 喜茶, 肯德基
+      [4],       // 海底捞
+      [5, 6],    // 蜜雪冰城, 瑞幸咖啡
+      [7, 8],    // 汉堡王, 茶百道
+      [9],       // 必胜客
+      [10, 11],  // 奈雪的茶, 赛百味
+      [12, 13],  // 一点点, 沪上阿姨
+      [14, 15]   // 古茗, 老乡鸡
+    ];
+
     var html = "";
-    SHOPS.forEach(function (shop, index) {
-      var side = index % 2 === 0 ? "left" : "right";
-      html +=
-        '<div class="map-block map-block--' + side + '">' +
-          '<div class="map-dot"></div>' +
-          '<button type="button" class="map-shop" data-shop-index="' + index + '" aria-label="' + escapeHtml(shop.name) + '">' +
+
+    // 生成9个街区块
+    blocks.forEach(function (blockShops) {
+      var blockHtml = "";
+      blockShops.forEach(function (shopIndex) {
+        var shop = SHOPS[shopIndex];
+        blockHtml +=
+          '<button type="button" class="map-shop" data-shop-index="' + shopIndex + '" aria-label="' + escapeHtml(shop.name) + '">' +
             '<span class="map-shop__icon">' +
-              '<img src="' + ASSET_BASE + escapeHtml(shop.file) + '" alt="' + escapeHtml(shop.name) + '" loading="lazy" width="60" height="60">' +
+              '<img src="' + ASSET_BASE + escapeHtml(shop.file) + '" alt="' + escapeHtml(shop.name) + '" loading="lazy" width="36" height="36">' +
             '</span>' +
             '<span class="map-shop__name">' + escapeHtml(shop.name) + '</span>' +
-          '</button>' +
-        '</div>';
+          '</button>';
+      });
+      html += '<div class="map-block">' + blockHtml + '</div>';
     });
 
-    // 街道尽头装饰
-    html += '<div class="map-street__end" aria-hidden="true"></div>';
+    // 4个十字路口标记
+    var crossPositions = [
+      { top: "34%", left: "34%" },
+      { top: "34%", left: "66%" },
+      { top: "66%", left: "34%" },
+      { top: "66%", left: "66%" }
+    ];
+    crossPositions.forEach(function (pos) {
+      html += '<span class="map-crossroad" style="top:' + pos.top + ';left:' + pos.left + ';transform:translate(-50%,-50%)" aria-hidden="true"></span>';
+    });
 
     container.innerHTML = html;
   }
