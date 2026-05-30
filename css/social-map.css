@@ -6,6 +6,12 @@
   overflow-x: hidden;
 }
 
+/* 小鱼干币在街区页移到左上角，避免遮挡右上角按钮 */
+.map-body .fish-coin {
+  left: 12px;
+  right: auto;
+}
+
 .map-page {
   max-width: var(--layout-max-width);
   margin: 0 auto;

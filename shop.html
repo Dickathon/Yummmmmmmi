@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="css/shop.css">
 </head>
 <body class="shop-body">
+  <div class="fish-coin" id="fishCoinBar" title="小鱼干币"></div>
+
   <div class="shop-page" id="shopPage">
     <a href="social-map.html" class="shop-back" aria-label="返回">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -30,9 +32,13 @@
       <div class="shop-popup__body" id="shopPopupBody"></div>
     </div>
 
+    <!-- 自动留言 bar 容器（动态生成多只） -->
+    <div class="shop-toast-layer" id="shopToastLayer"></div>
+
 
   </div>
 
+  <script src="js/fish-coins.js"></script>
   <script src="js/shop.js"></script>
 </body>
 </html>
