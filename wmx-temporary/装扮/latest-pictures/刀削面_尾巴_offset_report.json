@@ -1,9 +1,0 @@
-{
-  "component": "tail",
-  "reference": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\标准底图\\tail_1254.png",
-  "candidate": "E:\\微信开发者工具\\Yummmmmmmi\\wmx-temporary\\装扮\\pictures\\刀削面_尾巴.png",
-  "passed": false,
-  "reasons": [
-    "[Errno 2] No such file or directory: 'E:\\\\微信开发者工具\\\\Yummmmmmmi\\\\wmx-temporary\\\\装扮\\\\pictures\\\\刀削面_尾巴.png'"
-  ]
-}
