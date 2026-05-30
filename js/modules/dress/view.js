@@ -356,18 +356,6 @@
     );
   }
 
-  function renderCenterCap(disc) {
-    var capRx = Math.max(8, disc.rx * 0.16);
-    var capRy = Math.max(4, disc.ry * 0.34);
-
-    return (
-      '<g class="dress-disc__cap" transform="translate(' + formatNumber(disc.cx) + " " + formatNumber(disc.cy) + ')">' +
-        '<ellipse rx="' + formatNumber(capRx) + '" ry="' + formatNumber(capRy) + '" fill="' + disc.capColor + '" stroke="#5c4b3a" stroke-width="1.5"></ellipse>' +
-        '<ellipse rx="' + formatNumber(capRx * 0.52) + '" ry="' + formatNumber(capRy * 0.52) + '" fill="#ffffff" fill-opacity="0.66"></ellipse>' +
-      "</g>"
-    );
-  }
-
   function renderDisc(disc) {
     return (
       '<g class="dress-disc dress-disc--' + disc.id + '" data-disc="' + disc.id + '">' +
@@ -376,7 +364,6 @@
         renderSurface(disc) +
         renderPlacardSlots(disc) +
         '<ellipse class="dress-disc__outline" cx="' + formatNumber(disc.cx) + '" cy="' + formatNumber(disc.cy) + '" rx="' + formatNumber(disc.rx) + '" ry="' + formatNumber(disc.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
-        renderCenterCap(disc) +
       "</g>"
     );
   }
