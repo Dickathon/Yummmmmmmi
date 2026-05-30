@@ -49,6 +49,15 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（ljh + wmx 分支整合）
+
+- **模块/范围：** social | dress | 资源 | 文档
+- **摘要：** 合并 `origin/ljh`（街区网格布局、`food1/2/3` 素材、`social-map.js/css` 更新）与 `origin/wmx`（保留 main 立牌实现与相对路径文档）；冲突仅 `wmx-temporary/README.md`、`组件合并规范.md`，已保留 main 侧目录说明与仓库相对路径。
+- **路径：** `css/social-map.css`, `js/social-map.js`, `food1/`, `food2/`, `food3/`, `wmx-temporary/`
+- **备注：** dress 模块以 main 当前立牌竖立方案为准，未回退 wmx 占位逻辑。
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（wmx 立牌素材 + 竖立展示）
 
 - **模块/范围：** dress | wmx-temporary
