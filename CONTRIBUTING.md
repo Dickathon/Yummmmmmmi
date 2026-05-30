@@ -41,6 +41,7 @@ git checkout -b feat/order-menu   # 或 feat/dress-xxx / feat/social-xxx
 
 用浏览器直接打开根目录 `index.html`，或使用本地静态服务（勿依赖在线 CDN）。
 
+- **社交 · 美食街区：** `social-map.html`（底部「社交」Tab 会跳转至此）
 - **装扮模块调试：** `dress-preview.html`（仅 dress，不经过三栏壳）
 - **转盘单页原型：** `wmx-temporary/转盘/index.html`（wmx 分支参考实现）
 - **wmx 临时资源：** `wmx-temporary/`（宠物素材、生成工具；入选包体前须压缩并迁入 `assets/modules/`）

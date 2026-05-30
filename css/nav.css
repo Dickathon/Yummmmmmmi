@@ -3,8 +3,10 @@
   position: fixed;
   left: 50%;
   bottom: 0;
-  transform: translateX(-50%);
-  z-index: 10;
+  transform: translateX(-50%) translateZ(0);
+  z-index: 200;
+  isolation: isolate;
+  pointer-events: auto;
   width: 100%;
   max-width: var(--layout-max-width);
   display: flex;
@@ -15,7 +17,7 @@
     10px 14px
     calc(10px + var(--safe-bottom))
     14px;
-  background: rgba(245, 240, 232, 0.72);
+  background: rgba(245, 240, 232, 0.94);
   border-top: 1px solid var(--color-paper);
   box-shadow: none;
   backdrop-filter: blur(12px);

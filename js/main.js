@@ -71,7 +71,18 @@
 
   function setActiveTab(tabId) {
     var screens = getScreens();
-    if (!screens || !screens.has(tabId) || tabId === currentTab) return;
+
+    /* 社交栏：跳转 ljh 分支「美食街区」独立页 */
+    if (tabId === "social") {
+      window.location.href = "social-map.html";
+      return;
+    }
+
+    if (!screens || !screens.has(tabId)) return;
+    if (tabId === currentTab) {
+      mountTab(tabId);
+      return;
+    }
 
     currentTab = tabId;
 
@@ -88,15 +99,18 @@
     mountTab(tabId);
   }
 
+  function onTabActivate(tabId) {
+    if (tabId) setActiveTab(tabId);
+  }
+
   function setupTabBar() {
     var tabBar = document.getElementById("tab-bar");
     if (!tabBar) return;
 
-    tabBar.addEventListener("click", function (e) {
-      var btn = e.target.closest(".tab-bar__item");
-      if (!btn) return;
-      var tabId = btn.getAttribute("data-tab");
-      if (tabId) setActiveTab(tabId);
+    tabBar.querySelectorAll(".tab-bar__item").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        onTabActivate(btn.getAttribute("data-tab"));
+      });
     });
 
     tabBar.querySelectorAll(".tab-bar__icon").forEach(function (img) {

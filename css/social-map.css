@@ -1,0 +1,321 @@
+/* 美食街区地图 — 日式极简 · 侘寂 · 和风现代 */
+
+.map-body {
+  background-color: var(--color-bg);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+.map-page {
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  padding: var(--safe-top) var(--space-page-x) calc(var(--tab-bar-height) + var(--safe-bottom));
+  opacity: 0;
+  transform: translateY(12px);
+  animation: mapFadeIn 0.5s var(--ease-standard) forwards;
+}
+
+@keyframes mapFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 顶部导航 */
+.map-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 16px 0 20px;
+  background: linear-gradient(180deg, var(--color-bg) 70%, transparent 100%);
+  backdrop-filter: blur(6px);
+}
+
+.map-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-card);
+  border: 1px solid var(--color-paper);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-rest);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.map-back:active {
+  transform: scale(0.94);
+}
+
+.map-title {
+  margin-top: 14px;
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-title);
+  letter-spacing: var(--letter-title);
+  color: var(--color-primary);
+  line-height: var(--line-title);
+}
+
+.map-subtitle {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-caption);
+}
+
+/* 街道主区域 */
+.map-main {
+  position: relative;
+  padding: 24px 0 40px;
+}
+
+.map-street {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  padding: 20px 0;
+}
+
+/* 街道中线 — 和纸白底色 + 浅橡木虚线 */
+.map-street::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  background: color-mix(in srgb, var(--color-paper) 60%, var(--color-card));
+  border-radius: 28px;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.map-street::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  border-left: 2px dashed color-mix(in srgb, var(--color-accent-light) 50%, transparent);
+  z-index: 0;
+  opacity: 0.7;
+}
+
+/* 店铺区块 — 左右交替 */
+.map-block {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+}
+
+.map-block--left {
+  justify-content: flex-start;
+  padding-right: calc(50% + 36px);
+}
+
+.map-block--right {
+  justify-content: flex-end;
+  padding-left: calc(50% + 36px);
+}
+
+/* 店铺图标 */
+.map-shop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 84px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.map-shop__icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-card);
+  border: 1px solid var(--color-paper);
+  box-shadow: var(--shadow-rest);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  padding: 4px;
+}
+
+.map-shop__icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.map-shop:active .map-shop__icon {
+  transform: scale(0.93);
+}
+
+@media (hover: hover) {
+  .map-shop:hover .map-shop__icon {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-accent-light);
+  }
+}
+
+.map-shop__name {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  letter-spacing: var(--letter-caption);
+  text-align: center;
+  line-height: 1.4;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 小连接点 — 街道与店铺之间 */
+.map-block--left .map-dot {
+  position: absolute;
+  right: calc(50% + 24px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-light);
+  opacity: 0.5;
+}
+
+.map-block--right .map-dot {
+  position: absolute;
+  left: calc(50% + 24px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent-light);
+  opacity: 0.5;
+}
+
+/* 预览面板 */
+.map-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-standard);
+}
+
+.map-preview[aria-hidden="false"] {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.map-preview__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(61, 61, 61, 0.25);
+  backdrop-filter: blur(2px);
+}
+
+.map-preview__card {
+  position: relative;
+  width: 100%;
+  max-width: var(--layout-max-width);
+  background: var(--color-card);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  border: 1px solid var(--color-paper);
+  border-bottom: none;
+  box-shadow: var(--shadow-lift);
+  padding: 28px var(--space-loose) calc(28px + var(--safe-bottom));
+  transform: translateY(100%);
+  transition: transform 0.35s var(--ease-standard);
+}
+
+.map-preview[aria-hidden="false"] .map-preview__card {
+  transform: translateY(0);
+}
+
+.map-preview__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-paper);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.map-preview__close:active {
+  transform: scale(0.92);
+  color: var(--color-primary);
+}
+
+.map-preview__img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--color-paper);
+  box-shadow: var(--shadow-rest);
+  margin: 0 auto 16px;
+  display: block;
+}
+
+.map-preview__body {
+  text-align: center;
+}
+
+.map-preview__name {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-title);
+  letter-spacing: var(--letter-title);
+  color: var(--color-primary);
+  line-height: var(--line-title);
+}
+
+.map-preview__tag {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-caption);
+  background: color-mix(in srgb, var(--color-matcha) 20%, var(--color-paper));
+  color: var(--color-primary);
+}
+
+.map-preview__desc {
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: var(--line-body);
+  letter-spacing: var(--letter-body);
+}
+
+/* 街道尽头装饰 — 鸟居/牌坊简意 */
+.map-street__end {
+  width: 64px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-accent-light);
+  opacity: 0.4;
+  margin: 8px auto;
+}

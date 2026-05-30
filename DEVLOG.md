@@ -49,6 +49,24 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-30 — 项目维护 / AI 协助（Tab 栏修复）
+
+- **模块/范围：** 全局
+- **摘要：** 修复底部 Tab 点击无效：`Yummi.module.define()` 不再覆盖 `modules.<id>` 上的 `screen/state/view`；导航移至 `body` 下并调整点击层级。
+- **路径：** `js/core/module.js`, `js/main.js`, `index.html`, `css/layout.css`, `css/nav.css`
+- **备注：** 根因非绝对路径，为模块注册时命名空间被整对象替换。
+
+---
+
+### 2026-05-30 — 项目维护 / AI 协助（ljh 整合）
+
+- **模块/范围：** social | 资源
+- **摘要：** 整合 `origin/ljh`：美食街区 `social-map.html`、店铺图标 `source/shop/`（16 家）、`js/social-map.js`；主应用「社交」Tab 跳转至该页。
+- **路径：** `social-map.html`, `js/social-map.js`, `css/social-map.css`, `source/shop/`, `js/main.js`, `js/modules/social/README.md`
+- **备注：** 保留 main 已有框架、装扮转盘、食物资源与 `DEVLOG`。
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（wmx 整合）
 
 - **模块/范围：** dress | 全局文档 | 资源
