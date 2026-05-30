@@ -1,8 +1,4 @@
-/* order module */
-
-:root {
-  --order-stage-height: 100dvh;
-}
+/* order module — wmx-temporary/转盘 页面样式 */
 
 .panel[data-panel="order"] {
   flex: 1;
@@ -37,240 +33,104 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
-}
-.order-stage-card,
-.order-note-card {
-  position: relative;
-  overflow: visible;
 }
 
-.order-stage-card {
+.turntable-root {
   position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  border-radius: 0;
-}
-
-.order-stage-card__head {
-  display: none;
-}
-
-.order-stage-card__kicker {
-  color: var(--color-accent-light);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.order-stage-card__title {
-  font-size: 1.35rem;
-}
-
-.order-stage-card__desc {
-  max-width: 28em;
-}
-
-.order-stage {
-  flex: 1;
-  width: 100%;
-  min-height: var(--order-stage-height);
-  height: var(--order-stage-height);
-  max-height: var(--order-stage-height);
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  border: none;
-  background: var(--color-bg);
+  padding: 6px 0 0;
   touch-action: none;
   user-select: none;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
 }
 
-.order-turntable {
+.turntable {
   display: block;
-  width: 100%;
-  height: 100%;
   flex: 1;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  overflow: visible;
 }
 
-.order-disc__hit,
-.order-disc__hit-side {
+.order-status {
+  flex-shrink: 0;
+  margin: 8px 12px 0;
+  min-height: 2.8em;
+  color: var(--color-text-muted);
+  font-size: 0.83rem;
+  line-height: 1.72;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.turntable-hit,
+.turntable-hit-side {
   cursor: grab;
 }
 
-.order-disc__hit:active,
-.order-disc__hit-side:active {
+.turntable-hit:active,
+.turntable-hit-side:active {
   cursor: grabbing;
 }
 
-.order-disc__side-colors,
-.order-disc__side-carousel,
-.order-disc__side-band,
-.order-disc__cap-texture {
+.turntable-face-image,
+.turntable-side-image,
+.turntable-side-band,
+.turntable-placard-stack,
+.turntable-slots,
+.turntable-slot,
+.turntable-placard-presence,
+.turntable-placard-rise,
+.turntable-slot-image,
+.turntable-slot-base {
   pointer-events: none;
 }
 
-/* wmx 投影：扇区在椭圆 scale 组内旋转；立牌在 viewBox 层绘制以保持原图比例 */
-.order-disc__cells {
-  pointer-events: none;
+.turntable-placard-presence {
+  transform-origin: 0 0;
+  transform-box: fill-box;
 }
 
-.order-disc__cell {
-  fill: rgba(255, 255, 255, 0.38);
-  stroke: rgba(92, 75, 58, 0.22);
-  stroke-width: 1;
-}
-
-.order-disc__slots {
-  pointer-events: none;
-}
-
-.order-disc__slot {
-  pointer-events: none;
-}
-
-/* 格心锚点：与 sectorSlots.centerAngle 绑定，随 data-disc-rotor 旋转 */
-.order-disc__slot-center {
-  pointer-events: none;
-}
-
-/* 格心小碟（贴在盘面椭圆上） */
-.order-disc__slot-base {
+.turntable-slot-base {
   fill: rgba(232, 223, 209, 0.96);
   stroke: rgba(92, 75, 58, 0.32);
   stroke-width: 1;
 }
 
-.order-placard-stack {
+/* 食物名称 pill 标签 — 对齐 components.css .tag 品类色 */
+.turntable-food-tag,
+.turntable-food-tag__bg,
+.turntable-food-tag__text {
   pointer-events: none;
 }
 
-.order-disc__slots--upright {
-  pointer-events: none;
+.turntable-food-tag__bg {
+  stroke-width: 1;
 }
 
-.order-disc__placard-presence {
-  pointer-events: none;
-  transform-origin: 0 0;
-  transform-box: fill-box;
+.turntable-food-tag__text {
+  fill: var(--color-primary);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-body);
+  letter-spacing: 0.04em;
 }
 
-.order-disc__placard-rise {
-  pointer-events: none;
+.turntable-food-tag--base .turntable-food-tag__bg {
+  fill: color-mix(in srgb, var(--color-bamboo) 28%, var(--color-paper));
+  stroke: rgba(196, 168, 130, 0.35);
 }
 
-.order-disc__slot-image {
-  pointer-events: none;
+.turntable-food-tag--mid .turntable-food-tag__bg {
+  fill: var(--color-sakura);
+  stroke: rgba(196, 168, 130, 0.28);
 }
 
-.order-status {
-  display: none;
-  flex-shrink: 0;
-  margin: 0;
-  padding: 6px 0 4px;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.order-status__text {
-  min-height: 0;
-  margin: 0;
-  font-size: 0.8rem;
-  line-height: 1.5;
-  text-align: center;
-}
-
-.order-indicators {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.order-indicator {
-  display: grid;
-  gap: 4px;
-  padding: 6px 6px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(196, 168, 130, 0.18);
-  transition:
-    transform var(--transition-fast),
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-.order-indicator.is-active {
-  transform: translateY(-2px);
-  border-color: var(--color-accent-light);
-  box-shadow: 0 10px 18px rgba(92, 75, 58, 0.08);
-}
-
-.order-indicator__swatch {
-  width: 100%;
-  height: 8px;
-  border-radius: 999px;
-}
-
-.order-indicator__swatch--base {
-  background: linear-gradient(90deg, var(--color-paper), var(--color-accent-light));
-}
-
-.order-indicator__swatch--mid {
-  background: linear-gradient(90deg, var(--color-sakura), var(--color-paper));
-}
-
-.order-indicator__swatch--top {
-  background: linear-gradient(90deg, var(--color-matcha), var(--color-bamboo));
-}
-
-.order-indicator__swatch--cap {
-  background: linear-gradient(90deg, #f0caa7, #d7a773);
-}
-
-.order-indicator__label {
-  color: var(--color-primary);
-  font-size: 0.92rem;
-}
-
-.order-indicator__meta {
-  color: var(--color-text-muted);
-  font-size: 0.78rem;
-  letter-spacing: var(--letter-caption);
-}
-
-.order-note-card {
-  display: none;
-  padding: 20px 18px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 240, 232, 0.92));
-}
-
-.order-note-card__row {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.order-note-card__title {
-  font-size: 1.02rem;
-}
-
-.order-note-list {
-  margin-top: 14px;
-  padding-left: 1.1rem;
-  display: grid;
-  gap: 10px;
-  color: var(--color-text-muted);
-  font-size: 0.9rem;
-  line-height: 1.7;
+.turntable-food-tag--top .turntable-food-tag__bg {
+  fill: color-mix(in srgb, var(--color-matcha) 30%, var(--color-paper));
+  stroke: rgba(196, 168, 130, 0.28);
 }
 
 .order-immersive {
@@ -313,20 +173,16 @@
   .order-immersive .order-module,
   .order-immersive .panel[data-panel="order"] .panel-body,
   .order-immersive .order-root,
-  .order-immersive .order-stage-card {
+  .order-immersive .turntable-root {
     position: relative;
     height: 100%;
     min-height: 0;
     flex: 1;
   }
 
-  .order-immersive .order-stage {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+  .order-immersive .turntable {
+    flex: 1;
     min-height: 0;
-    max-height: none;
   }
 }
 
@@ -341,10 +197,6 @@ body:has(.panel[data-panel="order"]:not([hidden])) .app-main {
 }
 
 @media (min-width: 431px) {
-  :root {
-    --order-stage-height: auto;
-  }
-
   .order-immersive {
     overflow: visible;
   }
@@ -385,55 +237,15 @@ body:has(.panel[data-panel="order"]:not([hidden])) .app-main {
     gap: var(--space-card);
   }
 
-  .panel[data-panel="order"] > .hero {
-    display: grid;
-  }
-
-  .order-note-card {
-    display: block;
-  }
-
-  .order-module .order-root {
-    gap: var(--space-card);
-  }
-
-  .order-turntable {
+  .turntable {
     height: auto;
     flex: none;
-  }
-
-  .order-stage {
-    flex: none;
-    min-height: auto;
-    height: auto;
-    max-height: none;
-    margin-top: 12px;
-    overflow: visible;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .order-stage-card {
-    flex: none;
+    max-height: min(72vh, 520px);
   }
 
   .order-status {
-    display: flex;
-    margin-top: 14px;
-  }
-
-  .order-status__text {
-    min-height: 2.8em;
     text-align: left;
-  }
-
-  .order-indicators {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .order-indicator {
-    padding: 10px 12px;
-    gap: 6px;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
