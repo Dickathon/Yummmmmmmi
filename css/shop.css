@@ -94,6 +94,417 @@
   filter: drop-shadow(0 2px 4px rgba(92, 75, 58, 0.2));
 }
 
+/* 小猫头上弹窗 */
+.shop-popup {
+  position: absolute;
+  z-index: 15;
+  min-width: 200px;
+  max-width: 240px;
+  background: rgba(245, 240, 232, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(92, 75, 58, 0.15);
+  padding: 14px 16px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+.shop-popup[aria-hidden="false"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 弹窗显示在小猫下方时，箭头翻转 */
+.shop-popup--below .shop-popup__arrow {
+  bottom: auto;
+  top: -6px;
+  transform: translateX(-50%) rotate(225deg);
+}
+
+/* 小箭头 */
+.shop-popup__arrow {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: rgba(245, 240, 232, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 2px 2px 4px rgba(92, 75, 58, 0.06);
+}
+
+/* 访客卡片 */
+.shop-visitor__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.shop-visitor__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-rest);
+}
+
+.shop-visitor__meta {
+  flex: 1;
+}
+
+.shop-visitor__name {
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-body);
+  line-height: var(--line-body);
+}
+
+.shop-visitor__visits {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-caption);
+  margin-top: 1px;
+}
+
+.shop-visitor__message {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  letter-spacing: var(--letter-body);
+  line-height: var(--line-body);
+}
+
+.shop-visitor__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.shop-visitor__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-body);
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shop-visitor__btn:active {
+  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.shop-visitor__btn--primary {
+  background: rgba(232, 126, 90, 0.9);
+  color: #fff;
+  border-color: rgba(232, 126, 90, 0.9);
+}
+
+.shop-visitor__btn--primary:active {
+  background: rgba(210, 105, 70, 0.95);
+}
+
+.shop-visitor__btn--pet {
+  background: rgba(240, 180, 160, 0.7);
+  color: var(--color-primary);
+  border-color: rgba(240, 180, 160, 0.8);
+}
+
+.shop-visitor__btn--pet:active {
+  background: rgba(240, 180, 160, 0.9);
+}
+
+.shop-visitor__btn--feed {
+  background: rgba(160, 200, 140, 0.6);
+  color: var(--color-primary);
+  border-color: rgba(160, 200, 140, 0.7);
+}
+
+.shop-visitor__btn--feed:active {
+  background: rgba(160, 200, 140, 0.85);
+}
+
+/* 投喂 "咔哧" 弹窗 */
+.shop-feed__crunch {
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.shop-feed__crunch-text {
+  font-size: 1.8rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: 0.08em;
+  animation: crunchPop 0.5s var(--ease-standard);
+}
+
+@keyframes crunchPop {
+  0% { transform: scale(0.6); opacity: 0; }
+  40% { transform: scale(1.1); }
+  60% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.shop-feed__sub {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 8px;
+  letter-spacing: var(--letter-caption);
+}
+
+.shop-feed__back {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.shop-feed__back:active {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* 抚摸 "喵" 弹窗 */
+.shop-pet__meow {
+  text-align: center;
+  padding: 16px 8px;
+}
+
+.shop-pet__meow-text {
+  font-size: 2rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: 0.1em;
+  animation: meowPop 0.4s var(--ease-standard);
+}
+
+@keyframes meowPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.shop-pet__sub {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 8px;
+  letter-spacing: var(--letter-caption);
+}
+
+.shop-pet__back {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.shop-pet__back:active {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* 私信留言 */
+.shop-message__title {
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-title);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.shop-message__input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-family: inherit;
+  letter-spacing: var(--letter-body);
+  line-height: var(--line-body);
+  resize: none;
+  outline: none;
+  margin-bottom: 10px;
+  -webkit-appearance: none;
+}
+
+.shop-message__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.shop-message__input:focus {
+  border-color: rgba(232, 126, 90, 0.6);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.shop-message__send {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(232, 126, 90, 0.9);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-body);
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  margin-bottom: 8px;
+}
+
+.shop-message__send:active {
+  transform: scale(0.96);
+  background: rgba(210, 105, 70, 0.95);
+}
+
+.shop-message__back {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.shop-message__back:active {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.shop-message__sent {
+  text-align: center;
+  padding: 14px 4px;
+}
+
+.shop-message__sent-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.shop-message__sent-text {
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-body);
+}
+
+.shop-message__sent-sub {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 6px;
+  letter-spacing: var(--letter-caption);
+  word-break: break-all;
+}
+
+/* 偏好详情 */
+.shop-preference__title {
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-title);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.shop-preference__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.shop-preference__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.shop-preference__label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-caption);
+}
+
+.shop-preference__value {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-body);
+  letter-spacing: var(--letter-body);
+  margin-top: 1px;
+}
+
+.shop-preference__close {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  letter-spacing: var(--letter-caption);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.shop-preference__close:active {
+  background: rgba(255, 255, 255, 0.8);
+}
+
 /* 错误状态 */
 .shop-error {
   position: absolute;
