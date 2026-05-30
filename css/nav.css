@@ -97,6 +97,8 @@
   width: 28px;
   height: 28px;
   object-fit: contain;
+  display: block;
+  flex-shrink: 0;
 }
 
 .tab-bar__icon-wrap--fallback {
