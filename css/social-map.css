@@ -1,5 +1,99 @@
 /* 美食街区地图 — 日式极简 · 侘寂 · 和风现代 */
 
+/* 首次进入引导 */
+.map-guide {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: none;
+}
+
+.map-guide[aria-hidden="false"] {
+  pointer-events: auto;
+}
+
+.map-guide__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+
+.map-guide[aria-hidden="false"] .map-guide__overlay {
+  opacity: 1;
+}
+
+.map-guide__card {
+  position: relative;
+  z-index: 1;
+  max-width: 340px;
+  width: 100%;
+  padding: 32px 24px 28px;
+  background: var(--color-card);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lift);
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.92) translateY(12px);
+  transition: opacity 0.4s 0.1s, transform 0.4s 0.1s var(--ease-standard);
+}
+
+.map-guide[aria-hidden="false"] .map-guide__card {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.map-guide__icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.map-guide__title {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-title);
+  color: var(--color-primary);
+  letter-spacing: var(--letter-title);
+  margin-bottom: 16px;
+}
+
+.map-guide__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.map-guide__body p {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  letter-spacing: var(--letter-caption);
+}
+
+.map-guide__btn {
+  width: 100%;
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: var(--font-weight-body);
+  letter-spacing: var(--letter-caption);
+  color: var(--color-bg);
+  background: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(92, 75, 58, 0.15);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.map-guide__btn:active {
+  transform: scale(0.97);
+}
+
 .map-body {
   background-color: var(--color-bg);
   min-height: 100dvh;

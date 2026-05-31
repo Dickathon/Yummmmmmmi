@@ -234,9 +234,39 @@
     });
   }
 
+  function setupGuide() {
+    var guide = document.getElementById("mapGuide");
+    var overlay = document.getElementById("mapGuideOverlay");
+    var btn = document.getElementById("mapGuideBtn");
+    if (!guide) return;
+
+    // 双重保险：localStorage 持久标记 + sessionStorage 会话标记
+    var seen = false;
+    try {
+      seen = localStorage.getItem("yummi_guide_seen") === "1" ||
+             sessionStorage.getItem("yummi_guide_seen") === "1";
+    } catch (e) {}
+
+    if (seen) return;
+
+    guide.setAttribute("aria-hidden", "false");
+
+    function dismiss() {
+      guide.setAttribute("aria-hidden", "true");
+      try {
+        localStorage.setItem("yummi_guide_seen", "1");
+        sessionStorage.setItem("yummi_guide_seen", "1");
+      } catch (e) {}
+    }
+
+    if (btn) btn.addEventListener("click", dismiss);
+    if (overlay) overlay.addEventListener("click", dismiss);
+  }
+
   function init() {
     renderStreet();
     setupPreview();
+    setupGuide();
   }
 
   if (document.readyState === "loading") {

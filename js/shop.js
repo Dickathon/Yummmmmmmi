@@ -285,91 +285,91 @@
   var VISITOR_DATA = [
     // 0 星巴克
     [
-      { name: "小橘", avatar: "🐱", visits: 12, message: "这里的拿铁是我的最爱，每次来都要坐窗边发呆。", preference: { sweet: 55, salty: 20, sour: 15, spicy: 5, bitter: 35, umami: 30, oily: 25, fresh: 40 } },
-      { name: "阿白", avatar: "🐈", visits: 5, message: "带朋友来过两次，环境很安静适合聊天。", preference: { sweet: 40, salty: 25, sour: 20, spicy: 10, bitter: 45, umami: 35, oily: 20, fresh: 50 } },
+      { name: "小橘", avatar: "🐱", visits: 12, feedCount: 8, message: "这里的拿铁是我的最爱，每次来都要坐窗边发呆。", preference: { sweet: 55, salty: 20, sour: 15, spicy: 5, bitter: 35, umami: 30, oily: 25, fresh: 40 } },
+      { name: "阿白", avatar: "🐈", visits: 5, feedCount: 2, message: "带朋友来过两次，环境很安静适合聊天。", preference: { sweet: 40, salty: 25, sour: 20, spicy: 10, bitter: 45, umami: 35, oily: 20, fresh: 50 } },
     ],
     // 1 麦当劳
     [
-      { name: "胖橘", avatar: "🐱", visits: 28, message: "麦辣鸡腿堡永远的神！已经吃了一个月了。", preference: { sweet: 35, salty: 70, sour: 15, spicy: 55, bitter: 10, umami: 60, oily: 65, fresh: 25 } },
-      { name: "三花", avatar: "🐈", visits: 7, message: "甜筒第二件半价的时候必来。", preference: { sweet: 75, salty: 15, sour: 10, spicy: 5, bitter: 5, umami: 20, oily: 30, fresh: 35 } },
-      { name: "黑猫", avatar: "🐈‍⬛", visits: 3, message: "早餐的卡布奇诺套餐性价比很高。", preference: { sweet: 25, salty: 40, sour: 10, spicy: 5, bitter: 50, umami: 30, oily: 20, fresh: 35 } },
+      { name: "胖橘", avatar: "🐱", visits: 28, feedCount: 15, message: "麦辣鸡腿堡永远的神！已经吃了一个月了。", preference: { sweet: 35, salty: 70, sour: 15, spicy: 55, bitter: 10, umami: 60, oily: 65, fresh: 25 } },
+      { name: "三花", avatar: "🐈", visits: 7, feedCount: 4, message: "甜筒第二件半价的时候必来。", preference: { sweet: 75, salty: 15, sour: 10, spicy: 5, bitter: 5, umami: 20, oily: 30, fresh: 35 } },
+      { name: "黑猫", avatar: "🐈‍⬛", visits: 3, feedCount: 1, message: "早餐的卡布奇诺套餐性价比很高。", preference: { sweet: 25, salty: 40, sour: 10, spicy: 5, bitter: 50, umami: 30, oily: 20, fresh: 35 } },
     ],
     // 2 喜茶
     [
-      { name: "奶茶猫", avatar: "🐱", visits: 15, message: "芋泥波波牛乳YYDS，每次都要加双倍芋泥！", preference: { sweet: 80, salty: 15, sour: 10, spicy: 0, bitter: 5, umami: 25, oily: 20, fresh: 45 } },
-      { name: "奶盖", avatar: "🐈", visits: 9, message: "芝士奶盖系列没有踩雷过，推荐！", preference: { sweet: 65, salty: 25, sour: 15, spicy: 5, bitter: 10, umami: 40, oily: 35, fresh: 50 } },
+      { name: "奶茶猫", avatar: "🐱", visits: 15, feedCount: 10, message: "芋泥波波牛乳YYDS，每次都要加双倍芋泥！", preference: { sweet: 80, salty: 15, sour: 10, spicy: 0, bitter: 5, umami: 25, oily: 20, fresh: 45 } },
+      { name: "奶盖", avatar: "🐈", visits: 9, feedCount: 5, message: "芝士奶盖系列没有踩雷过，推荐！", preference: { sweet: 65, salty: 25, sour: 15, spicy: 5, bitter: 10, umami: 40, oily: 35, fresh: 50 } },
     ],
     // 3 肯德基
     [
-      { name: "炸鸡控", avatar: "🐱", visits: 20, message: "原味鸡要三角部位的，懂得都懂。", preference: { sweet: 20, salty: 65, sour: 15, spicy: 45, bitter: 10, umami: 70, oily: 60, fresh: 20 } },
-      { name: "蛋挞猫", avatar: "🐈", visits: 8, message: "葡式蛋挞刚出炉的时候最好吃，外酥里嫩。", preference: { sweet: 70, salty: 25, sour: 10, spicy: 5, bitter: 8, umami: 35, oily: 40, fresh: 30 } },
-      { name: "汉堡", avatar: "🐈‍⬛", visits: 4, message: "嫩牛五方回归的时候激动坏了。", preference: { sweet: 30, salty: 60, sour: 20, spicy: 40, bitter: 10, umami: 65, oily: 55, fresh: 25 } },
+      { name: "炸鸡控", avatar: "🐱", visits: 20, feedCount: 12, message: "原味鸡要三角部位的，懂得都懂。", preference: { sweet: 20, salty: 65, sour: 15, spicy: 45, bitter: 10, umami: 70, oily: 60, fresh: 20 } },
+      { name: "蛋挞猫", avatar: "🐈", visits: 8, feedCount: 3, message: "葡式蛋挞刚出炉的时候最好吃，外酥里嫩。", preference: { sweet: 70, salty: 25, sour: 10, spicy: 5, bitter: 8, umami: 35, oily: 40, fresh: 30 } },
+      { name: "汉堡", avatar: "🐈‍⬛", visits: 4, feedCount: 1, message: "嫩牛五方回归的时候激动坏了。", preference: { sweet: 30, salty: 60, sour: 20, spicy: 40, bitter: 10, umami: 65, oily: 55, fresh: 25 } },
     ],
     // 4 海底捞
     [
-      { name: "火锅猫", avatar: "🐱", visits: 10, message: "一个人来吃火锅也很开心，服务员超贴心。", preference: { sweet: 25, salty: 55, sour: 20, spicy: 80, bitter: 15, umami: 75, oily: 60, fresh: 35 } },
-      { name: "番茄", avatar: "🐈", visits: 6, message: "番茄锅汤底可以喝三碗，每次必点。", preference: { sweet: 40, salty: 45, sour: 55, spicy: 20, bitter: 10, umami: 70, oily: 30, fresh: 60 } },
+      { name: "火锅猫", avatar: "🐱", visits: 10, feedCount: 6, message: "一个人来吃火锅也很开心，服务员超贴心。", preference: { sweet: 25, salty: 55, sour: 20, spicy: 80, bitter: 15, umami: 75, oily: 60, fresh: 35 } },
+      { name: "番茄", avatar: "🐈", visits: 6, feedCount: 3, message: "番茄锅汤底可以喝三碗，每次必点。", preference: { sweet: 40, salty: 45, sour: 55, spicy: 20, bitter: 10, umami: 70, oily: 30, fresh: 60 } },
     ],
     // 5 蜜雪冰城
     [
-      { name: "雪王", avatar: "🐱", visits: 30, message: "四块钱的柠檬水还要什么自行车！", preference: { sweet: 60, salty: 10, sour: 45, spicy: 0, bitter: 5, umami: 15, oily: 10, fresh: 70 } },
-      { name: "甜筒猫", avatar: "🐈", visits: 15, message: "两块钱的甜筒比KFC的还好吃。", preference: { sweet: 80, salty: 15, sour: 5, spicy: 0, bitter: 5, umami: 20, oily: 25, fresh: 30 } },
-      { name: "蜜桃", avatar: "🐈‍⬛", visits: 8, message: "蜜桃四季春是隐藏宝藏。", preference: { sweet: 70, salty: 10, sour: 30, spicy: 0, bitter: 5, umami: 25, oily: 10, fresh: 65 } },
+      { name: "雪王", avatar: "🐱", visits: 30, feedCount: 18, message: "四块钱的柠檬水还要什么自行车！", preference: { sweet: 60, salty: 10, sour: 45, spicy: 0, bitter: 5, umami: 15, oily: 10, fresh: 70 } },
+      { name: "甜筒猫", avatar: "🐈", visits: 15, feedCount: 9, message: "两块钱的甜筒比KFC的还好吃。", preference: { sweet: 80, salty: 15, sour: 5, spicy: 0, bitter: 5, umami: 20, oily: 25, fresh: 30 } },
+      { name: "蜜桃", avatar: "🐈‍⬛", visits: 8, feedCount: 4, message: "蜜桃四季春是隐藏宝藏。", preference: { sweet: 70, salty: 10, sour: 30, spicy: 0, bitter: 5, umami: 25, oily: 10, fresh: 65 } },
     ],
     // 6 瑞幸咖啡
     [
-      { name: "生椰", avatar: "🐱", visits: 18, message: "生椰拿铁拯救了我的早八，每天一杯。", preference: { sweet: 45, salty: 20, sour: 10, spicy: 0, bitter: 55, umami: 30, oily: 25, fresh: 40 } },
-      { name: "美式", avatar: "🐈", visits: 11, message: "美式提神效果一流，工作必备。", preference: { sweet: 10, salty: 25, sour: 15, spicy: 0, bitter: 75, umami: 20, oily: 15, fresh: 45 } },
+      { name: "生椰", avatar: "🐱", visits: 18, feedCount: 11, message: "生椰拿铁拯救了我的早八，每天一杯。", preference: { sweet: 45, salty: 20, sour: 10, spicy: 0, bitter: 55, umami: 30, oily: 25, fresh: 40 } },
+      { name: "美式", avatar: "🐈", visits: 11, feedCount: 5, message: "美式提神效果一流，工作必备。", preference: { sweet: 10, salty: 25, sour: 15, spicy: 0, bitter: 75, umami: 20, oily: 15, fresh: 45 } },
     ],
     // 7 汉堡王
     [
-      { name: "火烤", avatar: "🐱", visits: 14, message: "皇堡的肉饼是真的厚实，火烤味很香。", preference: { sweet: 25, salty: 60, sour: 15, spicy: 35, bitter: 15, umami: 70, oily: 55, fresh: 20 } },
-      { name: "薯条", avatar: "🐈", visits: 6, message: "粗薯条比细的好吃多了，外脆里糯。", preference: { sweet: 20, salty: 55, sour: 10, spicy: 15, bitter: 10, umami: 50, oily: 60, fresh: 25 } },
-      { name: "鸡条", avatar: "🐈‍⬛", visits: 3, message: "王道椒香鸡腿偶尔换换口味不错。", preference: { sweet: 30, salty: 55, sour: 15, spicy: 40, bitter: 10, umami: 60, oily: 50, fresh: 20 } },
+      { name: "火烤", avatar: "🐱", visits: 14, feedCount: 8, message: "皇堡的肉饼是真的厚实，火烤味很香。", preference: { sweet: 25, salty: 60, sour: 15, spicy: 35, bitter: 15, umami: 70, oily: 55, fresh: 20 } },
+      { name: "薯条", avatar: "🐈", visits: 6, feedCount: 2, message: "粗薯条比细的好吃多了，外脆里糯。", preference: { sweet: 20, salty: 55, sour: 10, spicy: 15, bitter: 10, umami: 50, oily: 60, fresh: 25 } },
+      { name: "鸡条", avatar: "🐈‍⬛", visits: 3, feedCount: 1, message: "王道椒香鸡腿偶尔换换口味不错。", preference: { sweet: 30, salty: 55, sour: 15, spicy: 40, bitter: 10, umami: 60, oily: 50, fresh: 20 } },
     ],
     // 8 茶百道
     [
-      { name: "豆乳", avatar: "🐱", visits: 13, message: "豆乳玉麒麟上面的黄豆粉绝了，必喝。", preference: { sweet: 65, salty: 20, sour: 10, spicy: 0, bitter: 10, umami: 40, oily: 25, fresh: 55 } },
-      { name: "杨枝", avatar: "🐈", visits: 7, message: "杨枝甘露料超足，每次都要多加西米。", preference: { sweet: 70, salty: 15, sour: 35, spicy: 0, bitter: 5, umami: 45, oily: 20, fresh: 60 } },
+      { name: "豆乳", avatar: "🐱", visits: 13, feedCount: 7, message: "豆乳玉麒麟上面的黄豆粉绝了，必喝。", preference: { sweet: 65, salty: 20, sour: 10, spicy: 0, bitter: 10, umami: 40, oily: 25, fresh: 55 } },
+      { name: "杨枝", avatar: "🐈", visits: 7, feedCount: 4, message: "杨枝甘露料超足，每次都要多加西米。", preference: { sweet: 70, salty: 15, sour: 35, spicy: 0, bitter: 5, umami: 45, oily: 20, fresh: 60 } },
     ],
     // 9 必胜客
     [
-      { name: "芝士", avatar: "🐱", visits: 9, message: "超级至尊披萨的芝士能拉好长的丝！", preference: { sweet: 30, salty: 55, sour: 15, spicy: 10, bitter: 10, umami: 75, oily: 50, fresh: 20 } },
-      { name: "意面", avatar: "🐈", visits: 5, message: "肉酱意面分量很足，一个人吃刚好。", preference: { sweet: 25, salty: 60, sour: 30, spicy: 15, bitter: 10, umami: 70, oily: 45, fresh: 25 } },
-      { name: "小吃", avatar: "🐈‍⬛", visits: 2, message: "凤尾虾和烤翅拼盘是聚餐必点。", preference: { sweet: 25, salty: 50, sour: 15, spicy: 25, bitter: 10, umami: 60, oily: 55, fresh: 20 } },
+      { name: "芝士", avatar: "🐱", visits: 9, feedCount: 5, message: "超级至尊披萨的芝士能拉好长的丝！", preference: { sweet: 30, salty: 55, sour: 15, spicy: 10, bitter: 10, umami: 75, oily: 50, fresh: 20 } },
+      { name: "意面", avatar: "🐈", visits: 5, feedCount: 2, message: "肉酱意面分量很足，一个人吃刚好。", preference: { sweet: 25, salty: 60, sour: 30, spicy: 15, bitter: 10, umami: 70, oily: 45, fresh: 25 } },
+      { name: "小吃", avatar: "🐈‍⬛", visits: 2, feedCount: 0, message: "凤尾虾和烤翅拼盘是聚餐必点。", preference: { sweet: 25, salty: 50, sour: 15, spicy: 25, bitter: 10, umami: 60, oily: 55, fresh: 20 } },
     ],
     // 10 奈雪的茶
     [
-      { name: "欧包", avatar: "🐱", visits: 16, message: "霸气芝士草莓+榴莲欧包，完美下午茶。", preference: { sweet: 75, salty: 15, sour: 20, spicy: 0, bitter: 5, umami: 30, oily: 25, fresh: 50 } },
-      { name: "葡萄", avatar: "🐈", visits: 8, message: "多肉葡萄的果肉好多，每口都能嚼到。", preference: { sweet: 65, salty: 10, sour: 25, spicy: 0, bitter: 5, umami: 35, oily: 15, fresh: 60 } },
+      { name: "欧包", avatar: "🐱", visits: 16, feedCount: 9, message: "霸气芝士草莓+榴莲欧包，完美下午茶。", preference: { sweet: 75, salty: 15, sour: 20, spicy: 0, bitter: 5, umami: 30, oily: 25, fresh: 50 } },
+      { name: "葡萄", avatar: "🐈", visits: 8, feedCount: 4, message: "多肉葡萄的果肉好多，每口都能嚼到。", preference: { sweet: 65, salty: 10, sour: 25, spicy: 0, bitter: 5, umami: 35, oily: 15, fresh: 60 } },
     ],
     // 11 赛百味
     [
-      { name: "三明治", avatar: "🐱", visits: 11, message: "全麦面包+火鸡胸+蜂蜜芥末酱，减脂神器。", preference: { sweet: 30, salty: 50, sour: 20, spicy: 15, bitter: 10, umami: 55, oily: 30, fresh: 50 } },
-      { name: "曲奇", avatar: "🐈", visits: 4, message: "白巧克力曲奇加热后超好吃。", preference: { sweet: 80, salty: 20, sour: 5, spicy: 0, bitter: 5, umami: 20, oily: 35, fresh: 20 } },
-      { name: "金枪鱼", avatar: "🐈‍⬛", visits: 6, message: "金枪鱼三明治馅料很多，不会饿。", preference: { sweet: 20, salty: 55, sour: 15, spicy: 10, bitter: 10, umami: 65, oily: 35, fresh: 40 } },
+      { name: "三明治", avatar: "🐱", visits: 11, feedCount: 6, message: "全麦面包+火鸡胸+蜂蜜芥末酱，减脂神器。", preference: { sweet: 30, salty: 50, sour: 20, spicy: 15, bitter: 10, umami: 55, oily: 30, fresh: 50 } },
+      { name: "曲奇", avatar: "🐈", visits: 4, feedCount: 1, message: "白巧克力曲奇加热后超好吃。", preference: { sweet: 80, salty: 20, sour: 5, spicy: 0, bitter: 5, umami: 20, oily: 35, fresh: 20 } },
+      { name: "金枪鱼", avatar: "🐈‍⬛", visits: 6, feedCount: 3, message: "金枪鱼三明治馅料很多，不会饿。", preference: { sweet: 20, salty: 55, sour: 15, spicy: 10, bitter: 10, umami: 65, oily: 35, fresh: 40 } },
     ],
     // 12 一点点
     [
-      { name: "波霸", avatar: "🐱", visits: 22, message: "波霸奶茶三分糖去冰，喝了三年没变过。", preference: { sweet: 70, salty: 15, sour: 10, spicy: 0, bitter: 5, umami: 25, oily: 20, fresh: 45 } },
-      { name: "四季", avatar: "🐈", visits: 10, message: "四季春茶加奶霜，清爽不腻。", preference: { sweet: 50, salty: 15, sour: 15, spicy: 0, bitter: 20, umami: 25, oily: 20, fresh: 65 } },
+      { name: "波霸", avatar: "🐱", visits: 22, feedCount: 14, message: "波霸奶茶三分糖去冰，喝了三年没变过。", preference: { sweet: 70, salty: 15, sour: 10, spicy: 0, bitter: 5, umami: 25, oily: 20, fresh: 45 } },
+      { name: "四季", avatar: "🐈", visits: 10, feedCount: 5, message: "四季春茶加奶霜，清爽不腻。", preference: { sweet: 50, salty: 15, sour: 15, spicy: 0, bitter: 20, umami: 25, oily: 20, fresh: 65 } },
     ],
     // 13 沪上阿姨
     [
-      { name: "血糯米", avatar: "🐱", visits: 17, message: "血糯米奶茶饱腹感很强，可以当早餐。", preference: { sweet: 65, salty: 20, sour: 10, spicy: 0, bitter: 10, umami: 40, oily: 25, fresh: 35 } },
-      { name: "杨枝", avatar: "🐈", visits: 9, message: "杨枝甘露清爽版更适合夏天。", preference: { sweet: 60, salty: 15, sour: 30, spicy: 0, bitter: 5, umami: 40, oily: 15, fresh: 65 } },
-      { name: "芋泥", avatar: "🐈‍⬛", visits: 5, message: "芋泥波波奶茶芋泥给好多，满足。", preference: { sweet: 75, salty: 15, sour: 10, spicy: 0, bitter: 5, umami: 30, oily: 20, fresh: 40 } },
+      { name: "血糯米", avatar: "🐱", visits: 17, feedCount: 10, message: "血糯米奶茶饱腹感很强，可以当早餐。", preference: { sweet: 65, salty: 20, sour: 10, spicy: 0, bitter: 10, umami: 40, oily: 25, fresh: 35 } },
+      { name: "杨枝", avatar: "🐈", visits: 9, feedCount: 5, message: "杨枝甘露清爽版更适合夏天。", preference: { sweet: 60, salty: 15, sour: 30, spicy: 0, bitter: 5, umami: 40, oily: 15, fresh: 65 } },
+      { name: "芋泥", avatar: "🐈‍⬛", visits: 5, feedCount: 2, message: "芋泥波波奶茶芋泥给好多，满足。", preference: { sweet: 75, salty: 15, sour: 10, spicy: 0, bitter: 5, umami: 30, oily: 20, fresh: 40 } },
     ],
     // 14 古茗
     [
-      { name: "布蕾", avatar: "🐱", visits: 14, message: "布雷脆脆奶芙上面的碧根果碎好香！", preference: { sweet: 70, salty: 20, sour: 10, spicy: 0, bitter: 8, umami: 35, oily: 30, fresh: 45 } },
-      { name: "大叔", avatar: "🐈", visits: 8, message: "大叔奶茶珍珠煮得刚刚好，有嚼劲。", preference: { sweet: 65, salty: 20, sour: 10, spicy: 0, bitter: 10, umami: 30, oily: 20, fresh: 40 } },
+      { name: "布蕾", avatar: "🐱", visits: 14, feedCount: 8, message: "布雷脆脆奶芙上面的碧根果碎好香！", preference: { sweet: 70, salty: 20, sour: 10, spicy: 0, bitter: 8, umami: 35, oily: 30, fresh: 45 } },
+      { name: "大叔", avatar: "🐈", visits: 8, feedCount: 4, message: "大叔奶茶珍珠煮得刚刚好，有嚼劲。", preference: { sweet: 65, salty: 20, sour: 10, spicy: 0, bitter: 10, umami: 30, oily: 20, fresh: 40 } },
     ],
     // 15 老乡鸡
     [
-      { name: "肥西", avatar: "🐱", visits: 19, message: "肥西老母鸡汤真的是家的味道，暖胃。", preference: { sweet: 20, salty: 55, sour: 10, spicy: 15, bitter: 15, umami: 75, oily: 35, fresh: 40 } },
-      { name: "梅菜", avatar: "🐈", visits: 7, message: "梅菜扣肉饭肥而不腻，配汤完美。", preference: { sweet: 30, salty: 60, sour: 15, spicy: 20, bitter: 10, umami: 70, oily: 50, fresh: 25 } },
-      { name: "蒸蛋", avatar: "🐈‍⬛", visits: 4, message: "农家蒸蛋超级嫩滑，给小孩必点。", preference: { sweet: 25, salty: 50, sour: 10, spicy: 5, bitter: 10, umami: 65, oily: 30, fresh: 45 } },
+      { name: "肥西", avatar: "🐱", visits: 19, feedCount: 11, message: "肥西老母鸡汤真的是家的味道，暖胃。", preference: { sweet: 20, salty: 55, sour: 10, spicy: 15, bitter: 15, umami: 75, oily: 35, fresh: 40 } },
+      { name: "梅菜", avatar: "🐈", visits: 7, feedCount: 4, message: "梅菜扣肉饭肥而不腻，配汤完美。", preference: { sweet: 30, salty: 60, sour: 15, spicy: 20, bitter: 10, umami: 70, oily: 50, fresh: 25 } },
+      { name: "蒸蛋", avatar: "🐈‍⬛", visits: 4, feedCount: 1, message: "农家蒸蛋超级嫩滑，给小孩必点。", preference: { sweet: 25, salty: 50, sour: 10, spicy: 5, bitter: 10, umami: 65, oily: 30, fresh: 45 } },
     ],
   ];
 
@@ -430,7 +430,7 @@
         '<div class="shop-visitor__avatar">' + escapeHtml(visitor.avatar) + '</div>' +
         '<div class="shop-visitor__meta">' +
           '<div class="shop-visitor__name">' + escapeHtml(visitor.name) + '</div>' +
-          '<div class="shop-visitor__visits">最近来过 ' + visitor.visits + ' 次</div>' +
+          '<div class="shop-visitor__visits">被投喂 ' + (visitor.feedCount || 0) + ' 次 · 来过 ' + visitor.visits + ' 次</div>' +
         '</div>' +
       '</div>' +
       '<div class="shop-visitor__message">' + escapeHtml(visitor.message) + '</div>' +
@@ -551,6 +551,7 @@
           renderFeedNoCoin(visitor);
           return;
         }
+        visitor.feedCount = (visitor.feedCount || 0) + 1;
         refreshFishCoinDisplay();
         renderFeedResult(visitor, foodName);
       });
