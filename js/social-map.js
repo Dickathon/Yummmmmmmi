@@ -159,6 +159,7 @@
     var desc = document.getElementById("mapPreviewDesc");
     var enterBtn = document.getElementById("mapPreviewEnter");
     var circleBtn = document.getElementById("mapCircleBtn");
+    var friendsBtn = document.getElementById("mapFriendsBtn");
     var street = document.getElementById("mapStreet");
 
     if (!preview || !street) return;
@@ -215,6 +216,13 @@
     if (circleBtn) {
       circleBtn.addEventListener("click", function () {
         window.location.href = "food-circle.html";
+      });
+    }
+
+    // 好友按钮 — 跳转好友页面
+    if (friendsBtn) {
+      friendsBtn.addEventListener("click", function () {
+        window.location.href = "friends.html";
       });
     }
 
