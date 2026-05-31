@@ -19,8 +19,8 @@
     maxBlurPx: 4,
     solidStartDeg: 90,
     solidEndDeg: 100,
-    fadeStartDeg: 230,
-    fadeEndDeg: 240,
+    fadeStartDeg: 232,
+    fadeEndDeg: 270,
     swapDeg: 275,
     swapRearmDeg: 90,
     tapMinT: 0.35

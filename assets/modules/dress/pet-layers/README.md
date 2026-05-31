@@ -1,9 +1,9 @@
-# pictures 目录结构
+# pet-layers 目录结构
 
 成品按**身体组件**分子文件夹存放；临时留档与标准底图保持独立。
 
 ```
-pictures/
+pet-layers/
 ├── 标准底图/          # body/head/legs/tail_1254.png 校验用
 ├── 躯干/              # {食品名}-躯干.png
 ├── 头部/              # {食品名}-头部.png
@@ -17,16 +17,6 @@ pictures/
 └── _tmp_blanket_builtin/
 ```
 
-**整理脚本**：若成品 PNG 落在 `pictures/` 根目录或错误子文件夹，运行：
+**整理脚本**：`wmx-temporary/tools/organize_pictures.mjs` 仍保留旧目录逻辑；若要批量整理 `pet-layers/`，请先把脚本里的 `PICTURES_DIR` 改成本目录再运行。
 
-```bash
-node wmx-temporary/tools/organize_pictures.mjs
-```
-
-命名规范见 [`latest-pictures/标准底图/组件合并规范.md`](../latest-pictures/标准底图/组件合并规范.md)。
-
-将根目录散落的成品移入对应子文件夹：
-
-```text
-node wmx-temporary/tools/organize_pictures.mjs
-```
+命名规范见 [`pet-base/标准底图/组件合并规范.md`](../pet-base/标准底图/组件合并规范.md)。

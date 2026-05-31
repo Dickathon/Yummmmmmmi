@@ -51,7 +51,7 @@
         scale: 1,
         heightScale: 1,
         angle: 24,
-        autoSpeed: -12,
+        autoSpeed: 8,
         hitInnerRadius: 78,
         sectorInnerRadius: 28,
         dragging: false,
@@ -78,7 +78,7 @@
         scale: 1,
         heightScale: 1,
         angle: 48,
-        autoSpeed: -16,
+        autoSpeed: 8,
         hitInnerRadius: 0,
         sectorInnerRadius: 20,
         dragging: false,
@@ -105,7 +105,7 @@
         scale: 1,
         heightScale: 1,
         angle: 0,
-        autoSpeed: -18,
+        autoSpeed: 8,
         hitInnerRadius: 0,
         sectorInnerRadius: 0,
         dragging: false,
@@ -113,7 +113,7 @@
         lastPointerAngle: null,
         lastMoveTime: null,
         angularVelocity: 0,
-        inertiaBoost: 0.92,
+        inertiaBoost: 1,
         topColor: "#f0caa7",
         capColor: "#fff1df",
         sideGradientId: "turntable-cap-side",
@@ -143,7 +143,11 @@
         global: cloneTurntableGlobal(),
         discs: createDiscs(),
         activeDiscId: null,
-        lastTick: 0
+        lastTick: 0,
+        confirmed: false,
+        report: null,
+        petSnapshot: null,
+        confirmedNames: []
       };
     },
     reset: function (state) {
@@ -152,6 +156,10 @@
       state.discs = createDiscs();
       state.activeDiscId = null;
       state.lastTick = 0;
+      state.confirmed = false;
+      state.report = null;
+      state.petSnapshot = null;
+      state.confirmedNames = [];
     }
   };
 })(typeof window !== "undefined" ? window : this);

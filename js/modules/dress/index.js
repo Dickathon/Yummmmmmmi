@@ -1,7 +1,14 @@
 (function (global) {
   "use strict";
 
-  var cfg = global.Yummi.modules.dress.config;
+  var mod = global.Yummi.modules.dress;
+  var cfg = mod.config;
+
+  function initPanel() {
+    if (mod.view && typeof mod.view.initPanel === "function") {
+      mod.view.initPanel();
+    }
+  }
 
   global.Yummi.module.define({
     id: cfg.id,
@@ -10,4 +17,10 @@
       return global.Yummi.modules.dress.screen.create(ctx);
     }
   });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPanel);
+  } else {
+    initPanel();
+  }
 })(typeof window !== "undefined" ? window : this);

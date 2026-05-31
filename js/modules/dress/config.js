@@ -7,11 +7,15 @@
   root.config = {
     id: "dress",
     assetsBase: "assets/modules/dress/",
+    petLayersBase: "assets/modules/dress/pet-layers/",
+    petBaseBase: "assets/modules/dress/pet-base/标准底图/",
+    drinkBase: "source/compressed/10kb/food3/",
     meta: {
       label: "装扮",
       title: "装扮",
-      desc: "宠物装扮玩法开发中",
-      heroClass: "hero--dress"
+      desc: "yummy的哈基米",
+      heroClass: "hero--dress",
+      heroHidden: true
     }
   };
 })(typeof window !== "undefined" ? window : this);

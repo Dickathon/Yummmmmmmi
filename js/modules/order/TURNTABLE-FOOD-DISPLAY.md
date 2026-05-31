@@ -183,8 +183,8 @@ function getSlotPositionInViewBox(disc, localX, localY, geometry) {
 
 ```javascript
 var PLACARD_PRESENCE = {
-  solidStartDeg: 70, solidEndDeg: 80,
-  fadeStartDeg: 250, fadeEndDeg: 260,
+  solidStartDeg: 90, solidEndDeg: 100,
+  fadeStartDeg: 232, fadeEndDeg: 270,
   swapDeg: 275, swapRearmDeg: 90
 };
 
@@ -197,7 +197,7 @@ function getSlotOrbitDeg(disc, centerAngle) {
 |--------|------|
 | 70°–80° | 渐显（scale 0→1，blur 4px→0） |
 | 80°–250° | 完全可见 |
-| 250°–260° | 渐隐 |
+| 220°–260° | 渐隐 |
 | 其余 | 隐藏（`visibility: hidden`） |
 
 `applyPlacardPresence()` 对 `.order-disc__placard-presence` 施加 `scale()` + `opacity` + CSS `filter: blur()`。
@@ -228,7 +228,7 @@ function maybeCycleSlotItemAtSwapAngle(disc, slot, slotNode, orbitDeg) {
 `animateFrame(timestamp)` 主循环：
 
 - 拖动中跳过该 disc
-- 否则惯性衰减或 `autoSpeed` 自转
+- 否则惯性衰减或 `autoSpeed` 同向自转
 - 每 disc 调用 `updateRotor(disc)`
 
 | 机制 | 实现 |
@@ -238,7 +238,7 @@ function maybeCycleSlotItemAtSwapAngle(disc, slot, slotNode, orbitDeg) {
 | 拖动 | `[data-disc-hit]` / `[data-disc-hit-side]` pointer 事件 → 改 `disc.angle` + 惯性 |
 | Tab 隐藏 | `screen.onHide()` → `view.pause()` 停 RAF |
 
-各层 `autoSpeed` 在 [`state.js`](state.js) `createDiscs()` 中定义（base 8°/s，mid/top/cap 为负值反向转）。
+各层 `autoSpeed` 在 [`state.js`](state.js) `createDiscs()` 中定义（当前四层统一为 8°/s，同向转）。
 
 ---
 
@@ -266,4 +266,4 @@ function maybeCycleSlotItemAtSwapAngle(disc, slot, slotNode, orbitDeg) {
 
 ## 11. 一句话总结
 
-**食物 = 6 个竖直立牌 SVG `<image>`，挂在独立 placard 层；每帧用「格心极坐标 + 盘面角 + 椭圆投影」算位置，用 θ = 中心角 + 盘面角 控制前弧渐显/渐隐，在 θ = 275° 静默换图，配合三层盘独立自转与拖动，形成回转式选菜界面。**
+**食物 = 6 个竖直立牌 SVG `<image>`，挂在独立 placard 层；每帧用「格心极坐标 + 盘面角 + 椭圆投影」算位置，用 θ = 中心角 + 盘面角 控制前弧渐显/渐隐，在 θ = 275° 静默换图，配合四层盘同向自转与整盘拖动，形成回转式选菜界面。**

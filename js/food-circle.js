@@ -5,6 +5,14 @@
   "use strict";
 
   var SVG_BASE = "source/svgSHOP/";
+  var previewPanel = null;
+  var previewOverlay = null;
+  var previewClose = null;
+  var previewBody = null;
+  var previewTitle = null;
+  var shareInput = null;
+  var shareSubmit = null;
+  var shareStatus = null;
 
   // 店铺文件名 → SVG 文件名映射（与 shop.js 保持一致）
   function getSvgFile(shopFile) {
@@ -58,6 +66,200 @@
     var div = document.createElement("div");
     div.textContent = text;
     return div.innerHTML;
+  }
+
+  function renderTags(names) {
+    if (!names || !names.length) {
+      return "";
+    }
+
+    return names.map(function (name) {
+      return '<span class="fc-share-preview__tag">' + escapeHtml(name) + "</span>";
+    }).join("");
+  }
+
+  function renderSharedPetStage(preview) {
+    var layers = preview && preview.layers ? preview.layers : [];
+    var drink = preview && preview.drink;
+    var html = '<section class="fc-share-preview__hero">';
+
+    html +=
+      '<div class="fc-share-preview__stage">' +
+        '<div class="fc-share-preview__aura" aria-hidden="true"></div>';
+
+    layers.forEach(function (layer) {
+      html +=
+        '<img class="fc-share-preview__layer" src="' + escapeHtml(layer.src) + '"' +
+          ' alt="' + escapeHtml(layer.label || "哈基米图层") + '"' +
+          ' loading="lazy" decoding="async">';
+    });
+
+    if (drink && drink.src) {
+      html +=
+        '<div class="fc-share-preview__drink">' +
+          '<img src="' + escapeHtml(drink.src) + '" alt="' + escapeHtml(drink.name || "饮品") + '" loading="lazy" decoding="async">' +
+          '<span>' + escapeHtml(drink.name || "") + "</span>" +
+        "</div>";
+    }
+
+    html += "</div></section>";
+
+    return html;
+  }
+
+  function renderSimilaritySection(analysis) {
+    var scoreText;
+    var personality = analysis.personality;
+    var reason = analysis.reasonSummary || "";
+
+    if (analysis.selfHasFoods && analysis.similarity != null) {
+      scoreText = "口味匹配度 " + analysis.similarity + "%";
+    } else {
+      scoreText = "先去点几样食物，再看看你们有多对胃口";
+    }
+
+    return (
+      '<section class="fc-share-preview__score">' +
+        '<p class="fc-share-preview__score-num">' + escapeHtml(scoreText) + "</p>" +
+        '<p class="fc-share-preview__score-text">' + escapeHtml(analysis.similarityLabel || "") + "</p>" +
+        (
+          personality
+            ? '<p class="fc-share-preview__personality">' +
+                escapeHtml(personality.name + " · " + (personality.oneLiner || personality.description || "")) +
+              "</p>"
+            : ""
+        ) +
+        (
+          reason
+            ? '<p class="fc-share-preview__personality">' + escapeHtml(reason) + "</p>"
+            : ""
+        ) +
+      "</section>"
+    );
+  }
+
+  function renderEmptyHint(text) {
+    return '<p>' + escapeHtml(text) + "</p>";
+  }
+
+  function renderSharedPreview(payload, analysis) {
+    var commonFoods = analysis.commonFoods || [];
+    var possibleFoods = analysis.possibleFoods || [];
+    var theirFoods = analysis.theirFoods || [];
+
+    return (
+      renderSharedPetStage(analysis.preview) +
+      renderSimilaritySection(analysis) +
+      '<section class="fc-share-preview__section">' +
+        "<h3>Ta 喜欢的食物</h3>" +
+        '<div class="fc-share-preview__tags">' + renderTags(theirFoods) + "</div>" +
+      "</section>" +
+      '<section class="fc-share-preview__section">' +
+        "<h3>你们共同喜欢</h3>" +
+        (
+          commonFoods.length
+            ? '<div class="fc-share-preview__tags">' + renderTags(commonFoods) + "</div>"
+            : renderEmptyHint("你们还没点到同一道，但口味方向很接近。")
+        ) +
+      "</section>" +
+      '<section class="fc-share-preview__section">' +
+        "<h3>你们可能还会喜欢</h3>" +
+        (
+          possibleFoods.length
+            ? '<div class="fc-share-preview__tags">' + renderTags(possibleFoods) + "</div>"
+            : renderEmptyHint("等你们再多选几样食物，系统会给出更准的推荐。")
+        ) +
+      "</section>"
+    );
+  }
+
+  function setShareStatus(message, tone) {
+    if (!shareStatus) return;
+    shareStatus.textContent = message || "";
+    shareStatus.classList.toggle("is-error", tone === "error");
+    shareStatus.classList.toggle("is-success", tone === "success");
+  }
+
+  function openSharePreview(payload, analysis) {
+    if (!previewPanel || !previewBody || !previewTitle) return;
+
+    previewTitle.textContent = (payload.petName || "朋友") + "的哈基米";
+    previewBody.innerHTML = renderSharedPreview(payload, analysis);
+    previewPanel.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeSharePreview() {
+    if (!previewPanel) return;
+    previewPanel.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  function setupSharePreview() {
+    previewPanel = document.getElementById("fcSharePreview");
+    previewOverlay = document.getElementById("fcSharePreviewOverlay");
+    previewClose = document.getElementById("fcSharePreviewClose");
+    previewBody = document.getElementById("fcSharePreviewBody");
+    previewTitle = document.getElementById("fcSharePreviewTitle");
+
+    if (previewOverlay) previewOverlay.addEventListener("click", closeSharePreview);
+    if (previewClose) previewClose.addEventListener("click", closeSharePreview);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && previewPanel && previewPanel.getAttribute("aria-hidden") === "false") {
+        closeSharePreview();
+      }
+    });
+  }
+
+  function setupShareInput() {
+    shareInput = document.getElementById("fcCodeInput");
+    shareSubmit = document.getElementById("fcCodeSubmit");
+    shareStatus = document.getElementById("fcCodeStatus");
+
+    function submit() {
+      var yummy = global.Yummi && global.Yummi.yummyCode;
+      var code = shareInput ? shareInput.value : "";
+      var decoded;
+      var analysis;
+
+      if (!yummy || typeof yummy.decodeShare !== "function" || typeof yummy.analyzeSharedTaste !== "function") {
+        setShareStatus("YUMMY码 功能还没准备好，请稍后再试。", "error");
+        return;
+      }
+
+      decoded = yummy.decodeShare(code);
+      if (!decoded.ok) {
+        setShareStatus("这个 YUMMY码 好像不对，再检查一下。", "error");
+        return;
+      }
+
+      analysis = yummy.analyzeSharedTaste(
+        getSelectedFoods(),
+        decoded.payload
+      );
+
+      if (!analysis.ok) {
+        setShareStatus("这串 YUMMY码 暂时没法解析，再试一次。", "error");
+        return;
+      }
+
+      setShareStatus("解析成功，正在打开预览。", "success");
+      openSharePreview(decoded.payload, analysis);
+    }
+
+    if (shareSubmit) {
+      shareSubmit.addEventListener("click", submit);
+    }
+
+    if (shareInput) {
+      shareInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          submit();
+        }
+      });
+    }
   }
 
   // 收信箱相关
@@ -167,6 +369,9 @@
 
     // 我的偏好
     setupPreference();
+
+    setupSharePreview();
+    setupShareInput();
 
     // 投喂 — 功能预留
     var feedBtn = document.getElementById("fcFeed");

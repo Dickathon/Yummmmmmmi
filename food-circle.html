@@ -44,6 +44,25 @@
         </button>
       </div>
     </div>
+
+    <section class="fc-share-entry" aria-label="查看朋友的 YUMMY码">
+      <div class="fc-share-entry__shell">
+        <label class="fc-share-entry__label" for="fcCodeInput">朋友的 YUMMY码</label>
+        <div class="fc-share-entry__row">
+          <input
+            type="text"
+            class="fc-share-entry__input"
+            id="fcCodeInput"
+            placeholder="输入朋友的 YUMMY码"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+          >
+          <button type="button" class="fc-share-entry__btn" id="fcCodeSubmit">查看</button>
+        </div>
+        <p class="fc-share-entry__status" id="fcCodeStatus" aria-live="polite"></p>
+      </div>
+    </section>
   </div>
 
   <!-- 小鱼干币 -->
@@ -100,10 +119,33 @@
     </div>
   </div>
 
+  <div class="fc-share-preview" id="fcSharePreview" aria-hidden="true">
+    <div class="fc-share-preview__overlay" id="fcSharePreviewOverlay"></div>
+    <section class="fc-share-preview__sheet" role="dialog" aria-modal="true" aria-labelledby="fcSharePreviewTitle">
+      <div class="fc-share-preview__header">
+        <div>
+          <p class="fc-share-preview__eyebrow">YUMMY CODE</p>
+          <h2 class="fc-share-preview__title" id="fcSharePreviewTitle">朋友的哈基米</h2>
+        </div>
+        <button type="button" class="fc-share-preview__close" id="fcSharePreviewClose" aria-label="关闭">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="fc-share-preview__body" id="fcSharePreviewBody"></div>
+    </section>
+  </div>
+
   <!-- 口味计算依赖 -->
   <script src="js/data/foods.js"></script>
   <script src="js/data/food-taste-db.js"></script>
   <script src="js/data/food-taste.js"></script>
+  <script src="js/data/food-personality.js"></script>
+  <script src="js/modules/dress/config.js"></script>
+  <script src="js/modules/dress/state.js"></script>
+  <script src="js/data/yummy-code.js"></script>
 
   <!-- 小鱼干币 -->
   <script src="js/fish-coins.js"></script>

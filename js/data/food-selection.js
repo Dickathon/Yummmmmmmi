@@ -26,6 +26,10 @@
     return global.Yummi && global.Yummi.foodSelectionCodec;
   }
 
+  function getYummyCode() {
+    return global.Yummi && global.Yummi.yummyCode;
+  }
+
   function getPetAppearance() {
     return global.Yummi && global.Yummi.foodPetAppearance;
   }
@@ -58,6 +62,20 @@
     } catch (e) {
       /* quota / private mode */
     }
+  }
+
+  function emitChange(reason) {
+    if (typeof global.dispatchEvent !== "function" || typeof global.CustomEvent !== "function") {
+      return;
+    }
+
+    global.dispatchEvent(new global.CustomEvent("yummi:food-selection-change", {
+      detail: {
+        names: names.slice(),
+        count: names.length,
+        reason: reason || "update"
+      }
+    }));
   }
 
   /**
@@ -101,6 +119,7 @@
     if (!options || !options.skipPersist) {
       persist();
     }
+    emitChange(options && options.reason ? options.reason : "replace");
     return { ok: true, names: names.slice(), count: names.length };
   }
 
@@ -190,6 +209,7 @@
     names.push(n);
     invalidateProfile();
     persist();
+    emitChange("record");
     return { ok: true, names: names.slice(), count: names.length, alreadySelected: false };
   }
 
@@ -223,6 +243,7 @@
       names = merged;
       invalidateProfile();
       persist();
+      emitChange("recordMany");
     }
 
     return {
@@ -262,6 +283,7 @@
     names = next;
     invalidateProfile();
     persist();
+    emitChange("remove");
     return { ok: true, names: names.slice(), count: names.length };
   }
 
@@ -279,6 +301,7 @@
     names = [];
     invalidateProfile();
     persist();
+    emitChange("clear");
     return { ok: true, names: [], count: 0 };
   }
 
@@ -355,11 +378,16 @@
    * 导出分享码
    */
   function exportCode() {
-    var codec = getCodec();
-    if (!codec || !codec.encode) {
+    var yummy = getYummyCode();
+    var payload;
+    if (!yummy || typeof yummy.buildSharePayload !== "function" || typeof yummy.encodeShare !== "function") {
       return { ok: false, error: "codec_unavailable" };
     }
-    return codec.encode(names);
+    payload = yummy.buildSharePayload();
+    if (!payload.ok) {
+      return payload;
+    }
+    return yummy.encodeShare(payload.payload);
   }
 
   /**
@@ -368,11 +396,15 @@
    * @param {{ tasteWeight?: number, overlapWeight?: number }} [options]
    */
   function compareWithCode(theirCode, options) {
-    var codec = getCodec();
-    if (!codec || !codec.compareImport) {
+    var yummy = getYummyCode();
+    if (!yummy || typeof yummy.decodeShare !== "function" || typeof yummy.analyzeSharedTaste !== "function") {
       return { ok: false, error: "codec_unavailable" };
     }
-    return codec.compareImport(names, theirCode, options);
+    var decoded = yummy.decodeShare(theirCode);
+    if (!decoded.ok) {
+      return decoded;
+    }
+    return yummy.analyzeSharedTaste(names, decoded.payload, options);
   }
 
   if (typeof localStorage !== "undefined") {

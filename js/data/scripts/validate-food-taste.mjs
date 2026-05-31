@@ -12,9 +12,13 @@ const wrap = (file) => {
 wrap("foods.js");
 wrap("food-taste-db.js");
 wrap("food-taste.js");
+wrap("food-personality.js");
 wrap("food-selection-codec.js");
 wrap("food-pet-appearance.js");
+wrap("../modules/dress/config.js");
+wrap("../modules/dress/state.js");
 wrap("food-selection.js");
+wrap("yummy-code.js");
 
 const foods = sandbox.Yummi.foods.getAll();
 const missing = sandbox.Yummi.foodTaste.assertCoverage();
@@ -45,6 +49,19 @@ if (!cmp.ok || cmp.similarity < 0 || cmp.similarity > 100) {
 }
 console.log("Compare import:", cmp);
 
+const personality = sandbox.Yummi.foodPersonality.analyze(["火锅", "回锅肉", "酸辣粉", "珍珠奶茶"]);
+if (!personality.ok || !personality.personality || !personality.region || !personality.topTastes) {
+  throw new Error("foodPersonality analyze failed: " + JSON.stringify(personality));
+}
+const topTasteTotal = personality.topTastes.reduce((sum, item) => sum + item.percent, 0);
+if (topTasteTotal !== 100) {
+  throw new Error("foodPersonality top taste percent failed: " + topTasteTotal);
+}
+if (personality.region.primary.key === "central" && personality.isRegionSpecial) {
+  throw new Error("central region should not create a special 21st type");
+}
+console.log("Food personality:", personality.personality.code, personality.personality.name, personality.region.primary);
+
 const sel = sandbox.Yummi.foodSelection;
 sel.clear();
 let rec = sel.record("九转大肠");
@@ -68,7 +85,7 @@ if (!prof || prof.count !== 1 || prof.used[0] !== "珍珠奶茶") {
 const exp = sel.exportCode();
 if (!exp.ok) throw new Error("exportCode failed");
 const cmpSel = sel.compareWithCode(exp.code);
-if (!cmpSel.ok || cmpSel.similarity !== 100) {
+if (!cmpSel.ok || cmpSel.similarity !== 100 || !cmpSel.commonFoods || cmpSel.commonFoods[0] !== "珍珠奶茶") {
   throw new Error("compareWithCode self failed: " + JSON.stringify(cmpSel));
 }
 const confirmed = sel.confirm();
@@ -77,6 +94,23 @@ if (!confirmed.ok || confirmed.primaryFood !== "珍珠奶茶" || !confirmed.prof
 }
 if (!confirmed.petAppearance || !confirmed.petAppearance.ok || confirmed.petAppearance.ready !== false) {
   throw new Error("petAppearance stub failed: " + JSON.stringify(confirmed.petAppearance));
+}
+
+const yummyPayload = sandbox.Yummi.yummyCode.buildSharePayload();
+if (!yummyPayload.ok || yummyPayload.payload.petName !== "YUMMY") {
+  throw new Error("buildSharePayload failed: " + JSON.stringify(yummyPayload));
+}
+const yummyCode = sandbox.Yummi.yummyCode.encodeShare(yummyPayload.payload);
+if (!yummyCode.ok || !yummyCode.code.startsWith("YUMMY3.")) {
+  throw new Error("encodeShare failed: " + JSON.stringify(yummyCode));
+}
+const yummyDecoded = sandbox.Yummi.yummyCode.decodeShare(yummyCode.code);
+if (!yummyDecoded.ok || yummyDecoded.payload.petName !== "YUMMY") {
+  throw new Error("decodeShare failed: " + JSON.stringify(yummyDecoded));
+}
+const yummyAnalysis = sandbox.Yummi.yummyCode.analyzeSharedTaste(["珍珠奶茶", "火锅"], yummyDecoded.payload);
+if (!yummyAnalysis.ok || yummyAnalysis.similarity == null || !yummyAnalysis.preview || !yummyAnalysis.preview.layers.length) {
+  throw new Error("analyzeSharedTaste failed: " + JSON.stringify(yummyAnalysis));
 }
 sel.clear();
 console.log("Food selection API OK");

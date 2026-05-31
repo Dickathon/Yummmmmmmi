@@ -49,6 +49,107 @@ AI 完成实现后，应检查 `DEVLOG.md` 是否已更新；未更新则要求�
 
 ---
 
+### 2026-05-31 — 项目维护 / AI 协助（装扮形象导出）
+
+- **模块/范围：** dress | 全局（`index.html` 脚本加载） | 文档
+- **摘要：** 装扮页底部新增一键导出宠物形象入口；使用原生 Canvas 合成包含背景、猫屋、分层装扮、饮品、名字与食物梗自嘲的 PNG 海报，并提供预览保存弹窗。
+- **路径：** `js/modules/dress/exporter.js`, `js/modules/dress/view.js`, `css/modules/dress.css`, `index.html`, `js/modules/dress/README.md`
+- **备注：** 食物自嘲覆盖 `foods.js` 全量食物；背景/饮品加载失败会降级，宠物图层失败会阻止生成。
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮背景居中）
+
+- **模块/范围：** dress
+- **摘要：** 去掉选中背景图的额外缩放和缩放入场动画，仅保留居中对齐展示。
+- **路径：** `css/modules/dress.css`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮背景与缩放）
+
+- **模块/范围：** dress
+- **摘要：** 优化装扮页选中背景图的展示方式，改为等比缩放居中放入；将宠物合成舞台整体缩放为当前的 90%。
+- **路径：** `css/modules/dress.css`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮图层居中）
+
+- **模块/范围：** dress
+- **摘要：** 取消装扮合成图层的横向偏移，让宠物直接在容器内居中显示。
+- **路径：** `css/modules/dress.css`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮图层再次左移）
+
+- **模块/范围：** dress
+- **摘要：** 在当前基准上继续将宠物合成图层左移 10px。
+- **路径：** `css/modules/dress.css`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮图层继续微调）
+
+- **模块/范围：** dress
+- **摘要：** 在上一轮基础上继续将宠物合成图层左移 10px。
+- **路径：** `css/modules/dress.css`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮图层再微调）
+
+- **模块/范围：** dress
+- **摘要：** 在上一轮位移基础上继续将宠物合成图层左移 10px。
+- **路径：** `css/modules/dress.css`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮图层横向微调）
+
+- **模块/范围：** dress
+- **摘要：** 将宠物合成图层再向左微调 10px，保持衣柜和饮品浮层位置不变。
+- **路径：** `css/modules/dress.css`
+
+---
+
+### 2026-05-31 - Codex / order
+
+- **模块/范围:** order
+- **摘要:** 放宽点餐转盘食物的前后弧淡出窗口，让立牌离开正面时不那么像开关一样突然消失。
+- **路径:** `js/modules/order/placards.js`, `js/modules/order/TURNTABLE-FOOD-DISPLAY.md`
+
+### 2026-05-31 - Codex / order
+
+- **模块/范围:** order
+- **摘要:** 统一点餐转盘四层的自转方向，并把拖拽改成整盘同步旋转，不再单层各自转动。
+- **路径:** `js/modules/order/state.js`, `js/modules/order/view.js`
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮页顶部精简）
+
+- **模块/范围：** dress | 全局（`index.html` 壳层 hero）
+- **摘要：** 隐藏装扮页顶部的 shell hero 文本与绿色视觉块，让装扮页更聚焦衣柜与宠物舞台。
+- **路径：** `js/main.js`, `js/modules/dress/config.js`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮衣柜与图层切换）
+
+- **模块/范围：** dress | 数据层 | 文档
+- **摘要：** 左上角装扮面板接入衣柜选择器；按头部/躯干/四肢/尾巴/毯子/饮品分类展示装扮，支持灰色未解锁项点击试穿、选择持久化、点餐变化实时重排，并按固定层级更新宠物装扮图层。
+- **路径：** `js/modules/dress/config.js`, `js/modules/dress/state.js`, `js/modules/dress/view.js`, `js/modules/dress/screen.js`, `js/modules/dress/index.js`, `css/modules/dress.css`, `js/data/food-selection.js`, `js/modules/dress/README.md`
+
+---
+
+### 2026-05-31 — 项目维护 / AI 协助（装扮页迁入正式资源目录）
+
+- **模块/范围：** dress | 资源 | 文档 | 全局（主应用装扮 Tab）
+- **摘要：** 将 `wmx-temporary/装扮/pictures` 与 `latest-pictures` 迁入 `assets/modules/dress/pet-layers/` 和 `assets/modules/dress/pet-base/`，把临时单页的分层猫结构复用到主应用装扮页，并同步更新资源说明与路径引用。
+- **路径：** `assets/modules/dress/pet-layers/`, `assets/modules/dress/pet-base/`, `js/modules/dress/config.js`, `js/modules/dress/state.js`, `js/modules/dress/view.js`, `css/modules/dress.css`, `js/modules/dress/README.md`, `assets/modules/dress/placards/README.md`, `wmx-temporary/README.md`
+
+---
+
 ### 2026-05-30 — 项目维护 / AI 协助（立牌尺寸）
 
 - **模块/范围：** order

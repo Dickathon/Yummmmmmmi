@@ -19,6 +19,10 @@
   }
 
   function renderHero(meta) {
+    if (meta.heroHidden) {
+      return "";
+    }
+
     var heroClass = meta.heroClass || "";
     return (
       '<header class="hero ' + escapeHtml(heroClass) + '">' +
@@ -132,16 +136,32 @@
     var dressPanel = document.getElementById("dressPanel");
     var dressOverlay = document.getElementById("dressPanelOverlay");
     var dressClose = document.getElementById("dressPanelClose");
+    var dressPanelTimer = null;
 
     function openDressPanel() {
       if (!dressPanel) return;
+      if (dressPanelTimer) {
+        clearTimeout(dressPanelTimer);
+      }
       dressPanel.setAttribute("aria-hidden", "false");
+      dressPanel.classList.add("is-open");
+      dressPanel.classList.remove("is-open-complete");
+      dressPanelTimer = setTimeout(function () {
+        dressPanel.classList.add("is-open-complete");
+        dressPanelTimer = null;
+      }, 460);
       document.body.style.overflow = "hidden";
     }
 
     function closeDressPanel() {
       if (!dressPanel) return;
+      if (dressPanelTimer) {
+        clearTimeout(dressPanelTimer);
+        dressPanelTimer = null;
+      }
       dressPanel.setAttribute("aria-hidden", "true");
+      dressPanel.classList.remove("is-open");
+      dressPanel.classList.remove("is-open-complete");
       document.body.style.overflow = "";
     }
 

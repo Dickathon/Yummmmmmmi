@@ -101,6 +101,12 @@
     return index[name] || "";
   }
 
+  function getPointerTravelSq(event, startX, startY) {
+    var dx = event.clientX - startX;
+    var dy = event.clientY - startY;
+    return (dx * dx) + (dy * dy);
+  }
+
 
 function formatNumber(value) {
         return Number(value.toFixed(3));
@@ -481,8 +487,8 @@ function renderCapSideImageBands(disc, geometry) {
       }
 
       function getDiscGeometry(disc) {
-    if (!runtime || !runtime.state) return null;
-    var g = runtime.state.global;
+        if (!runtime || !runtime.state) return null;
+        var g = runtime.state.global;
         var scale = g.globalScale * disc.scale;
         var layerUnit = (disc.baseCy - 148) / 64;
 
@@ -542,6 +548,9 @@ function renderCapSideImageBands(disc, geometry) {
           var scaleY = geometry.ry / geometry.rx;
           var capRx = Math.max(8, geometry.rx * 0.16);
           var capRy = Math.max(4, geometry.ry * 0.34);
+          var topHitPath = disc.id === "base"
+            ? createRingPath(geometry.rx, 0)
+            : createRingPath(geometry.rx, geometry.hitInnerRadius);
           var centerCapMarkup = disc.id === "cap"
             ? ""
             : (
@@ -560,7 +569,7 @@ function renderCapSideImageBands(disc, geometry) {
               '<ellipse cx="' + formatNumber(geometry.cx) + '" cy="' + formatNumber(geometry.cy) + '" rx="' + formatNumber(geometry.rx) + '" ry="' + formatNumber(geometry.ry) + '" fill="none" stroke="#5c4b3a" stroke-width="2.2"></ellipse>' +
               centerCapMarkup +
               '<g transform="translate(' + formatNumber(geometry.cx) + " " + formatNumber(geometry.cy) + ') scale(1 ' + formatNumber(scaleY) + ')">' +
-                '<path class="turntable-hit" data-hit="' + disc.id + '" d="' + createRingPath(geometry.rx, geometry.hitInnerRadius) + '" fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
+                '<path class="turntable-hit" data-hit="' + disc.id + '" d="' + topHitPath + '" fill="rgba(255,255,255,0.001)" fill-rule="evenodd"></path>' +
               "</g>" +
               '<path class="turntable-hit-side" data-hit-side="' + disc.id + '" d="' + createSideHitPath(geometry) + '" fill="rgba(255,255,255,0.001)"></path>' +
             "</g>";
@@ -598,6 +607,517 @@ function renderCapSideImageBands(disc, geometry) {
         }
       }
 
+      function getDraggingDisc(pointerId) {
+        return runtime.state.discs.find(function (item) {
+          return item.pointerId === pointerId && item.dragging;
+        }) || null;
+      }
+
+      function startTurntableDrag(disc, pointerId, pointerAngle, eventTime) {
+        runtime.state.discs.forEach(function (item) {
+          item.dragging = item.id === disc.id;
+          item.pointerId = item.id === disc.id ? pointerId : null;
+          item.lastPointerAngle = item.id === disc.id ? pointerAngle : null;
+          item.lastMoveTime = item.id === disc.id ? eventTime : null;
+          item.angularVelocity = 0;
+        });
+        runtime.state.activeDiscId = disc.id;
+      }
+
+      function rotateTurntable(deltaAngle, angularVelocity) {
+        runtime.state.discs.forEach(function (item) {
+          item.angle = normalizeAngle(item.angle + deltaAngle);
+          item.angularVelocity = angularVelocity;
+          updateRotor(item);
+        });
+      }
+
+      function getPersonalityApi() {
+        return global.Yummi && global.Yummi.foodPersonality;
+      }
+
+      function getDressStateApi() {
+        return global.Yummi &&
+          global.Yummi.modules &&
+          global.Yummi.modules.dress &&
+          global.Yummi.modules.dress.state;
+      }
+
+      function capturePetSnapshot() {
+        var dressState = getDressStateApi();
+        if (dressState && typeof dressState.captureSnapshot === "function") {
+          return dressState.captureSnapshot();
+        }
+        return { layers: [], drink: null, petDisplayName: "yummy的哈基米" };
+      }
+
+      function clearDressState() {
+        var dressState = getDressStateApi();
+        if (dressState && typeof dressState.resetAll === "function") {
+          dressState.resetAll();
+        }
+      }
+
+      function renderReportLayer(item) {
+        var zClass = item.zClass || item.className || "layer";
+        return (
+          '<img class="order-report-pet__layer order-report-pet__layer--' + util.escapeHtml(zClass) +
+            ' order-report-pet__layer--' + util.escapeHtml(item.className || "layer") + '"' +
+            ' src="' + escapeAttr(item.src) + '"' +
+            ' alt="' + escapeAttr(item.label || "") + '"' +
+            ' decoding="async">'
+        );
+      }
+
+      function renderReportDrink(drink) {
+        if (!drink) return "";
+        return (
+          '<div class="order-report-pet__drink" aria-label="' + escapeAttr(drink.name) + '饮品">' +
+            '<img class="order-report-pet__drink-img" src="' + escapeAttr(drink.src) +
+              '" alt="' + escapeAttr(drink.name) + '" decoding="async">' +
+            '<span class="order-report-pet__drink-label">' + util.escapeHtml(drink.name) + "</span>" +
+          "</div>"
+        );
+      }
+
+      function renderReportRoom(snapshot) {
+        var background = snapshot && snapshot.activeBackground;
+        var house = snapshot && snapshot.activeCatHouse;
+
+        return (
+          '<div class="order-report-pet__room" aria-hidden="true">' +
+            (background ?
+              '<img class="order-report-pet__room-bg" src="' + escapeAttr(background.src) + '" alt="" decoding="async">' :
+              '<div class="order-report-pet__room-paper"></div>') +
+            (house && house.src ?
+              '<img class="order-report-pet__house-img" src="' + escapeAttr(house.src) + '" alt="" decoding="async">' :
+              '<div class="order-report-pet__house">' +
+                '<span class="order-report-pet__house-roof"></span>' +
+                '<span class="order-report-pet__house-door"></span>' +
+              "</div>") +
+          "</div>"
+        );
+      }
+
+      function renderPetSnapshot(snapshot) {
+        var layers = (snapshot && snapshot.layers) || [];
+        return (
+          '<section class="order-report-pet" aria-label="确认点餐时的宠物快照">' +
+            renderReportRoom(snapshot || {}) +
+            '<div class="order-report-pet__aura" aria-hidden="true"></div>' +
+            '<div class="order-report-pet__stage">' +
+              layers.map(renderReportLayer).join("") +
+            "</div>" +
+            renderReportDrink(snapshot && snapshot.drink) +
+            '<p class="order-report-pet__name">' +
+              util.escapeHtml((snapshot && snapshot.petDisplayName) || "yummy的哈基米") +
+            "</p>" +
+          "</section>"
+        );
+      }
+
+      function renderTasteIcon(key) {
+        var common = ' class="order-report-taste__svg" viewBox="0 0 48 48" aria-hidden="true" focusable="false"';
+        var icons = {
+          sweet: '<svg' + common + '><path d="M14 18 8 14l4 10-4 10 6-4"></path><path d="M34 18l6-4-4 10 4 10-6-4"></path><rect x="14" y="16" width="20" height="16" rx="8"></rect><path d="M20 20c3 3 5 3 8 0"></path></svg>',
+          salty: '<svg' + common + '><path d="M17 14h14l-2 6H19l-2-6Z"></path><path d="M18 20h12l3 20H15l3-20Z"></path><path d="M20 10h8"></path><path d="M21 27h6"></path><path d="M20 33h8"></path></svg>',
+          sour: '<svg' + common + '><circle cx="24" cy="24" r="15"></circle><path d="M24 9v30"></path><path d="M11 24h26"></path><path d="m15 15 18 18"></path><path d="m33 15-18 18"></path></svg>',
+          spicy: '<svg' + common + '><path d="M31 9c-2 5-1 8 3 11"></path><path d="M16 35c13 2 21-8 16-18-8 9-20 4-21 15 0 2 2 3 5 3Z"></path><path d="M17 35c-1 3 2 5 6 3"></path></svg>',
+          bitter: '<svg' + common + '><path d="M15 29c-2-8 2-16 9-18 7 2 11 10 9 18-2 7-7 10-9 10s-7-3-9-10Z"></path><path d="M24 13c-3 8-2 15 3 23"></path><path d="M18 25c4 0 8-2 12-6"></path></svg>',
+          umami: '<svg' + common + '><path d="M10 24c1-9 8-14 14-14s13 5 14 14H10Z"></path><path d="M19 24h10l3 15H16l3-15Z"></path><path d="M16 18h.1"></path><path d="M25 15h.1"></path><path d="M32 20h.1"></path></svg>',
+          oily: '<svg' + common + '><path d="M24 8c8 10 12 17 12 24a12 12 0 0 1-24 0c0-7 4-14 12-24Z"></path><path d="M19 34c3 3 8 3 11-1"></path></svg>',
+          fresh: '<svg' + common + '><path d="M39 10C22 9 12 18 11 35c17 1 27-8 28-25Z"></path><path d="M12 34c8-8 15-13 24-20"></path><path d="M20 29c0-4-1-7-3-10"></path><path d="M27 24c-4 0-7-1-10-3"></path></svg>'
+        };
+        return icons[key] || icons.umami;
+      }
+
+      function renderTasteOverview(report) {
+        var items = (report && report.topTastes) || [];
+        return (
+          '<section class="order-report-section order-report-section--taste">' +
+            '<div class="order-report-section__head">' +
+              '<span class="order-report-section__kicker">前三口味</span>' +
+              '<h4 class="order-report-section__title">Taste Signal</h4>' +
+            "</div>" +
+            '<div class="order-report-taste-grid">' +
+              items.map(function (item) {
+                return (
+                  '<article class="order-report-taste">' +
+                    '<span class="order-report-taste__icon">' + renderTasteIcon(item.key) + "</span>" +
+                    '<span class="order-report-taste__name">' + util.escapeHtml(item.label) + "</span>" +
+                    '<strong class="order-report-taste__percent">' + item.percent + "%</strong>" +
+                  "</article>"
+                );
+              }).join("") +
+            "</div>" +
+          "</section>"
+        );
+      }
+
+      function renderTasteInsights(report) {
+        var insights = (report && report.tasteInsights) || [];
+        return (
+          '<section class="order-report-section">' +
+            '<div class="order-report-section__head">' +
+              '<span class="order-report-section__kicker">Top 4 分析</span>' +
+              '<h4 class="order-report-section__title">你点出了什么</h4>' +
+            "</div>" +
+            '<div class="order-report-insights">' +
+              insights.map(function (item) {
+                return (
+                  '<article class="order-report-insight">' +
+                    '<span class="order-report-insight__label">' + util.escapeHtml(item.label) + "</span>" +
+                    '<p class="order-report-insight__text">' + util.escapeHtml(item.summary) + "</p>" +
+                    (item.sourceText ?
+                      '<p class="order-report-insight__source">' + util.escapeHtml(item.sourceText) + "</p>" :
+                      "") +
+                  "</article>"
+                );
+              }).join("") +
+            "</div>" +
+          "</section>"
+        );
+      }
+
+      function renderRegionInsight(report) {
+        var primary = report && report.region && report.region.primary;
+        var supportFoods = (primary && primary.supportFoods) || [];
+        if (!primary) return "";
+        return (
+          '<section class="order-report-section order-report-section--region">' +
+            '<div class="order-report-section__head">' +
+              '<span class="order-report-section__kicker">地域风味</span>' +
+              '<h4 class="order-report-section__title">' +
+                util.escapeHtml(primary.label) + " " + primary.percent + "%" +
+              "</h4>" +
+            "</div>" +
+            '<p class="order-report-region__text">' + util.escapeHtml(primary.summary) + "</p>" +
+            (supportFoods.length ?
+              '<div class="order-report-region__foods" aria-label="地域来源菜品">' +
+                supportFoods.map(function (item) {
+                  return '<span class="order-report-region__food">' + util.escapeHtml(item.name) + "</span>";
+                }).join("") +
+              "</div>" :
+              "") +
+          "</section>"
+        );
+      }
+
+      function renderReportCard(report, snapshot) {
+        var personality = report.personality;
+        var core = report.corePersonality;
+        var special = report.isRegionSpecial;
+
+        return (
+          '<div class="order-report-card" data-order-report-card>' +
+            '<div class="order-report-card__wash" aria-hidden="true"></div>' +
+            '<header class="order-report-card__header">' +
+              '<p class="order-report-card__eyebrow">YUMMI TASTE FILE</p>' +
+              '<h2 class="order-report-card__title">你的口味人格报告</h2>' +
+              '<div class="order-report-card__badge" aria-label="人格编码">' +
+                util.escapeHtml(personality.code) +
+              "</div>" +
+            "</header>" +
+            renderPetSnapshot(snapshot) +
+            '<section class="order-report-identity">' +
+              '<p class="order-report-identity__code">' + util.escapeHtml((report.coreLabels || []).join(" · ")) + "</p>" +
+              '<h3 class="order-report-identity__name">' + util.escapeHtml(personality.name) + "</h3>" +
+              '<p class="order-report-identity__line">' + util.escapeHtml(personality.oneLiner) + "</p>" +
+              '<p class="order-report-identity__desc">' + util.escapeHtml(personality.description) + "</p>" +
+              (report.reasonSummary ?
+                '<p class="order-report-identity__reason">' + util.escapeHtml(report.reasonSummary) + "</p>" :
+                "") +
+              (special && core ?
+                '<p class="order-report-identity__sub">底层口味核：' +
+                  util.escapeHtml(core.code + " · " + core.name) + "</p>" :
+                "") +
+            "</section>" +
+            renderTasteOverview(report) +
+            '<section class="order-report-section">' +
+              '<div class="order-report-section__head">' +
+                '<span class="order-report-section__kicker">人格总评</span>' +
+                '<h4 class="order-report-section__title">Flavor MBTI</h4>' +
+              "</div>" +
+              '<p class="order-report-section__body">' + util.escapeHtml(personality.detail) + "</p>" +
+              '<p class="order-report-section__note">' + util.escapeHtml(personality.regionAffinity) + "</p>" +
+            "</section>" +
+            renderTasteInsights(report) +
+            renderRegionInsight(report) +
+            '<footer class="order-report-card__footer">此报告仅代表你的胃，不代表你的身份证所在地。</footer>' +
+          "</div>"
+        );
+      }
+
+      function setExportStatus(text, tone) {
+        if (!runtime || !runtime.exportStatus) return;
+        runtime.exportStatus.textContent = text || "";
+        runtime.exportStatus.setAttribute("data-tone", tone || "");
+      }
+
+      function renderReportUi() {
+        if (!runtime || !runtime.reportMount) return;
+
+        updateOrderMode();
+
+        if (!runtime.state.confirmed || !runtime.state.report || !runtime.state.report.ok) {
+          runtime.reportMount.hidden = true;
+          runtime.reportMount.innerHTML = "";
+          runtime.reportCard = null;
+          runtime.exportStatus = null;
+          return;
+        }
+
+        runtime.reportMount.hidden = false;
+        runtime.reportMount.innerHTML =
+          renderReportCard(runtime.state.report, runtime.state.petSnapshot) +
+          '<div class="order-report-actions" data-export-ignore>' +
+            '<button type="button" class="order-report-export" data-order-report-export>导出图片</button>' +
+            '<p class="order-report-export__status" data-order-export-status aria-live="polite"></p>' +
+          "</div>";
+        runtime.reportCard = runtime.reportMount.querySelector("[data-order-report-card]");
+        runtime.exportStatus = runtime.reportMount.querySelector("[data-order-export-status]");
+      }
+
+      function updateOrderMode() {
+        var confirmed = Boolean(runtime && runtime.state && runtime.state.confirmed);
+        if (runtime && runtime.orderRoot) {
+          runtime.orderRoot.classList.toggle("is-confirmed", confirmed);
+        }
+        if (runtime && runtime.selectionPanel) {
+          runtime.selectionPanel.classList.toggle("is-confirmed", confirmed);
+        }
+      }
+
+      function waitForImage(img) {
+        return new Promise(function (resolve) {
+          if (!img || img.complete) {
+            resolve();
+            return;
+          }
+          img.addEventListener("load", resolve, { once: true });
+          img.addEventListener("error", resolve, { once: true });
+        });
+      }
+
+      function imageUrlToDataUrl(src) {
+        return new Promise(function (resolve) {
+          var img;
+          if (!src || src.indexOf("data:") === 0) {
+            resolve(src || "");
+            return;
+          }
+
+          img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = function () {
+            var canvas;
+            var ctx;
+            try {
+              canvas = document.createElement("canvas");
+              canvas.width = img.naturalWidth || img.width;
+              canvas.height = img.naturalHeight || img.height;
+              ctx = canvas.getContext("2d");
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas.toDataURL("image/png"));
+            } catch (err) {
+              resolve(src);
+            }
+          };
+          img.onerror = function () {
+            resolve(src);
+          };
+          img.src = src;
+        });
+      }
+
+      function inlineCloneImages(source, clone) {
+        var sourceImgs = Array.prototype.slice.call(source.querySelectorAll("img"));
+        var cloneImgs = Array.prototype.slice.call(clone.querySelectorAll("img"));
+        return Promise.all(sourceImgs.map(function (img, index) {
+          var src = img.currentSrc || img.src || img.getAttribute("src");
+          return imageUrlToDataUrl(src).then(function (dataUrl) {
+            if (cloneImgs[index] && dataUrl) {
+              cloneImgs[index].setAttribute("src", dataUrl);
+            }
+          });
+        }));
+      }
+
+      function copyComputedStyles(source, target) {
+        var computed = global.getComputedStyle(source);
+        var css = [];
+        var i;
+        var prop;
+
+        for (i = 0; i < computed.length; i += 1) {
+          prop = computed[i];
+          css.push(prop + ":" + computed.getPropertyValue(prop) + (computed.getPropertyPriority(prop) ? " !important" : ""));
+        }
+        css.push("box-sizing:border-box");
+        target.setAttribute("style", css.join(";"));
+
+        Array.prototype.slice.call(source.children).forEach(function (child, index) {
+          if (target.children[index]) {
+            copyComputedStyles(child, target.children[index]);
+          }
+        });
+      }
+
+      function downloadBlob(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () {
+          URL.revokeObjectURL(url);
+        }, 1000);
+      }
+
+      function exportReportAsPng() {
+        var source = runtime && runtime.reportCard;
+        var rect;
+        var width;
+        var height;
+        var clone;
+        var wrapper;
+
+        if (!source) {
+          return Promise.reject(new Error("missing_report"));
+        }
+
+        rect = source.getBoundingClientRect();
+        width = Math.ceil(rect.width);
+        height = Math.ceil(rect.height);
+
+        return Promise.all(Array.prototype.slice.call(source.querySelectorAll("img")).map(waitForImage))
+          .then(function () {
+            clone = source.cloneNode(true);
+            copyComputedStyles(source, clone);
+            clone.style.width = width + "px";
+            clone.style.minHeight = height + "px";
+            clone.style.margin = "0";
+            return inlineCloneImages(source, clone);
+          })
+          .then(function () {
+            var svgText;
+            var img;
+            var canvas;
+            var ctx;
+
+            wrapper = document.createElement("div");
+            wrapper.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+            wrapper.appendChild(clone);
+            svgText =
+              '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
+                '<foreignObject width="100%" height="100%">' +
+                  new XMLSerializer().serializeToString(wrapper) +
+                "</foreignObject>" +
+              "</svg>";
+
+            return new Promise(function (resolve, reject) {
+              img = new Image();
+              img.onload = function () {
+                canvas = document.createElement("canvas");
+                canvas.width = width * 2;
+                canvas.height = height * 2;
+                ctx = canvas.getContext("2d");
+                ctx.scale(2, 2);
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob(function (blob) {
+                  if (!blob) {
+                    reject(new Error("empty_blob"));
+                    return;
+                  }
+                  downloadBlob(blob, "Yummi-口味人格报告.png");
+                  resolve();
+                }, "image/png");
+              };
+              img.onerror = function () {
+                reject(new Error("svg_render_failed"));
+              };
+              img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgText);
+            });
+          });
+      }
+
+      function handleExportReport(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (runtime.exporting) return;
+        runtime.exporting = true;
+        setExportStatus("正在生成图片...", "loading");
+
+        exportReportAsPng()
+          .then(function () {
+            setExportStatus("图片已导出", "success");
+          })
+          .catch(function () {
+            setExportStatus("图片生成失败，请稍后再试", "error");
+          })
+          .then(function () {
+            runtime.exporting = false;
+          });
+      }
+
+      function confirmOrderFlow() {
+        var sel = global.Yummi && global.Yummi.foodSelection;
+        var personality = getPersonalityApi();
+        var result;
+        var report;
+
+        if (!sel || !personality || typeof personality.analyze !== "function") {
+          return;
+        }
+
+        result = sel.confirm();
+        if (!result.ok) {
+          return;
+        }
+
+        report = personality.analyze(result.names);
+        if (!report.ok) {
+          return;
+        }
+
+        runtime.state.confirmed = true;
+        runtime.state.confirmedNames = result.names.slice();
+        runtime.state.report = report;
+        runtime.state.petSnapshot = capturePetSnapshot();
+
+        renderReportUi();
+        updateSelectionPanel();
+
+        requestAnimationFrame(function () {
+          if (runtime.reportMount && typeof runtime.reportMount.scrollIntoView === "function") {
+            runtime.reportMount.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      }
+
+      function resetOrderFlow() {
+        var sel = global.Yummi && global.Yummi.foodSelection;
+
+        runtime.state.confirmed = false;
+        runtime.state.confirmedNames = [];
+        runtime.state.report = null;
+        runtime.state.petSnapshot = null;
+
+        clearDressState();
+        if (sel) {
+          sel.clear();
+        }
+
+        renderReportUi();
+        refreshSelectionUi();
+        if (runtime.orderRoot) {
+          runtime.orderRoot.scrollTop = 0;
+        }
+      }
+
       function refreshSelectionUi() {
         global.TurntablePlacards.refreshSelectionVisuals();
         updateSelectionPanel();
@@ -609,6 +1129,7 @@ function renderCapSideImageBands(disc, geometry) {
         var name;
         var imageUrl;
         var cat;
+        var locked = runtime && runtime.state && runtime.state.confirmed;
 
         if (!runtime.selectionStrip) {
           return;
@@ -619,18 +1140,20 @@ function renderCapSideImageBands(disc, geometry) {
           imageUrl = getFoodImageUrl(name);
           cat = getFoodCategory(name);
           html.push(
-            '<article class="order-selection-chip" role="listitem" data-order-selection-chip="' +
+            '<article class="order-selection-chip' + (locked ? " is-locked" : "") +
+              '" role="listitem" data-order-selection-chip="' +
               escapeAttr(name) + '">' +
               '<div class="order-selection-chip__media">' +
                 (imageUrl ?
                   '<img class="order-selection-chip__img" src="' + escapeAttr(imageUrl) + '"' +
                     ' alt="' + escapeAttr(name) + '" width="56" height="56" loading="lazy" decoding="async">' :
                   '<span class="order-selection-chip__placeholder" aria-hidden="true"></span>') +
-                '<button type="button" class="order-selection-chip__remove"' +
-                  ' data-order-selection-remove="' + escapeAttr(name) + '"' +
-                  ' aria-label="移除 ' + escapeAttr(name) + '">' +
-                  '<span aria-hidden="true">×</span>' +
-                "</button>" +
+                (locked ? "" :
+                  '<button type="button" class="order-selection-chip__remove"' +
+                    ' data-order-selection-remove="' + escapeAttr(name) + '"' +
+                    ' aria-label="移除 ' + escapeAttr(name) + '">' +
+                    '<span aria-hidden="true">×</span>' +
+                  "</button>") +
               "</div>" +
               '<p class="order-selection-chip__name">' + util.escapeHtml(name) + "</p>" +
               (cat ?
@@ -647,7 +1170,7 @@ function renderCapSideImageBands(disc, geometry) {
         var sel = global.Yummi && global.Yummi.foodSelection;
         var result;
 
-        if (!sel || !name) {
+        if (!sel || !name || (runtime && runtime.state && runtime.state.confirmed)) {
           return;
         }
 
@@ -661,19 +1184,22 @@ function renderCapSideImageBands(disc, geometry) {
         var sel = global.Yummi && global.Yummi.foodSelection;
         var names = sel ? sel.getNames() : [];
         var count = names.length;
+        var confirmed = runtime && runtime.state && runtime.state.confirmed;
 
         if (!runtime.selectionCount) {
           return;
         }
 
-        runtime.selectionCount.textContent = "已选 " + count + " 道";
+        updateOrderMode();
+        runtime.selectionCount.textContent = confirmed ? "已锁定 " + count + " 道" : "已选 " + count + " 道";
 
         if (runtime.selectionConfirm) {
-          runtime.selectionConfirm.hidden = count === 0;
+          runtime.selectionConfirm.hidden = count === 0 && !confirmed;
+          runtime.selectionConfirm.textContent = confirmed ? "重新点餐" : "确定";
         }
 
         if (runtime.selectionClear) {
-          runtime.selectionClear.hidden = count === 0;
+          runtime.selectionClear.hidden = count === 0 || confirmed;
         }
 
         if (runtime.selectionScroll) {
@@ -727,20 +1253,14 @@ function renderCapSideImageBands(disc, geometry) {
       }
 
       function handleConfirmSelection(event) {
-        var sel = global.Yummi && global.Yummi.foodSelection;
-        var result;
-
         event.stopPropagation();
-        if (!sel) {
+
+        if (runtime.state.confirmed) {
+          resetOrderFlow();
           return;
         }
 
-        result = sel.confirm();
-        if (!result.ok) {
-          return;
-        }
-
-        openConfirmModal(result);
+        confirmOrderFlow();
       }
 
       function handlePlacardSelect(slotNode) {
@@ -748,7 +1268,7 @@ function renderCapSideImageBands(disc, geometry) {
         var sel = global.Yummi && global.Yummi.foodSelection;
         var result;
 
-        if (!foodName || !sel) {
+        if (!foodName || !sel || (runtime && runtime.state && runtime.state.confirmed)) {
           return;
         }
 
@@ -769,6 +1289,16 @@ function renderCapSideImageBands(disc, geometry) {
         }
       }
 
+      function releaseHitTargetPointerCapture(pointerId) {
+        if (runtime.hitTarget && typeof runtime.hitTarget.releasePointerCapture === "function") {
+          try {
+            runtime.hitTarget.releasePointerCapture(pointerId);
+          } catch (err) {
+            /* ignore */
+          }
+        }
+      }
+
       function getSvgPoint(event) {
         var point = runtime.svg.createSVGPoint();
         point.x = event.clientX;
@@ -781,6 +1311,11 @@ function renderCapSideImageBands(disc, geometry) {
         return runtime.state.discs.find(function (disc) {
           return disc.id === discId;
         }) || null;
+      }
+
+      function getDiscFromSlotNode(slotNode) {
+        var discId = slotNode && slotNode.getAttribute("data-disc-id");
+        return discId ? getDiscById(discId) : null;
       }
 
       function getPointerAngle(disc, svgPoint) {
@@ -820,18 +1355,71 @@ function renderCapSideImageBands(disc, geometry) {
         runtime.hitTarget = null;
       }
 
+      function tryStartPlacardDrag(event) {
+        var tap = runtime.pendingPlacardTap;
+        var disc;
+        var pointerAngle;
+        var deltaAngle;
+        var now;
+        var elapsed;
+        var angularVelocity;
+
+        if (!tap || tap.pointerId !== event.pointerId) {
+          return false;
+        }
+
+        if (getPointerTravelSq(event, tap.x, tap.y) <= PLACARD_TAP_THRESHOLD_SQ) {
+          return false;
+        }
+
+        disc = getDiscById(tap.dragDiscId) || getDiscById("top") || getDiscById("base");
+        if (!disc) {
+          clearPendingPlacardTap(event.pointerId);
+          return false;
+        }
+
+        pointerAngle = getExtendedPointerAngle(disc, getSvgPoint(event), tap.dragHitType || "top");
+        if (pointerAngle == null) {
+          return false;
+        }
+
+        deltaAngle = angleDelta(pointerAngle, tap.startPointerAngle);
+        now = event.timeStamp || performance.now();
+        elapsed = Math.max(8, now - (tap.startTime || now));
+        angularVelocity = deltaAngle / (elapsed / 1000);
+
+        startTurntableDrag(disc, event.pointerId, pointerAngle, now);
+        if (typeof runtime.stage.setPointerCapture === "function") {
+          runtime.stage.setPointerCapture(event.pointerId);
+          runtime.hitTarget = runtime.stage;
+        } else {
+          runtime.hitTarget = null;
+        }
+        clearPendingPlacardTap(event.pointerId);
+        if (Math.abs(deltaAngle) > 0.001) {
+          rotateTurntable(deltaAngle, angularVelocity);
+        }
+        return true;
+      }
+
       function handlePointerDown(event) {
         var placardHit = event.target.closest("[data-placard-hit]");
         var slotNode;
+        var slotDisc;
 
         if (placardHit) {
           slotNode = placardHit.closest("[data-placard-slot]");
           if (slotNode && slotNode.getAttribute("data-placard-interactive") === "true") {
+            slotDisc = getDiscFromSlotNode(slotNode) || getDiscById("top") || getDiscById("base");
             runtime.pendingPlacardTap = {
               pointerId: event.pointerId,
               x: event.clientX,
               y: event.clientY,
-              slotNode: slotNode
+              slotNode: slotNode,
+              dragDiscId: slotDisc ? slotDisc.id : "",
+              dragHitType: "top",
+              startPointerAngle: slotDisc ? getExtendedPointerAngle(slotDisc, getSvgPoint(event), "top") : null,
+              startTime: event.timeStamp || performance.now()
             };
             event.preventDefault();
           }
@@ -844,17 +1432,16 @@ function renderCapSideImageBands(disc, geometry) {
         var hitType = hit.hasAttribute("data-hit-side") ? "side" : "top";
         var discId = hitType === "side" ? hit.getAttribute("data-hit-side") : hit.getAttribute("data-hit");
         var disc = getDiscById(discId);
-        var svgPoint = getSvgPoint(event);
-        var pointerAngle = getExtendedPointerAngle(disc, svgPoint, hitType);
+        var svgPoint;
+        var pointerAngle;
 
-        if (!disc || pointerAngle == null) return;
+        if (!disc) return;
 
-        disc.dragging = true;
-        disc.pointerId = event.pointerId;
-        disc.lastPointerAngle = pointerAngle;
-        disc.lastMoveTime = event.timeStamp || performance.now();
-        disc.angularVelocity = 0;
-        runtime.state.activeDiscId = disc.id;
+        svgPoint = getSvgPoint(event);
+        pointerAngle = getExtendedPointerAngle(disc, svgPoint, hitType);
+        if (pointerAngle == null) return;
+
+        startTurntableDrag(disc, event.pointerId, pointerAngle, event.timeStamp || performance.now());
         runtime.hitTarget = hit;
 
         if (typeof hit.setPointerCapture === "function") {
@@ -865,9 +1452,9 @@ function renderCapSideImageBands(disc, geometry) {
       }
 
       function handlePointerMove(event) {
-        var disc = runtime.state.discs.find(function (item) {
-          return item.pointerId === event.pointerId && item.dragging;
-        });
+        tryStartPlacardDrag(event);
+
+        var disc = getDraggingDisc(event.pointerId);
         if (!disc) return;
 
         var svgPoint = getSvgPoint(event);
@@ -878,12 +1465,11 @@ function renderCapSideImageBands(disc, geometry) {
         var deltaAngle = angleDelta(pointerAngle, disc.lastPointerAngle);
         var now = event.timeStamp || performance.now();
         var elapsed = Math.max(8, now - (disc.lastMoveTime || now));
+        var angularVelocity = deltaAngle / (elapsed / 1000);
 
-        disc.angle = normalizeAngle(disc.angle + deltaAngle);
+        rotateTurntable(deltaAngle, angularVelocity);
         disc.lastPointerAngle = pointerAngle;
         disc.lastMoveTime = now;
-        disc.angularVelocity = deltaAngle / (elapsed / 1000);
-        updateRotor(disc);
         event.preventDefault();
       }
 
@@ -893,29 +1479,25 @@ function renderCapSideImageBands(disc, geometry) {
         var dy;
 
         if (tap && tap.pointerId === event.pointerId) {
+          releaseHitTargetPointerCapture(event.pointerId);
           dx = event.clientX - tap.x;
           dy = event.clientY - tap.y;
-          if ((dx * dx) + (dy * dy) <= PLACARD_TAP_THRESHOLD_SQ) {
+          if (event.type === "pointerup" && (dx * dx) + (dy * dy) <= PLACARD_TAP_THRESHOLD_SQ) {
             handlePlacardSelect(tap.slotNode);
           }
+          runtime.hitTarget = null;
           clearPendingPlacardTap(event.pointerId);
           event.preventDefault();
           return;
         }
 
-        if (runtime.hitTarget && typeof runtime.hitTarget.releasePointerCapture === "function") {
-          try {
-            runtime.hitTarget.releasePointerCapture(event.pointerId);
-          } catch (err) {
-            /* ignore */
-          }
-        }
+        releaseHitTargetPointerCapture(event.pointerId);
         releaseDisc(event.pointerId);
         clearPendingPlacardTap(event.pointerId);
       }
 
       function tick(timestamp) {
-    if (!runtime || !runtime.running) return;
+        if (!runtime || !runtime.running) return;
         if (!runtime.state.lastTick) {
           runtime.state.lastTick = timestamp;
         }
@@ -923,8 +1505,14 @@ function renderCapSideImageBands(disc, geometry) {
         var delta = Math.min((timestamp - runtime.state.lastTick) / 1000, 0.04);
         runtime.state.lastTick = timestamp;
 
+        if (runtime.state.discs.some(function (disc) {
+          return disc.dragging;
+        })) {
+          runtime.rafId = window.requestAnimationFrame(tick);
+          return;
+        }
+
         runtime.state.discs.forEach(function (disc) {
-          if (disc.dragging) return;
           if (Math.abs(disc.angularVelocity) > 0.01) {
             disc.angle = normalizeAngle(disc.angle + (disc.angularVelocity * delta * disc.inertiaBoost));
             disc.angularVelocity *= Math.pow(0.88, delta * 60);
@@ -958,6 +1546,7 @@ function renderCapSideImageBands(disc, geometry) {
             "</div>" +
           "</div>" +
         "</aside>" +
+        '<section class="order-report-mount" data-order-report hidden></section>' +
         '<div class="order-confirm-modal" data-order-confirm-modal aria-hidden="true">' +
           '<div class="order-confirm-modal__overlay" data-order-confirm-overlay></div>' +
           '<div class="order-confirm-modal__card" role="dialog" aria-modal="true" aria-labelledby="order-confirm-title">' +
@@ -991,13 +1580,16 @@ function renderCapSideImageBands(disc, geometry) {
   }
 
   function bind(container, ctx, state) {
+    var orderRoot = container.querySelector(".order-root");
     var stage = container.querySelector("[data-order-stage]");
     var svg = container.querySelector("[data-order-svg]");
+    var selectionPanel = container.querySelector("[data-order-selection-panel]");
     var selectionCount = container.querySelector("[data-order-selection-count]");
     var selectionConfirm = container.querySelector("[data-order-selection-confirm]");
     var selectionClear = container.querySelector("[data-order-selection-clear]");
     var selectionScroll = container.querySelector("[data-order-selection-scroll]");
     var selectionStrip = container.querySelector("[data-order-selection-strip]");
+    var reportMount = container.querySelector("[data-order-report]");
     var confirmModal = container.querySelector("[data-order-confirm-modal]");
     var confirmOverlay = container.querySelector("[data-order-confirm-overlay]");
     var confirmClose = container.querySelector("[data-order-confirm-close]");
@@ -1009,13 +1601,18 @@ function renderCapSideImageBands(disc, geometry) {
       container: container,
       ctx: ctx,
       state: state,
+      orderRoot: orderRoot,
       stage: stage,
       svg: svg,
+      selectionPanel: selectionPanel,
       selectionCount: selectionCount,
       selectionConfirm: selectionConfirm,
       selectionClear: selectionClear,
       selectionScroll: selectionScroll,
       selectionStrip: selectionStrip,
+      reportMount: reportMount,
+      reportCard: null,
+      exportStatus: null,
       confirmModal: confirmModal,
       confirmOverlay: confirmOverlay,
       confirmClose: confirmClose,
@@ -1028,6 +1625,7 @@ function renderCapSideImageBands(disc, geometry) {
       pendingPlacardTap: null,
       running: false,
       rafId: 0,
+      exporting: false,
       unbinds: unbinds
     };
 
@@ -1039,6 +1637,7 @@ function renderCapSideImageBands(disc, geometry) {
     global.TurntablePlacards.applyFoodToDiscs(state.discs);
 
     renderTurntable();
+    renderReportUi();
     updateSelectionPanel();
 
     unbinds.push(util.on(stage, "pointerdown", handlePointerDown));
@@ -1052,7 +1651,7 @@ function renderCapSideImageBands(disc, geometry) {
         var removeBtn = event.target.closest("[data-order-selection-remove]");
         var name;
 
-        if (!removeBtn) {
+        if (!removeBtn || state.confirmed) {
           return;
         }
 
@@ -1060,6 +1659,16 @@ function renderCapSideImageBands(disc, geometry) {
         event.stopPropagation();
         name = removeBtn.getAttribute("data-order-selection-remove");
         removeSelectionItem(name);
+      }));
+    }
+
+    if (reportMount) {
+      unbinds.push(util.on(reportMount, "click", function (event) {
+        var exportBtn = event.target.closest("[data-order-report-export]");
+        if (!exportBtn) {
+          return;
+        }
+        handleExportReport(event);
       }));
     }
 
@@ -1072,7 +1681,7 @@ function renderCapSideImageBands(disc, geometry) {
         var sel = global.Yummi && global.Yummi.foodSelection;
 
         event.stopPropagation();
-        if (!sel) {
+        if (!sel || state.confirmed) {
           return;
         }
         sel.clear();
